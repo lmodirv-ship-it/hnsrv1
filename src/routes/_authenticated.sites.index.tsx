@@ -57,6 +57,18 @@ function SitesPage() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["sites"] }),
   });
 
+  const syncMut = useMutation({
+    mutationFn: () => syncAll(),
+    onSuccess: (r: any) => {
+      const parts = (r.results ?? [])
+        .map((x: any) => (x.ok ? `${x.hub}: +${x.inserted}/~${x.updated}` : `${x.hub}: ${x.reason}`))
+        .join(" · ");
+      toast.success(`+${r.inserted} / ~${r.updated} — ${parts}`);
+      qc.invalidateQueries({ queryKey: ["sites"] });
+    },
+    onError: (e: any) => toast.error(e.message ?? t("somethingWentWrong")),
+  });
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
