@@ -12,6 +12,23 @@ import { Brain, Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/auth")({
   ssr: false,
+  head: () => ({
+    meta: [
+      { title: "Sign in — HN Service Hub" },
+      {
+        name: "description",
+        content:
+          "Sign in or create an HN Service Hub account to orchestrate services, manage API keys, and monitor the HN ecosystem.",
+      },
+      { property: "og:title", content: "Sign in — HN Service Hub" },
+      {
+        property: "og:description",
+        content: "Access your HN Service Hub workspace to orchestrate services and manage API keys.",
+      },
+      { property: "og:url", content: "https://hn-mind-hub.lovable.app/auth" },
+    ],
+    links: [{ rel: "canonical", href: "https://hn-mind-hub.lovable.app/auth" }],
+  }),
   component: AuthPage,
 });
 
