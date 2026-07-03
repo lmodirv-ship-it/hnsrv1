@@ -13,6 +13,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedServicesRouteImport } from './routes/_authenticated.services'
+import { Route as AuthenticatedOrchestratorRouteImport } from './routes/_authenticated.orchestrator'
 import { Route as AuthenticatedDiscoveryRouteImport } from './routes/_authenticated.discovery'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated.dashboard'
 import { Route as AuthenticatedSitesIndexRouteImport } from './routes/_authenticated.sites.index'
@@ -37,6 +38,12 @@ const AuthenticatedServicesRoute = AuthenticatedServicesRouteImport.update({
   path: '/services',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedOrchestratorRoute =
+  AuthenticatedOrchestratorRouteImport.update({
+    id: '/orchestrator',
+    path: '/orchestrator',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedDiscoveryRoute = AuthenticatedDiscoveryRouteImport.update({
   id: '/discovery',
   path: '/discovery',
@@ -63,6 +70,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/discovery': typeof AuthenticatedDiscoveryRoute
+  '/orchestrator': typeof AuthenticatedOrchestratorRoute
   '/services': typeof AuthenticatedServicesRoute
   '/sites/$slug': typeof AuthenticatedSitesSlugRoute
   '/sites/': typeof AuthenticatedSitesIndexRoute
@@ -72,6 +80,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/discovery': typeof AuthenticatedDiscoveryRoute
+  '/orchestrator': typeof AuthenticatedOrchestratorRoute
   '/services': typeof AuthenticatedServicesRoute
   '/sites/$slug': typeof AuthenticatedSitesSlugRoute
   '/sites': typeof AuthenticatedSitesIndexRoute
@@ -83,6 +92,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/discovery': typeof AuthenticatedDiscoveryRoute
+  '/_authenticated/orchestrator': typeof AuthenticatedOrchestratorRoute
   '/_authenticated/services': typeof AuthenticatedServicesRoute
   '/_authenticated/sites/$slug': typeof AuthenticatedSitesSlugRoute
   '/_authenticated/sites/': typeof AuthenticatedSitesIndexRoute
@@ -94,6 +104,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/dashboard'
     | '/discovery'
+    | '/orchestrator'
     | '/services'
     | '/sites/$slug'
     | '/sites/'
@@ -103,6 +114,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/dashboard'
     | '/discovery'
+    | '/orchestrator'
     | '/services'
     | '/sites/$slug'
     | '/sites'
@@ -113,6 +125,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/_authenticated/dashboard'
     | '/_authenticated/discovery'
+    | '/_authenticated/orchestrator'
     | '/_authenticated/services'
     | '/_authenticated/sites/$slug'
     | '/_authenticated/sites/'
@@ -154,6 +167,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedServicesRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/orchestrator': {
+      id: '/_authenticated/orchestrator'
+      path: '/orchestrator'
+      fullPath: '/orchestrator'
+      preLoaderRoute: typeof AuthenticatedOrchestratorRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/discovery': {
       id: '/_authenticated/discovery'
       path: '/discovery'
@@ -188,6 +208,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedDiscoveryRoute: typeof AuthenticatedDiscoveryRoute
+  AuthenticatedOrchestratorRoute: typeof AuthenticatedOrchestratorRoute
   AuthenticatedServicesRoute: typeof AuthenticatedServicesRoute
   AuthenticatedSitesSlugRoute: typeof AuthenticatedSitesSlugRoute
   AuthenticatedSitesIndexRoute: typeof AuthenticatedSitesIndexRoute
@@ -196,6 +217,7 @@ interface AuthenticatedRouteChildren {
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedDiscoveryRoute: AuthenticatedDiscoveryRoute,
+  AuthenticatedOrchestratorRoute: AuthenticatedOrchestratorRoute,
   AuthenticatedServicesRoute: AuthenticatedServicesRoute,
   AuthenticatedSitesSlugRoute: AuthenticatedSitesSlugRoute,
   AuthenticatedSitesIndexRoute: AuthenticatedSitesIndexRoute,
