@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedServicesRouteImport } from './routes/_authenticated.services'
 import { Route as AuthenticatedOrchestratorRouteImport } from './routes/_authenticated.orchestrator'
+import { Route as AuthenticatedMonitoringRouteImport } from './routes/_authenticated.monitoring'
 import { Route as AuthenticatedDiscoveryRouteImport } from './routes/_authenticated.discovery'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated.dashboard'
 import { Route as AuthenticatedApiConsoleRouteImport } from './routes/_authenticated.api-console'
@@ -45,6 +46,11 @@ const AuthenticatedOrchestratorRoute =
     path: '/orchestrator',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedMonitoringRoute = AuthenticatedMonitoringRouteImport.update({
+  id: '/monitoring',
+  path: '/monitoring',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedDiscoveryRoute = AuthenticatedDiscoveryRouteImport.update({
   id: '/discovery',
   path: '/discovery',
@@ -77,6 +83,7 @@ export interface FileRoutesByFullPath {
   '/api-console': typeof AuthenticatedApiConsoleRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/discovery': typeof AuthenticatedDiscoveryRoute
+  '/monitoring': typeof AuthenticatedMonitoringRoute
   '/orchestrator': typeof AuthenticatedOrchestratorRoute
   '/services': typeof AuthenticatedServicesRoute
   '/sites/$slug': typeof AuthenticatedSitesSlugRoute
@@ -88,6 +95,7 @@ export interface FileRoutesByTo {
   '/api-console': typeof AuthenticatedApiConsoleRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/discovery': typeof AuthenticatedDiscoveryRoute
+  '/monitoring': typeof AuthenticatedMonitoringRoute
   '/orchestrator': typeof AuthenticatedOrchestratorRoute
   '/services': typeof AuthenticatedServicesRoute
   '/sites/$slug': typeof AuthenticatedSitesSlugRoute
@@ -101,6 +109,7 @@ export interface FileRoutesById {
   '/_authenticated/api-console': typeof AuthenticatedApiConsoleRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/discovery': typeof AuthenticatedDiscoveryRoute
+  '/_authenticated/monitoring': typeof AuthenticatedMonitoringRoute
   '/_authenticated/orchestrator': typeof AuthenticatedOrchestratorRoute
   '/_authenticated/services': typeof AuthenticatedServicesRoute
   '/_authenticated/sites/$slug': typeof AuthenticatedSitesSlugRoute
@@ -114,6 +123,7 @@ export interface FileRouteTypes {
     | '/api-console'
     | '/dashboard'
     | '/discovery'
+    | '/monitoring'
     | '/orchestrator'
     | '/services'
     | '/sites/$slug'
@@ -125,6 +135,7 @@ export interface FileRouteTypes {
     | '/api-console'
     | '/dashboard'
     | '/discovery'
+    | '/monitoring'
     | '/orchestrator'
     | '/services'
     | '/sites/$slug'
@@ -137,6 +148,7 @@ export interface FileRouteTypes {
     | '/_authenticated/api-console'
     | '/_authenticated/dashboard'
     | '/_authenticated/discovery'
+    | '/_authenticated/monitoring'
     | '/_authenticated/orchestrator'
     | '/_authenticated/services'
     | '/_authenticated/sites/$slug'
@@ -186,6 +198,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOrchestratorRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/monitoring': {
+      id: '/_authenticated/monitoring'
+      path: '/monitoring'
+      fullPath: '/monitoring'
+      preLoaderRoute: typeof AuthenticatedMonitoringRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/discovery': {
       id: '/_authenticated/discovery'
       path: '/discovery'
@@ -228,6 +247,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedApiConsoleRoute: typeof AuthenticatedApiConsoleRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedDiscoveryRoute: typeof AuthenticatedDiscoveryRoute
+  AuthenticatedMonitoringRoute: typeof AuthenticatedMonitoringRoute
   AuthenticatedOrchestratorRoute: typeof AuthenticatedOrchestratorRoute
   AuthenticatedServicesRoute: typeof AuthenticatedServicesRoute
   AuthenticatedSitesSlugRoute: typeof AuthenticatedSitesSlugRoute
@@ -238,6 +258,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedApiConsoleRoute: AuthenticatedApiConsoleRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedDiscoveryRoute: AuthenticatedDiscoveryRoute,
+  AuthenticatedMonitoringRoute: AuthenticatedMonitoringRoute,
   AuthenticatedOrchestratorRoute: AuthenticatedOrchestratorRoute,
   AuthenticatedServicesRoute: AuthenticatedServicesRoute,
   AuthenticatedSitesSlugRoute: AuthenticatedSitesSlugRoute,
