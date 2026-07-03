@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { listSites, createSite, deleteSite } from "@/lib/sites.functions";
+import { syncSitesFromAllHubs } from "@/lib/integrations.functions";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Trash2, Globe, ExternalLink } from "lucide-react";
+import { Plus, Trash2, Globe, ExternalLink, RefreshCw, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
