@@ -12,6 +12,23 @@ import { Brain, Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/auth")({
   ssr: false,
+  head: () => ({
+    meta: [
+      { title: "Sign in — HN Service Hub" },
+      {
+        name: "description",
+        content:
+          "Sign in or create an HN Service Hub account to orchestrate services, manage API keys, and monitor the HN ecosystem.",
+      },
+      { property: "og:title", content: "Sign in — HN Service Hub" },
+      {
+        property: "og:description",
+        content: "Access your HN Service Hub workspace to orchestrate services and manage API keys.",
+      },
+      { property: "og:url", content: "https://hn-mind-hub.lovable.app/auth" },
+    ],
+    links: [{ rel: "canonical", href: "https://hn-mind-hub.lovable.app/auth" }],
+  }),
   component: AuthPage,
 });
 
@@ -76,7 +93,7 @@ function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-10">
+    <main className="min-h-screen flex items-center justify-center px-4 py-10">
       <div className="w-full max-w-md">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
@@ -164,6 +181,6 @@ function AuthPage() {
           </div>
         </Card>
       </div>
-    </div>
+    </main>
   );
 }

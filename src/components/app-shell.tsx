@@ -129,7 +129,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <header className="h-14 border-b border-border/60 backdrop-blur bg-background/70 sticky top-0 z-10 flex items-center px-4 gap-3">
             <SidebarTrigger />
             <div className="flex-1" />
-            <Button variant="ghost" size="sm" onClick={handleSignOut}>
+            <Button variant="ghost" size="sm" onClick={handleSignOut} aria-label={t("signOut")}>
               <LogOut className="h-4 w-4" />
               <span className="hidden sm:inline">{t("signOut")}</span>
             </Button>

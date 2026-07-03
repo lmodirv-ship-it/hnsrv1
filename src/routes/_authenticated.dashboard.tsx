@@ -7,6 +7,24 @@ import { Card } from "@/components/ui/card";
 import { Globe, Boxes, KeyRound, Activity, Brain } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
+  head: () => ({
+    meta: [
+      { title: "Dashboard — HN Service Hub" },
+      {
+        name: "description",
+        content:
+          "Live overview of your HN ecosystem: registered sites, services, active API keys, and recent orchestration activity.",
+      },
+      { property: "og:title", content: "Dashboard — HN Service Hub" },
+      {
+        property: "og:description",
+        content: "Live overview of registered sites, services, and orchestration activity across the HN ecosystem.",
+      },
+      { property: "og:url", content: "https://hn-mind-hub.lovable.app/dashboard" },
+      { name: "robots", content: "noindex" },
+    ],
+    links: [{ rel: "canonical", href: "https://hn-mind-hub.lovable.app/dashboard" }],
+  }),
   component: DashboardPage,
 });
 
