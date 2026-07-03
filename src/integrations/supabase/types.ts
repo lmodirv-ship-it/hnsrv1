@@ -121,6 +121,42 @@ export type Database = {
         }
         Relationships: []
       }
+      hub_integrations: {
+        Row: {
+          base_url: string | null
+          created_at: string
+          enabled: boolean
+          hub: string
+          id: string
+          last_checked_at: string | null
+          last_error: string | null
+          last_status: string | null
+          updated_at: string
+        }
+        Insert: {
+          base_url?: string | null
+          created_at?: string
+          enabled?: boolean
+          hub: string
+          id?: string
+          last_checked_at?: string | null
+          last_error?: string | null
+          last_status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          base_url?: string | null
+          created_at?: string
+          enabled?: boolean
+          hub?: string
+          id?: string
+          last_checked_at?: string | null
+          last_error?: string | null
+          last_status?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       knowledge_entries: {
         Row: {
           content: Json
@@ -342,13 +378,17 @@ export type Database = {
           created_at: string
           description: string | null
           discovered_at: string | null
+          hn_cloud_id: string | null
+          hn_db_id: string | null
           id: string
+          integration_log: Json
           logo_url: string | null
           metadata: Json
           name: string
           owner_id: string | null
           slug: string
           status: string
+          tvcc_id: string | null
           updated_at: string
         }
         Insert: {
@@ -357,13 +397,17 @@ export type Database = {
           created_at?: string
           description?: string | null
           discovered_at?: string | null
+          hn_cloud_id?: string | null
+          hn_db_id?: string | null
           id?: string
+          integration_log?: Json
           logo_url?: string | null
           metadata?: Json
           name: string
           owner_id?: string | null
           slug: string
           status?: string
+          tvcc_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -372,13 +416,17 @@ export type Database = {
           created_at?: string
           description?: string | null
           discovered_at?: string | null
+          hn_cloud_id?: string | null
+          hn_db_id?: string | null
           id?: string
+          integration_log?: Json
           logo_url?: string | null
           metadata?: Json
           name?: string
           owner_id?: string | null
           slug?: string
           status?: string
+          tvcc_id?: string | null
           updated_at?: string
         }
         Relationships: []
