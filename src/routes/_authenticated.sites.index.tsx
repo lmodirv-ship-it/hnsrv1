@@ -13,7 +13,7 @@ import { Plus, Trash2, Globe, ExternalLink } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/_authenticated/sites")({
+export const Route = createFileRoute("/_authenticated/sites/")({
   component: SitesPage,
 });
 
