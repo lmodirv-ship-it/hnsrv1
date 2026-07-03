@@ -298,7 +298,11 @@ export const saveDiscoveredServices = createServerFn({ method: "POST" })
       const { data: job } = await context.supabase
         .from("discovery_jobs").select("url, result").eq("id", data.job_id).single();
       if (!job) throw new Error("Job not found");
-      const baseUrl = job.result?.base_url ?? job.url;
+      const jobResult = (job.result ?? {}) as {
+        base_url?: string;
+        meta?: { title?: string | null; description?: string | null };
+      };
+      const baseUrl = jobResult.base_url ?? job.url;
       const host = new URL(baseUrl).hostname.replace(/^www\./, "");
       const slug = slugify(host);
       const { data: existing } = await context.supabase
@@ -308,10 +312,10 @@ export const saveDiscoveredServices = createServerFn({ method: "POST" })
       } else {
         const { data: newSite, error: siteErr } = await context.supabase
           .from("sites").insert({
-            name: job.result?.meta?.title ?? host,
+            name: jobResult.meta?.title ?? host,
             slug,
             base_url: baseUrl,
-            description: job.result?.meta?.description ?? null,
+            description: jobResult.meta?.description ?? null,
             owner_id: context.userId,
             status: "active",
             discovered_at: new Date().toISOString(),
