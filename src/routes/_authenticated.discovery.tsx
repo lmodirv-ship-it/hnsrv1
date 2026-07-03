@@ -19,6 +19,7 @@ function DiscoveryPage() {
   const { t } = useLanguage();
   const list = useServerFn(listDiscoveryJobs);
   const run = useServerFn(discoverSite);
+  const tvccSync = useServerFn(syncSitesFromTvcc);
   const { data: jobs = [], refetch } = useQuery({ queryKey: ["discovery-jobs"], queryFn: () => list() });
   const [url, setUrl] = useState("");
   const [result, setResult] = useState<any>(null);
@@ -26,6 +27,12 @@ function DiscoveryPage() {
   const mut = useMutation({
     mutationFn: () => run({ data: { url } }),
     onSuccess: (r) => { setResult(r.result); refetch(); },
+    onError: (e: any) => toast.error(e.message ?? t("somethingWentWrong")),
+  });
+
+  const syncMut = useMutation({
+    mutationFn: () => tvccSync(),
+    onSuccess: (r) => toast.success(`TVCC: +${r.inserted} / ~${r.updated} of ${r.count}`),
     onError: (e: any) => toast.error(e.message ?? t("somethingWentWrong")),
   });
 
