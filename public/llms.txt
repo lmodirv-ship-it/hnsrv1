@@ -1,0 +1,21 @@
+# HN Service Hub
+
+> The central intelligence platform for the HN ecosystem. Discover sites, register services, manage API keys, orchestrate requests, and monitor every HN service from one place.
+
+HN Service Hub is the control plane that connects the HN network. It lets operators browse the HN ecosystem, register new service endpoints, generate and rotate API keys, route requests through an orchestrator, and keep an eye on system health and traffic.
+
+## Pages
+
+- [/](/): Landing page for the HN Service Hub.
+
+## Optional
+
+- [Dashboard](/dashboard): Authenticated workspace overview.
+- [Discovery](/discovery): Browse and search HN sites and services.
+- [Knowledge](/knowledge): Central knowledge base for the HN ecosystem.
+- [Monitoring](/monitoring): System health and observability dashboards.
+- [Orchestrator](/orchestrator): Route and manage API requests.
+- [Services](/services): Register and manage HN service endpoints.
+- [Settings](/settings): Account and workspace configuration.
+- [API Console](/api-console): Interactive API exploration and testing.
+- [Sites](/sites): Manage registered HN sites.
