@@ -73,13 +73,19 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content:
           "The central brain for the HN ecosystem: discover sites, register services, manage API keys, orchestrate requests, and monitor everything from one place.",
       },
-      { property: "og:title", content: "HN Service Hub" },
+      { property: "og:title", content: "HN Service Hub — Central Intelligence & Service Orchestration" },
       {
         property: "og:description",
         content: "The central intelligence platform orchestrating every HN service.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "HN Service Hub — Central Intelligence & Service Orchestration" },
+      { name: "description", content: "The central brain for the HN ecosystem: discover sites, register services, manage API keys, orchestrate requests, and monitor everything from one place." },
+      { property: "og:description", content: "The central brain for the HN ecosystem: discover sites, register services, manage API keys, orchestrate requests, and monitor everything from one place." },
+      { name: "twitter:description", content: "The central brain for the HN ecosystem: discover sites, register services, manage API keys, orchestrate requests, and monitor everything from one place." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/edf8ed38-f023-4f3c-9cb0-f4b334541bca/id-preview-73865873--892acedb-f163-43b3-a41c-ae19a7797c11.lovable.app-1783118610984.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/edf8ed38-f023-4f3c-9cb0-f4b334541bca/id-preview-73865873--892acedb-f163-43b3-a41c-ae19a7797c11.lovable.app-1783118610984.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
