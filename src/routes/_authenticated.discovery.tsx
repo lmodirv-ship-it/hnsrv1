@@ -2,11 +2,12 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { discoverSite, listDiscoveryJobs } from "@/lib/discovery.functions";
+import { syncSitesFromTvcc } from "@/lib/integrations.functions";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Compass, Loader2 } from "lucide-react";
+import { Compass, Loader2, RefreshCw } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -18,6 +19,7 @@ function DiscoveryPage() {
   const { t } = useLanguage();
   const list = useServerFn(listDiscoveryJobs);
   const run = useServerFn(discoverSite);
+  const tvccSync = useServerFn(syncSitesFromTvcc);
   const { data: jobs = [], refetch } = useQuery({ queryKey: ["discovery-jobs"], queryFn: () => list() });
   const [url, setUrl] = useState("");
   const [result, setResult] = useState<any>(null);
@@ -28,6 +30,12 @@ function DiscoveryPage() {
     onError: (e: any) => toast.error(e.message ?? t("somethingWentWrong")),
   });
 
+  const syncMut = useMutation({
+    mutationFn: () => tvccSync(),
+    onSuccess: (r) => toast.success(`TVCC: +${r.inserted} / ~${r.updated} of ${r.count}`),
+    onError: (e: any) => toast.error(e.message ?? t("somethingWentWrong")),
+  });
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
@@ -35,11 +43,18 @@ function DiscoveryPage() {
         <h1 className="text-2xl font-bold">{t("discovery")}</h1>
       </div>
 
-      <Card className="p-5 bg-card/60 backdrop-blur border-border/60">
+      <Card className="p-5 bg-card/60 backdrop-blur border-border/60 space-y-3">
         <div className="flex gap-2">
           <Input placeholder={t("discoverUrl")} value={url} onChange={(e) => setUrl(e.target.value)} type="url" />
           <Button onClick={() => mut.mutate()} disabled={mut.isPending || !url}>
             {mut.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : t("discover")}
+          </Button>
+        </div>
+        <div className="flex items-center justify-between pt-2 border-t border-border/40">
+          <div className="text-xs text-muted-foreground">Pull the master site list from TVCC</div>
+          <Button variant="outline" size="sm" onClick={() => syncMut.mutate()} disabled={syncMut.isPending}>
+            {syncMut.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4 mr-1" />}
+            Sync from TVCC
           </Button>
         </div>
       </Card>
