@@ -22,6 +22,82 @@ export const listSites = createServerFn({ method: "GET" })
     return data ?? [];
   });
 
+export const listSitesRich = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: sites, error } = await context.supabase
+      .from("sites")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (error) throw new Error(error.message);
+    const list = sites ?? [];
+    if (!list.length) return [];
+
+    const siteIds = list.map((s: any) => s.id);
+    const { data: services } = await context.supabase
+      .from("services")
+      .select("id, site_id, is_active")
+      .in("site_id", siteIds);
+    const servicesBySite = new Map<string, any[]>();
+    for (const s of services ?? []) {
+      const arr = servicesBySite.get(s.site_id) ?? [];
+      arr.push(s);
+      servicesBySite.set(s.site_id, arr);
+    }
+    const serviceIds = (services ?? []).map((s: any) => s.id);
+    let healthByService = new Map<string, any>();
+    if (serviceIds.length) {
+      const { data: health } = await context.supabase
+        .from("service_health")
+        .select("service_id, status, latency_ms, checked_at, error")
+        .in("service_id", serviceIds)
+        .order("checked_at", { ascending: false });
+      for (const h of health ?? []) {
+        if (!healthByService.has(h.service_id)) healthByService.set(h.service_id, h);
+      }
+    }
+
+    return list.map((site: any) => {
+      const svcs = servicesBySite.get(site.id) ?? [];
+      const svcHealth = svcs
+        .map((s: any) => healthByService.get(s.id))
+        .filter(Boolean);
+      const okCount = svcHealth.filter((h: any) => h.status === "ok" || h.status === "healthy").length;
+      const total = svcHealth.length;
+      const health_score = total ? Math.round((okCount / total) * 100) : null;
+      const latest = svcHealth
+        .slice()
+        .sort((a: any, b: any) => new Date(b.checked_at).getTime() - new Date(a.checked_at).getTime())[0];
+      const api_status =
+        total === 0
+          ? "no_api"
+          : okCount === total
+            ? "online"
+            : okCount === 0
+              ? "offline"
+              : "warning";
+      const source =
+        site.tvcc_id
+          ? "TVCC"
+          : site.hn_db_id
+            ? "HN-DB"
+            : site.hn_cloud_id
+              ? "HN-Cloud"
+              : "Manual";
+      const log: any[] = Array.isArray(site.integration_log) ? site.integration_log : [];
+      const last_log = log[log.length - 1] ?? null;
+      return {
+        ...site,
+        services_count: svcs.length,
+        health_score,
+        api_status,
+        source,
+        last_scan: latest?.checked_at ?? last_log?.at ?? site.discovered_at ?? null,
+        last_error: latest?.error ?? last_log?.error ?? null,
+      };
+    });
+  });
+
 export const getSiteBySlug = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: { slug: string }) => d)
