@@ -9,38 +9,211 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated.settings'
+import { Route as AuthenticatedServicesRouteImport } from './routes/_authenticated.services'
+import { Route as AuthenticatedOrchestratorRouteImport } from './routes/_authenticated.orchestrator'
+import { Route as AuthenticatedMonitoringRouteImport } from './routes/_authenticated.monitoring'
+import { Route as AuthenticatedKnowledgeRouteImport } from './routes/_authenticated.knowledge'
+import { Route as AuthenticatedDiscoveryRouteImport } from './routes/_authenticated.discovery'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated.dashboard'
+import { Route as AuthenticatedApiConsoleRouteImport } from './routes/_authenticated.api-console'
+import { Route as AuthenticatedSitesIndexRouteImport } from './routes/_authenticated.sites.index'
+import { Route as AuthenticatedSitesSlugRouteImport } from './routes/_authenticated.sites.$slug'
+import { Route as ApiPublicV1OrchestrateRouteImport } from './routes/api/public/v1/orchestrate'
 
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRoute = AuthenticatedRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedServicesRoute = AuthenticatedServicesRouteImport.update({
+  id: '/services',
+  path: '/services',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedOrchestratorRoute =
+  AuthenticatedOrchestratorRouteImport.update({
+    id: '/orchestrator',
+    path: '/orchestrator',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedMonitoringRoute = AuthenticatedMonitoringRouteImport.update({
+  id: '/monitoring',
+  path: '/monitoring',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedKnowledgeRoute = AuthenticatedKnowledgeRouteImport.update({
+  id: '/knowledge',
+  path: '/knowledge',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedDiscoveryRoute = AuthenticatedDiscoveryRouteImport.update({
+  id: '/discovery',
+  path: '/discovery',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedApiConsoleRoute = AuthenticatedApiConsoleRouteImport.update({
+  id: '/api-console',
+  path: '/api-console',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedSitesIndexRoute = AuthenticatedSitesIndexRouteImport.update({
+  id: '/sites/',
+  path: '/sites/',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedSitesSlugRoute = AuthenticatedSitesSlugRouteImport.update({
+  id: '/sites/$slug',
+  path: '/sites/$slug',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const ApiPublicV1OrchestrateRoute = ApiPublicV1OrchestrateRouteImport.update({
+  id: '/api/public/v1/orchestrate',
+  path: '/api/public/v1/orchestrate',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/api-console': typeof AuthenticatedApiConsoleRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/discovery': typeof AuthenticatedDiscoveryRoute
+  '/knowledge': typeof AuthenticatedKnowledgeRoute
+  '/monitoring': typeof AuthenticatedMonitoringRoute
+  '/orchestrator': typeof AuthenticatedOrchestratorRoute
+  '/services': typeof AuthenticatedServicesRoute
+  '/settings': typeof AuthenticatedSettingsRoute
+  '/sites/$slug': typeof AuthenticatedSitesSlugRoute
+  '/sites/': typeof AuthenticatedSitesIndexRoute
+  '/api/public/v1/orchestrate': typeof ApiPublicV1OrchestrateRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/api-console': typeof AuthenticatedApiConsoleRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/discovery': typeof AuthenticatedDiscoveryRoute
+  '/knowledge': typeof AuthenticatedKnowledgeRoute
+  '/monitoring': typeof AuthenticatedMonitoringRoute
+  '/orchestrator': typeof AuthenticatedOrchestratorRoute
+  '/services': typeof AuthenticatedServicesRoute
+  '/settings': typeof AuthenticatedSettingsRoute
+  '/sites/$slug': typeof AuthenticatedSitesSlugRoute
+  '/sites': typeof AuthenticatedSitesIndexRoute
+  '/api/public/v1/orchestrate': typeof ApiPublicV1OrchestrateRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/_authenticated/api-console': typeof AuthenticatedApiConsoleRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/discovery': typeof AuthenticatedDiscoveryRoute
+  '/_authenticated/knowledge': typeof AuthenticatedKnowledgeRoute
+  '/_authenticated/monitoring': typeof AuthenticatedMonitoringRoute
+  '/_authenticated/orchestrator': typeof AuthenticatedOrchestratorRoute
+  '/_authenticated/services': typeof AuthenticatedServicesRoute
+  '/_authenticated/settings': typeof AuthenticatedSettingsRoute
+  '/_authenticated/sites/$slug': typeof AuthenticatedSitesSlugRoute
+  '/_authenticated/sites/': typeof AuthenticatedSitesIndexRoute
+  '/api/public/v1/orchestrate': typeof ApiPublicV1OrchestrateRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/api-console'
+    | '/dashboard'
+    | '/discovery'
+    | '/knowledge'
+    | '/monitoring'
+    | '/orchestrator'
+    | '/services'
+    | '/settings'
+    | '/sites/$slug'
+    | '/sites/'
+    | '/api/public/v1/orchestrate'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/auth'
+    | '/api-console'
+    | '/dashboard'
+    | '/discovery'
+    | '/knowledge'
+    | '/monitoring'
+    | '/orchestrator'
+    | '/services'
+    | '/settings'
+    | '/sites/$slug'
+    | '/sites'
+    | '/api/public/v1/orchestrate'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/_authenticated/api-console'
+    | '/_authenticated/dashboard'
+    | '/_authenticated/discovery'
+    | '/_authenticated/knowledge'
+    | '/_authenticated/monitoring'
+    | '/_authenticated/orchestrator'
+    | '/_authenticated/services'
+    | '/_authenticated/settings'
+    | '/_authenticated/sites/$slug'
+    | '/_authenticated/sites/'
+    | '/api/public/v1/orchestrate'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
+  AuthRoute: typeof AuthRoute
+  ApiPublicV1OrchestrateRoute: typeof ApiPublicV1OrchestrateRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +221,121 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/settings': {
+      id: '/_authenticated/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AuthenticatedSettingsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/services': {
+      id: '/_authenticated/services'
+      path: '/services'
+      fullPath: '/services'
+      preLoaderRoute: typeof AuthenticatedServicesRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/orchestrator': {
+      id: '/_authenticated/orchestrator'
+      path: '/orchestrator'
+      fullPath: '/orchestrator'
+      preLoaderRoute: typeof AuthenticatedOrchestratorRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/monitoring': {
+      id: '/_authenticated/monitoring'
+      path: '/monitoring'
+      fullPath: '/monitoring'
+      preLoaderRoute: typeof AuthenticatedMonitoringRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/knowledge': {
+      id: '/_authenticated/knowledge'
+      path: '/knowledge'
+      fullPath: '/knowledge'
+      preLoaderRoute: typeof AuthenticatedKnowledgeRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/discovery': {
+      id: '/_authenticated/discovery'
+      path: '/discovery'
+      fullPath: '/discovery'
+      preLoaderRoute: typeof AuthenticatedDiscoveryRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/api-console': {
+      id: '/_authenticated/api-console'
+      path: '/api-console'
+      fullPath: '/api-console'
+      preLoaderRoute: typeof AuthenticatedApiConsoleRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/sites/': {
+      id: '/_authenticated/sites/'
+      path: '/sites'
+      fullPath: '/sites/'
+      preLoaderRoute: typeof AuthenticatedSitesIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/sites/$slug': {
+      id: '/_authenticated/sites/$slug'
+      path: '/sites/$slug'
+      fullPath: '/sites/$slug'
+      preLoaderRoute: typeof AuthenticatedSitesSlugRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/api/public/v1/orchestrate': {
+      id: '/api/public/v1/orchestrate'
+      path: '/api/public/v1/orchestrate'
+      fullPath: '/api/public/v1/orchestrate'
+      preLoaderRoute: typeof ApiPublicV1OrchestrateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
+interface AuthenticatedRouteChildren {
+  AuthenticatedApiConsoleRoute: typeof AuthenticatedApiConsoleRoute
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedDiscoveryRoute: typeof AuthenticatedDiscoveryRoute
+  AuthenticatedKnowledgeRoute: typeof AuthenticatedKnowledgeRoute
+  AuthenticatedMonitoringRoute: typeof AuthenticatedMonitoringRoute
+  AuthenticatedOrchestratorRoute: typeof AuthenticatedOrchestratorRoute
+  AuthenticatedServicesRoute: typeof AuthenticatedServicesRoute
+  AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
+  AuthenticatedSitesSlugRoute: typeof AuthenticatedSitesSlugRoute
+  AuthenticatedSitesIndexRoute: typeof AuthenticatedSitesIndexRoute
+}
+
+const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedApiConsoleRoute: AuthenticatedApiConsoleRoute,
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedDiscoveryRoute: AuthenticatedDiscoveryRoute,
+  AuthenticatedKnowledgeRoute: AuthenticatedKnowledgeRoute,
+  AuthenticatedMonitoringRoute: AuthenticatedMonitoringRoute,
+  AuthenticatedOrchestratorRoute: AuthenticatedOrchestratorRoute,
+  AuthenticatedServicesRoute: AuthenticatedServicesRoute,
+  AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
+  AuthenticatedSitesSlugRoute: AuthenticatedSitesSlugRoute,
+  AuthenticatedSitesIndexRoute: AuthenticatedSitesIndexRoute,
+}
+
+const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
+  AuthenticatedRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRoute: AuthenticatedRouteWithChildren,
+  AuthRoute: AuthRoute,
+  ApiPublicV1OrchestrateRoute: ApiPublicV1OrchestrateRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
