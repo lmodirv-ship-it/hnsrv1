@@ -46,16 +46,23 @@ function ServicesPage() {
         <div className="grid md:grid-cols-2 gap-3">
           {filtered.map((s: any) => (
             <Card key={s.id} className="p-4 bg-card/60 backdrop-blur border-border/60 hover:border-primary/50 transition">
-              <div className="flex items-center gap-2 mb-2">
+              <div className="flex items-center gap-2 mb-2 flex-wrap">
                 <span className="text-xs font-mono px-2 py-0.5 rounded bg-primary/15 text-primary">{s.method}</span>
                 <span className={`text-xs px-2 py-0.5 rounded ${s.is_active ? "bg-emerald-500/15 text-emerald-400" : "bg-muted text-muted-foreground"}`}>
                   {s.is_active ? t("active") : t("inactive")}
                 </span>
+                <span className="text-xs px-2 py-0.5 rounded bg-sky-500/15 text-sky-400">{s.routing_mode ?? "auto"}</span>
                 {s.category && <span className="text-xs text-muted-foreground">{s.category}</span>}
               </div>
               <div className="font-semibold">{s.name}</div>
               {s.sites?.slug && (
                 <Link to="/sites/$slug" params={{ slug: s.sites.slug }} className="text-xs text-primary hover:underline">{s.sites.name}</Link>
+              )}
+              {(s.endpoint_url || s.gateway_url) && (
+                <div className="mt-2 space-y-0.5 text-[11px] font-mono text-muted-foreground truncate">
+                  {s.endpoint_url && <div>direct: {s.endpoint_url}</div>}
+                  {s.gateway_url && <div>gateway: {s.gateway_url}</div>}
+                </div>
               )}
               {s.description && <p className="text-sm text-muted-foreground mt-2 line-clamp-2">{s.description}</p>}
               {s.tags?.length ? (
