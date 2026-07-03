@@ -24,6 +24,7 @@ function SitesPage() {
   const list = useServerFn(listSites);
   const create = useServerFn(createSite);
   const del = useServerFn(deleteSite);
+  const syncAll = useServerFn(syncSitesFromAllHubs);
 
   const { data: sites = [] } = useQuery({ queryKey: ["sites"], queryFn: () => list() });
 
