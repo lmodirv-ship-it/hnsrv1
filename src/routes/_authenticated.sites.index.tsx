@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { listSites, createSite, deleteSite } from "@/lib/sites.functions";
+import { syncSitesFromAllHubs } from "@/lib/integrations.functions";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Trash2, Globe, ExternalLink } from "lucide-react";
+import { Plus, Trash2, Globe, ExternalLink, RefreshCw, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -23,6 +24,7 @@ function SitesPage() {
   const list = useServerFn(listSites);
   const create = useServerFn(createSite);
   const del = useServerFn(deleteSite);
+  const syncAll = useServerFn(syncSitesFromAllHubs);
 
   const { data: sites = [] } = useQuery({ queryKey: ["sites"], queryFn: () => list() });
 
@@ -55,6 +57,18 @@ function SitesPage() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["sites"] }),
   });
 
+  const syncMut = useMutation({
+    mutationFn: () => syncAll(),
+    onSuccess: (r: any) => {
+      const parts = (r.results ?? [])
+        .map((x: any) => (x.ok ? `${x.hub}: +${x.inserted}/~${x.updated}` : `${x.hub}: ${x.reason}`))
+        .join(" · ");
+      toast.success(`+${r.inserted} / ~${r.updated} — ${parts}`);
+      qc.invalidateQueries({ queryKey: ["sites"] });
+    },
+    onError: (e: any) => toast.error(e.message ?? t("somethingWentWrong")),
+  });
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -62,10 +76,15 @@ function SitesPage() {
           <h1 className="text-2xl font-bold">{t("sites")}</h1>
           <p className="text-sm text-muted-foreground">{sites.length}</p>
         </div>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button><Plus className="h-4 w-4" />{t("addSite")}</Button>
-          </DialogTrigger>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={() => syncMut.mutate()} disabled={syncMut.isPending}>
+            {syncMut.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+            <span className="ms-1">Sync all hubs</span>
+          </Button>
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button><Plus className="h-4 w-4" />{t("addSite")}</Button>
+            </DialogTrigger>
           <DialogContent>
             <DialogHeader><DialogTitle>{t("addSite")}</DialogTitle></DialogHeader>
             <div className="space-y-3">
@@ -78,7 +97,8 @@ function SitesPage() {
               <Button className="w-full" onClick={() => createMut.mutate()} disabled={createMut.isPending}>{t("save")}</Button>
             </div>
           </DialogContent>
-        </Dialog>
+          </Dialog>
+        </div>
       </div>
 
       {!sites.length ? (

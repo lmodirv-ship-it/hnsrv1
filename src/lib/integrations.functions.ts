@@ -109,76 +109,125 @@ export const testIntegration = createServerFn({ method: "POST" })
     return final;
   });
 
+async function fetchSitesFromHub(hub: HubKey) {
+  const { url } = envFor(hub);
+  if (!url) return { ok: false, reason: "not_configured", list: [] as any[], path: "" };
+  const base = url.replace(/\/+$/, "");
+  const candidates = ["/sites", "/api/sites", "/v1/sites"];
+  for (const p of candidates) {
+    const ctrl = new AbortController();
+    const to = setTimeout(() => ctrl.abort(), 8000);
+    try {
+      const res = await fetch(base + p, { headers: hubHeaders(hub), signal: ctrl.signal });
+      clearTimeout(to);
+      if (res.ok) {
+        const payload: any = await res.json().catch(() => null);
+        if (payload) {
+          const list: any[] = Array.isArray(payload) ? payload : payload.sites ?? payload.data ?? [];
+          return { ok: true, list, path: base + p };
+        }
+      }
+    } catch {
+      clearTimeout(to);
+    }
+  }
+  return { ok: false, reason: "no_endpoint", list: [] as any[], path: "" };
+}
+
+async function upsertSites(ctx: any, hub: HubKey, list: any[]) {
+  let inserted = 0;
+  let updated = 0;
+  for (const s of list) {
+    const baseUrl = s.base_url ?? s.url ?? s.domain;
+    if (!baseUrl) continue;
+    const slug =
+      s.slug ??
+      String(baseUrl)
+        .replace(/^https?:\/\//, "")
+        .replace(/^www\./, "")
+        .replace(/[^a-z0-9]+/gi, "-")
+        .toLowerCase()
+        .slice(0, 80);
+    const name = s.name ?? s.title ?? slug;
+    const category = s.category ?? s.type ?? null;
+    const description = s.description ?? null;
+    const logo_url = s.logo_url ?? s.logo ?? s.icon ?? null;
+    const hubId = s.id ?? s._id ?? null;
+    const idCol =
+      hub === "tvcc" ? "tvcc_id" : hub === "hn_db" ? "hn_db_id" : hub === "hn_cloud" ? "hn_cloud_id" : null;
+
+    const { data: existing } = await ctx.supabase
+      .from("sites")
+      .select("id")
+      .eq("slug", slug)
+      .maybeSingle();
+
+    if (existing) {
+      const patch: any = { name, base_url: baseUrl, category };
+      if (description) patch.description = description;
+      if (logo_url) patch.logo_url = logo_url;
+      if (idCol && hubId) patch[idCol] = String(hubId);
+      await ctx.supabase.from("sites").update(patch).eq("id", existing.id);
+      updated++;
+    } else {
+      const row: any = {
+        name,
+        slug,
+        base_url: baseUrl,
+        category,
+        description,
+        logo_url,
+        owner_id: ctx.userId,
+      };
+      if (idCol && hubId) row[idCol] = String(hubId);
+      await ctx.supabase.from("sites").insert(row);
+      inserted++;
+    }
+  }
+  return { inserted, updated };
+}
+
 // Fetch site catalogue from TVCC and upsert into the local Service Registry.
 export const syncSitesFromTvcc = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { url } = envFor("tvcc");
-    if (!url) throw new Error("TVCC_API_URL not configured");
-    const base = url.replace(/\/+$/, "");
-    const candidates = ["/sites", "/api/sites", "/v1/sites"];
-    let payload: any = null;
-    let usedPath = "";
-    for (const p of candidates) {
-      const ctrl = new AbortController();
-      const to = setTimeout(() => ctrl.abort(), 8000);
-      try {
-        const res = await fetch(base + p, { headers: hubHeaders("tvcc"), signal: ctrl.signal });
-        clearTimeout(to);
-        if (res.ok) {
-          payload = await res.json().catch(() => null);
-          usedPath = p;
-          if (payload) break;
-        }
-      } catch {
-        clearTimeout(to);
+    const r = await fetchSitesFromHub("tvcc");
+    if (!r.ok)
+      throw new Error(
+        r.reason === "not_configured" ? "TVCC_API_URL not configured" : "TVCC did not return a sites list",
+      );
+    const { inserted, updated } = await upsertSites(context, "tvcc", r.list);
+    return { source: r.path, count: r.list.length, inserted, updated };
+  });
+
+// Pull sites from every configured hub and upsert them locally.
+export const syncSitesFromAllHubs = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const hubs: HubKey[] = ["tvcc", "hn_db", "hn_cloud", "hn_core"];
+    const results: Array<{
+      hub: HubKey;
+      ok: boolean;
+      count: number;
+      inserted: number;
+      updated: number;
+      reason?: string;
+      source?: string;
+    }> = [];
+    let totalInserted = 0;
+    let totalUpdated = 0;
+    for (const hub of hubs) {
+      const r = await fetchSitesFromHub(hub);
+      if (!r.ok) {
+        results.push({ hub, ok: false, count: 0, inserted: 0, updated: 0, reason: r.reason });
+        continue;
       }
+      const { inserted, updated } = await upsertSites(context, hub, r.list);
+      totalInserted += inserted;
+      totalUpdated += updated;
+      results.push({ hub, ok: true, count: r.list.length, inserted, updated, source: r.path });
     }
-    if (!payload) throw new Error("TVCC did not return a sites list");
-
-    const list: any[] = Array.isArray(payload) ? payload : payload.sites ?? payload.data ?? [];
-    let inserted = 0;
-    let updated = 0;
-    for (const s of list) {
-      const baseUrl = s.base_url ?? s.url ?? s.domain;
-      if (!baseUrl) continue;
-      const slug =
-        s.slug ??
-        String(baseUrl)
-          .replace(/^https?:\/\//, "")
-          .replace(/^www\./, "")
-          .replace(/[^a-z0-9]+/gi, "-")
-          .toLowerCase()
-          .slice(0, 80);
-      const name = s.name ?? s.title ?? slug;
-      const category = s.category ?? s.type ?? null;
-      const tvccId = s.id ?? s._id ?? null;
-
-      const { data: existing } = await context.supabase
-        .from("sites")
-        .select("id")
-        .eq("slug", slug)
-        .maybeSingle();
-
-      if (existing) {
-        await context.supabase
-          .from("sites")
-          .update({ name, base_url: baseUrl, category, tvcc_id: tvccId ? String(tvccId) : null })
-          .eq("id", existing.id);
-        updated++;
-      } else {
-        await context.supabase.from("sites").insert({
-          name,
-          slug,
-          base_url: baseUrl,
-          category,
-          owner_id: context.userId,
-          tvcc_id: tvccId ? String(tvccId) : null,
-        });
-        inserted++;
-      }
-    }
-    return { source: base + usedPath, count: list.length, inserted, updated };
+    return { inserted: totalInserted, updated: totalUpdated, results };
   });
 
 // Register a site with TVCC / HN-DB / HN-Cloud after it is created locally.
