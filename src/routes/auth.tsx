@@ -181,6 +181,6 @@ function AuthPage() {
           </div>
         </Card>
       </div>
-    </div>
+    </main>
   );
 }
