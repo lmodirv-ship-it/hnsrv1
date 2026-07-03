@@ -97,7 +97,8 @@ function SitesPage() {
               <Button className="w-full" onClick={() => createMut.mutate()} disabled={createMut.isPending}>{t("save")}</Button>
             </div>
           </DialogContent>
-        </Dialog>
+          </Dialog>
+        </div>
       </div>
 
       {!sites.length ? (
