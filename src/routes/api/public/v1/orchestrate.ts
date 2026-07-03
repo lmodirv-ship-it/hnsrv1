@@ -115,7 +115,24 @@ export const Route = createFileRoute("/api/public/v1/orchestrate")({
         // Update key usage
         await supabaseAdmin.from("api_keys").update({ last_used_at: new Date().toISOString() }).eq("id", matchedKey.id);
 
-        // Log routing decision. Actual proxy execution to the upstream service is a v2 feature.
+        // Decide routing: HN Service Hub owns this decision.
+        // - `direct`     → hit service.endpoint_url (or fall back to sites.base_url + endpoint_path)
+        // - `via_tvcc`   → route through TVCC gateway using TVCC_API_URL
+        // - `auto`       → prefer gateway_url, else endpoint_url, else site + endpoint_path
+        const baseSite = (service.sites?.base_url ?? "").replace(/\/$/, "");
+        const directUrl = service.endpoint_url || (baseSite + (service.endpoint_path ?? "/"));
+        const tvccBase = process.env.TVCC_API_URL?.replace(/\/+$/, "");
+
+        let routeUrl = directUrl;
+        let via: "direct" | "via_tvcc" | "gateway" = "direct";
+        if (service.routing_mode === "via_tvcc" && tvccBase) {
+          routeUrl = `${tvccBase}/proxy/${service.slug ?? service.id}`;
+          via = "via_tvcc";
+        } else if (service.routing_mode === "auto" && service.gateway_url) {
+          routeUrl = service.gateway_url;
+          via = "gateway";
+        }
+
         const latency = Date.now() - start;
         await supabaseAdmin.from("service_requests").insert({
           api_key_id: matchedKey.id,
@@ -131,9 +148,12 @@ export const Route = createFileRoute("/api/public/v1/orchestrate")({
             service_id: service.id,
             name: service.name,
             method: service.method,
-            url: (service.sites?.base_url ?? "").replace(/\/$/, "") + (service.endpoint_path ?? "/"),
+            url: routeUrl,
+            via,
+            routing_mode: service.routing_mode,
+            scopes: service.scopes,
           },
-          note: "This MVP returns the routing decision. Actual proxying arrives in v2.",
+          note: "HN Service Hub returned the routing decision. Proxy execution arrives in v2.",
         });
       },
     },

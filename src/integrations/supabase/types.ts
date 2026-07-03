@@ -318,12 +318,17 @@ export type Database = {
           created_at: string
           description: string | null
           endpoint_path: string | null
+          endpoint_url: string | null
+          gateway_url: string | null
           id: string
           input_schema: Json | null
           is_active: boolean
           method: string
           name: string
           output_schema: Json | null
+          rate_limit_per_min: number
+          routing_mode: string
+          scopes: string[]
           site_id: string
           slug: string
           tags: string[] | null
@@ -334,12 +339,17 @@ export type Database = {
           created_at?: string
           description?: string | null
           endpoint_path?: string | null
+          endpoint_url?: string | null
+          gateway_url?: string | null
           id?: string
           input_schema?: Json | null
           is_active?: boolean
           method?: string
           name: string
           output_schema?: Json | null
+          rate_limit_per_min?: number
+          routing_mode?: string
+          scopes?: string[]
           site_id: string
           slug: string
           tags?: string[] | null
@@ -350,12 +360,17 @@ export type Database = {
           created_at?: string
           description?: string | null
           endpoint_path?: string | null
+          endpoint_url?: string | null
+          gateway_url?: string | null
           id?: string
           input_schema?: Json | null
           is_active?: boolean
           method?: string
           name?: string
           output_schema?: Json | null
+          rate_limit_per_min?: number
+          routing_mode?: string
+          scopes?: string[]
           site_id?: string
           slug?: string
           tags?: string[] | null
