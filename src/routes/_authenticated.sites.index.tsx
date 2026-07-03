@@ -76,10 +76,15 @@ function SitesPage() {
           <h1 className="text-2xl font-bold">{t("sites")}</h1>
           <p className="text-sm text-muted-foreground">{sites.length}</p>
         </div>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button><Plus className="h-4 w-4" />{t("addSite")}</Button>
-          </DialogTrigger>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={() => syncMut.mutate()} disabled={syncMut.isPending}>
+            {syncMut.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+            <span className="ms-1">Sync all hubs</span>
+          </Button>
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button><Plus className="h-4 w-4" />{t("addSite")}</Button>
+            </DialogTrigger>
           <DialogContent>
             <DialogHeader><DialogTitle>{t("addSite")}</DialogTitle></DialogHeader>
             <div className="space-y-3">
