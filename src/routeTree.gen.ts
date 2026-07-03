@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated.settings'
 import { Route as AuthenticatedServicesRouteImport } from './routes/_authenticated.services'
 import { Route as AuthenticatedOrchestratorRouteImport } from './routes/_authenticated.orchestrator'
 import { Route as AuthenticatedMonitoringRouteImport } from './routes/_authenticated.monitoring'
@@ -35,6 +36,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedServicesRoute = AuthenticatedServicesRouteImport.update({
   id: '/services',
@@ -93,6 +99,7 @@ export interface FileRoutesByFullPath {
   '/monitoring': typeof AuthenticatedMonitoringRoute
   '/orchestrator': typeof AuthenticatedOrchestratorRoute
   '/services': typeof AuthenticatedServicesRoute
+  '/settings': typeof AuthenticatedSettingsRoute
   '/sites/$slug': typeof AuthenticatedSitesSlugRoute
   '/sites/': typeof AuthenticatedSitesIndexRoute
 }
@@ -106,6 +113,7 @@ export interface FileRoutesByTo {
   '/monitoring': typeof AuthenticatedMonitoringRoute
   '/orchestrator': typeof AuthenticatedOrchestratorRoute
   '/services': typeof AuthenticatedServicesRoute
+  '/settings': typeof AuthenticatedSettingsRoute
   '/sites/$slug': typeof AuthenticatedSitesSlugRoute
   '/sites': typeof AuthenticatedSitesIndexRoute
 }
@@ -121,6 +129,7 @@ export interface FileRoutesById {
   '/_authenticated/monitoring': typeof AuthenticatedMonitoringRoute
   '/_authenticated/orchestrator': typeof AuthenticatedOrchestratorRoute
   '/_authenticated/services': typeof AuthenticatedServicesRoute
+  '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/sites/$slug': typeof AuthenticatedSitesSlugRoute
   '/_authenticated/sites/': typeof AuthenticatedSitesIndexRoute
 }
@@ -136,6 +145,7 @@ export interface FileRouteTypes {
     | '/monitoring'
     | '/orchestrator'
     | '/services'
+    | '/settings'
     | '/sites/$slug'
     | '/sites/'
   fileRoutesByTo: FileRoutesByTo
@@ -149,6 +159,7 @@ export interface FileRouteTypes {
     | '/monitoring'
     | '/orchestrator'
     | '/services'
+    | '/settings'
     | '/sites/$slug'
     | '/sites'
   id:
@@ -163,6 +174,7 @@ export interface FileRouteTypes {
     | '/_authenticated/monitoring'
     | '/_authenticated/orchestrator'
     | '/_authenticated/services'
+    | '/_authenticated/settings'
     | '/_authenticated/sites/$slug'
     | '/_authenticated/sites/'
   fileRoutesById: FileRoutesById
@@ -195,6 +207,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/settings': {
+      id: '/_authenticated/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AuthenticatedSettingsRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/services': {
       id: '/_authenticated/services'
@@ -270,6 +289,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedMonitoringRoute: typeof AuthenticatedMonitoringRoute
   AuthenticatedOrchestratorRoute: typeof AuthenticatedOrchestratorRoute
   AuthenticatedServicesRoute: typeof AuthenticatedServicesRoute
+  AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedSitesSlugRoute: typeof AuthenticatedSitesSlugRoute
   AuthenticatedSitesIndexRoute: typeof AuthenticatedSitesIndexRoute
 }
@@ -282,6 +302,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedMonitoringRoute: AuthenticatedMonitoringRoute,
   AuthenticatedOrchestratorRoute: AuthenticatedOrchestratorRoute,
   AuthenticatedServicesRoute: AuthenticatedServicesRoute,
+  AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedSitesSlugRoute: AuthenticatedSitesSlugRoute,
   AuthenticatedSitesIndexRoute: AuthenticatedSitesIndexRoute,
 }
