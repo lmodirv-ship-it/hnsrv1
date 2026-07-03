@@ -24,10 +24,46 @@ export const listServices = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("services")
-      .select("*, sites(name, slug)")
+      .select("*, sites(id, name, slug, base_url, logo_url, category)")
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
     return data ?? [];
+  });
+
+export const approveService = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { id: string }) => d)
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("services")
+      .update({ approval_status: "approved", is_active: true })
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const rejectService = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { id: string }) => d)
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("services")
+      .update({ approval_status: "rejected", is_active: false })
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const updateService = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { id: string; patch: Partial<{ name: string; category: string | null; description: string | null; endpoint_path: string | null; method: string; api_required: boolean; is_active: boolean }> }) => d)
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("services")
+      .update(data.patch)
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
   });
 
 export const createService = createServerFn({ method: "POST" })

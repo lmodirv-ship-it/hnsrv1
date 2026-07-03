@@ -109,24 +109,46 @@ function SiteDetail() {
       {!data.services.length ? (
         <Card className="p-8 text-center text-sm text-muted-foreground">{t("noData")}</Card>
       ) : (
-        <div className="space-y-2">
-          {data.services.map((s: any) => (
-            <Card key={s.id} className="p-4 bg-card/60 backdrop-blur border-border/60 flex items-center gap-4">
-              <span className="text-xs font-mono px-2 py-0.5 rounded bg-primary/15 text-primary">{s.method}</span>
-              <div className="flex-1 min-w-0">
-                <div className="font-medium truncate">{s.name}</div>
-                <div className="text-xs text-muted-foreground truncate">{s.endpoint_path ?? "—"}</div>
-                {s.tags?.length ? (
-                  <div className="flex gap-1 mt-1 flex-wrap">
-                    {s.tags.map((tag: string) => <span key={tag} className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">{tag}</span>)}
-                  </div>
-                ) : null}
-              </div>
-              <Button variant="ghost" size="sm" onClick={() => check.mutate(s.id)}><Activity className="h-4 w-4" /></Button>
-              <Button variant="ghost" size="sm" onClick={() => del.mutate(s.id)}><Trash2 className="h-4 w-4" /></Button>
-            </Card>
-          ))}
-        </div>
+        <Card className="bg-card/60 backdrop-blur border-border/60 overflow-hidden">
+          <div className="p-3 border-b border-border/40 text-sm font-semibold">Services Provided</div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="text-xs text-muted-foreground border-b border-border/40">
+                <tr>
+                  <th className="text-start p-2">Name</th>
+                  <th className="text-start p-2">Category</th>
+                  <th className="text-start p-2">Endpoint</th>
+                  <th className="text-start p-2">Method</th>
+                  <th className="text-start p-2">Status</th>
+                  <th className="text-start p-2">Confidence</th>
+                  <th className="text-end p-2">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.services.map((s: any) => (
+                  <tr key={s.id} className="border-b border-border/20 hover:bg-background/40">
+                    <td className="p-2 font-medium">{s.name}</td>
+                    <td className="p-2 text-xs text-muted-foreground">{s.category ?? "—"}</td>
+                    <td className="p-2 font-mono text-xs text-muted-foreground">{s.endpoint_path ?? "—"}</td>
+                    <td className="p-2"><span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-primary/15 text-primary">{s.method}</span></td>
+                    <td className="p-2">
+                      <span className={`text-[10px] px-2 py-0.5 rounded ${
+                        s.approval_status === "approved" ? "bg-emerald-500/15 text-emerald-400"
+                        : s.approval_status === "pending" ? "bg-amber-500/15 text-amber-400"
+                        : "bg-red-500/15 text-red-400"
+                      }`}>{s.approval_status ?? "approved"}</span>
+                    </td>
+                    <td className="p-2 text-xs tabular-nums text-muted-foreground">{Math.round(s.confidence_score ?? 100)}%</td>
+                    <td className="p-2 text-end">
+                      <Button variant="ghost" size="sm" onClick={() => check.mutate(s.id)}><Activity className="h-4 w-4" /></Button>
+                      <Button variant="ghost" size="sm" onClick={() => del.mutate(s.id)}><Trash2 className="h-4 w-4" /></Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Card>
       )}
     </div>
   );

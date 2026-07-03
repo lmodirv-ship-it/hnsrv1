@@ -314,15 +314,21 @@ export type Database = {
       }
       services: {
         Row: {
+          api_required: boolean
+          approval_status: string
           category: string | null
+          confidence_score: number
           created_at: string
           description: string | null
+          discovered_from_job_id: string | null
           endpoint_path: string | null
           endpoint_url: string | null
           gateway_url: string | null
           id: string
           input_schema: Json | null
           is_active: boolean
+          last_health_status: string | null
+          last_tested_at: string | null
           method: string
           name: string
           output_schema: Json | null
@@ -335,15 +341,21 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          api_required?: boolean
+          approval_status?: string
           category?: string | null
+          confidence_score?: number
           created_at?: string
           description?: string | null
+          discovered_from_job_id?: string | null
           endpoint_path?: string | null
           endpoint_url?: string | null
           gateway_url?: string | null
           id?: string
           input_schema?: Json | null
           is_active?: boolean
+          last_health_status?: string | null
+          last_tested_at?: string | null
           method?: string
           name: string
           output_schema?: Json | null
@@ -356,15 +368,21 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          api_required?: boolean
+          approval_status?: string
           category?: string | null
+          confidence_score?: number
           created_at?: string
           description?: string | null
+          discovered_from_job_id?: string | null
           endpoint_path?: string | null
           endpoint_url?: string | null
           gateway_url?: string | null
           id?: string
           input_schema?: Json | null
           is_active?: boolean
+          last_health_status?: string | null
+          last_tested_at?: string | null
           method?: string
           name?: string
           output_schema?: Json | null
