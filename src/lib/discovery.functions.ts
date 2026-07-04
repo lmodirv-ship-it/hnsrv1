@@ -1,6 +1,27 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
+import hnCatalog from "@/data/hn-catalog.json";
+
+type HnCatalogSite = {
+  url: string;
+  host: string;
+  categoryKey?: string;
+  categoryAr?: string;
+  categoryEn?: string;
+  categoryEmoji?: string;
+  projectId?: string;
+  serviceNameAr?: string;
+  serviceNameEn?: string;
+  capabilityIds?: string[];
+  capabilityLabel?: string;
+  urlEnv?: string;
+  keyEnv?: string;
+  keyFallbackEnv?: string;
+  defaultUrl?: string;
+  generationEngine?: string;
+  aiEngine?: string;
+};
 
 const urlInput = z.object({ url: z.string().trim().url().max(500) });
 
