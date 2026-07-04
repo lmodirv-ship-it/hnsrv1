@@ -132,6 +132,7 @@ function NetworkPage() {
   const { t } = useLanguage();
   const fn = useServerFn(getServiceNetwork);
   const analyzeAll = useServerFn(analyzeAllSites);
+  const linkMesh = useServerFn(linkAllSitesMesh);
   const qc = useQueryClient();
   const { data = [] } = useQuery({ queryKey: ["service-network"], queryFn: () => fn() });
 
