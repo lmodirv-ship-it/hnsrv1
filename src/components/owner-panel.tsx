@@ -32,7 +32,7 @@ import { provisionMeshKeys } from "@/lib/apiClients.functions";
 import { syncSchemaMirror } from "@/lib/schema-mirror.functions";
 import { Link } from "@tanstack/react-router";
 
-const SETTING_ICONS: Record<string, JSX.Element> = {
+const SETTING_ICONS: Record<string, React.ReactNode> = {
   payments_enabled: <KeyRound className="h-4 w-4" />,
   discovery_auto: <Compass className="h-4 w-4" />,
   mirror_auto: <Database className="h-4 w-4" />,
