@@ -95,6 +95,15 @@ function RegistryPage() {
     onError: (e: any) => toast.error(String(e?.message ?? e)),
   });
 
+  const seedMut = useMutation({
+    mutationFn: () => seedFn(),
+    onSuccess: (r: any) => {
+      toast.success(`Seeded ${r.inserted} capabilities (from ${r.total_services} services)`);
+      qc.invalidateQueries();
+    },
+    onError: (e: any) => toast.error(String(e?.message ?? e)),
+  });
+
   const filteredCaps = caps.filter((c) => {
     const f = filter.trim().toLowerCase();
     if (!f) return true;
