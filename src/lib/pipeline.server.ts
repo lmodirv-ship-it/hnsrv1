@@ -139,6 +139,7 @@ export type RunPipelineArgs = {
   intent: string;
   prompt?: string;
   requester_site?: string | null;
+  gateway_site?: string | null;
   owner_id?: string | null;
   api_key_id?: string | null;
   client_id?: string | null;
@@ -150,6 +151,8 @@ export async function runPipeline(args: RunPipelineArgs) {
   const plan = planSubtasks(args.intent, args.prompt);
   const requestId = crypto.randomUUID();
   const startedAt = new Date();
+  const gatewaySite = args.gateway_site ?? null;
+  const requesterSite = args.requester_site ?? null;
 
   // Create pipeline row
   const { data: pipeline, error: pErr } = await supabaseAdmin
@@ -158,13 +161,18 @@ export async function runPipeline(args: RunPipelineArgs) {
       owner_id: args.owner_id ?? null,
       api_key_id: args.api_key_id ?? null,
       client_id: args.client_id ?? null,
-      requester_site: args.requester_site ?? null,
+      requester_site: requesterSite,
+      gateway_site: gatewaySite,
       intent: args.intent,
       prompt: args.prompt ?? null,
       input_payload: (args.input_payload ?? null) as any,
       status: "running",
       subtasks_total: plan.length,
       started_at: startedAt.toISOString(),
+      journey_path: [
+        { step: "received_from", site: requesterSite, via: gatewaySite ?? "tvcc" },
+        { step: "hub_planned_subtasks", count: plan.length },
+      ] as any,
     })
     .select("*")
     .single();
