@@ -131,7 +131,10 @@ function SiteBranch({ site, onSelect }: { site: NetworkSite; onSelect: (s: Netwo
 function NetworkPage() {
   const { t } = useLanguage();
   const fn = useServerFn(getServiceNetwork);
+  const analyzeAll = useServerFn(analyzeAllSites);
+  const qc = useQueryClient();
   const { data = [] } = useQuery({ queryKey: ["service-network"], queryFn: () => fn() });
+
   const [q, setQ] = useState("");
   const [selected, setSelected] = useState<NetworkService | null>(null);
 
