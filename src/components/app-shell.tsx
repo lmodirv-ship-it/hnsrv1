@@ -82,6 +82,12 @@ const groups: NavGroup[] = [
     ],
   },
   {
+    key: "navServiceNetwork",
+    icon: Network,
+    url: "/network",
+    items: [{ key: "navServiceNetwork", url: "/network" }],
+  },
+  {
     key: "navDiscoveryEngine",
     icon: Compass,
     url: "/discovery",
