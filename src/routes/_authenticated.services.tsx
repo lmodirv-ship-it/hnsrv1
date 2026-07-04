@@ -7,6 +7,7 @@ import {
   rejectService,
   deleteService,
 } from "@/lib/services.functions";
+import { analyzeAllSites } from "@/lib/discovery.functions";
 import { checkServiceHealth } from "@/lib/monitoring.functions";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { Card } from "@/components/ui/card";
@@ -44,6 +45,8 @@ import {
   Trash2,
   Shield,
   ShieldOff,
+  Sparkles,
+  Loader2,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -120,6 +123,7 @@ function ServicesPage() {
   const reject = useServerFn(rejectService);
   const del = useServerFn(deleteService);
   const health = useServerFn(checkServiceHealth);
+  const analyzeAll = useServerFn(analyzeAllSites);
 
   const { data = [] } = useQuery({ queryKey: ["services"], queryFn: () => fn() });
   const [q, setQ] = useState("");
@@ -150,6 +154,15 @@ function ServicesPage() {
     mutationFn: (id: string) => health({ data: { service_id: id } }),
     onSuccess: (r: any) => { toast.success(`${r.status} • ${r.latency_ms}ms`); invalidate(); },
     onError: (e: any) => toast.error(e.message),
+  });
+
+  const mAnalyzeAll = useMutation({
+    mutationFn: () => analyzeAll(),
+    onSuccess: (r: any) => {
+      toast.success(`تم تحليل ${r.analyzed}/${r.total} • خدمات جديدة: ${r.servicesCreated}${r.failed ? ` • فشل: ${r.failed}` : ""}`);
+      invalidate();
+    },
+    onError: (e: any) => toast.error(e.message ?? t("somethingWentWrong")),
   });
 
   const rows = data as unknown as Row[];
@@ -217,6 +230,18 @@ function ServicesPage() {
             {stats.total} • <span className="text-amber-400">{stats.pending} pending</span> • <span className="text-emerald-400">{stats.approved} approved</span> • <span className="text-red-400">{stats.rejected} rejected</span>
           </p>
         </div>
+        <Button
+          onClick={() => mAnalyzeAll.mutate()}
+          disabled={mAnalyzeAll.isPending}
+          className="gap-2"
+        >
+          {mAnalyzeAll.isPending ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Sparkles className="h-4 w-4" />
+          )}
+          {mAnalyzeAll.isPending ? "جاري التحليل…" : "توليد: حلّل جميع المواقع"}
+        </Button>
       </div>
 
       <Card className="p-3 bg-card/60 backdrop-blur border-border/60">

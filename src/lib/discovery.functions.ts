@@ -421,3 +421,135 @@ export const saveDiscoveredServices = createServerFn({ method: "POST" })
     return { inserted: inserted?.length ?? 0, site_id: siteId };
   });
 
+async function analyzeUrl(url: string) {
+  const res = await fetchWithTimeout(url);
+  if (!res || !res.ok) throw new Error(`HTTP ${res?.status ?? "timeout"}`);
+  const html = (await res.text()).slice(0, 300_000);
+  const meta = extractMeta(html);
+  const links = extractLinks(html, url);
+  const headings = extractHeadings(html);
+  const baseUrl = new URL(url).origin;
+
+  const probePaths = [
+    "/openapi.json", "/swagger.json", "/api", "/api/docs",
+    "/robots.txt", "/sitemap.xml",
+    "/services", "/about", "/docs", "/features", "/products",
+  ];
+  const apiHints: Array<{ path: string; ok: boolean; status?: number }> = [];
+  const extraTexts: string[] = [];
+  await Promise.all(probePaths.map(async (path) => {
+    const r = await fetchWithTimeout(baseUrl + path, 4000);
+    apiHints.push({ path, ok: !!r && r.ok, status: r?.status });
+    if (r && r.ok && /\/(services|about|features|products|docs)$/.test(path)) {
+      try {
+        const t = (await r.text()).slice(0, 60_000);
+        const txt = t.replace(/<script[\s\S]*?<\/script>/gi, "")
+          .replace(/<style[\s\S]*?<\/style>/gi, "")
+          .replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+        if (txt) extraTexts.push(txt.slice(0, 4000));
+      } catch { /* ignore */ }
+    }
+  }));
+
+  const okHints = apiHints.filter((h) => h.ok);
+  const discovered_services = inferServices({ meta, headings, extraTexts, apiHints: okHints, links });
+  const combinedText = [html, ...extraTexts, ...links].join(" \n ");
+  const frameworks = detectFrameworks(html);
+  const systems = detectSystems(combinedText);
+
+  let overall = 20;
+  if (meta.title) overall += 15;
+  if (meta.description) overall += 15;
+  if (meta.keywords.length) overall += 10;
+  if (okHints.length) overall += 20;
+  if (discovered_services.length) overall += 20;
+
+  return {
+    url, base_url: baseUrl, meta,
+    headings: headings.slice(0, 10),
+    api_hints: okHints,
+    sample_links: links.slice(0, 20),
+    frameworks, systems, discovered_services,
+    overall_confidence: Math.min(100, overall),
+  };
+}
+
+// Bulk analyze every registered site: runs discovery per site and auto-saves
+// discovered services as approval_status='pending'.
+export const analyzeAllSites = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: sites, error } = await context.supabase
+      .from("sites")
+      .select("id, base_url, slug")
+      .not("base_url", "is", null);
+    if (error) throw new Error(error.message);
+
+    let analyzed = 0;
+    let failed = 0;
+    let servicesCreated = 0;
+    const errors: Array<{ slug: string; error: string }> = [];
+
+    for (const site of sites ?? []) {
+      if (!site.base_url) continue;
+      const { data: job, error: jErr } = await context.supabase
+        .from("discovery_jobs")
+        .insert({ url: site.base_url, requested_by: context.userId, status: "running" })
+        .select().single();
+      if (jErr || !job) { failed++; errors.push({ slug: site.slug, error: jErr?.message ?? "job insert failed" }); continue; }
+
+      try {
+        const result = await analyzeUrl(site.base_url);
+        await context.supabase.from("discovery_jobs")
+          .update({ status: "completed", result, completed_at: new Date().toISOString() })
+          .eq("id", job.id);
+
+        if (result.discovered_services.length) {
+          const rows = result.discovered_services.map((s) => ({
+            site_id: site.id,
+            name: s.name,
+            slug: slugify(s.name),
+            category: s.category ?? null,
+            method: s.method,
+            endpoint_path: s.endpoint_path ?? null,
+            description: s.description ?? null,
+            confidence_score: s.confidence_score,
+            api_required: s.api_required,
+            approval_status: "pending",
+            discovered_from_job_id: job.id,
+            is_active: false,
+          }));
+          const { data: inserted } = await context.supabase
+            .from("services")
+            .upsert(rows, { onConflict: "site_id,slug", ignoreDuplicates: false })
+            .select("id");
+          servicesCreated += inserted?.length ?? 0;
+
+          if (inserted?.length && result.systems.length) {
+            const svcIds = inserted.map((s: any) => s.id);
+            await context.supabase.from("service_dependencies" as any)
+              .delete().in("service_id", svcIds).eq("source", "auto")
+              .not("depends_on_system", "is", null);
+            const depRows = inserted.flatMap((svc: any) =>
+              result.systems.map((sys) => ({
+                service_id: svc.id, depends_on_system: sys,
+                relation_type: "depends_on", confidence: 70, source: "auto",
+              }))
+            );
+            await context.supabase.from("service_dependencies" as any).insert(depRows);
+          }
+        }
+        analyzed++;
+      } catch (e: any) {
+        failed++;
+        errors.push({ slug: site.slug, error: e?.message ?? String(e) });
+        await context.supabase.from("discovery_jobs")
+          .update({ status: "failed", error: e?.message ?? String(e), completed_at: new Date().toISOString() })
+          .eq("id", job.id);
+      }
+    }
+
+    return { total: sites?.length ?? 0, analyzed, failed, servicesCreated, errors: errors.slice(0, 10) };
+  });
+
+
