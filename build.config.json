@@ -1,0 +1,22 @@
+{
+  "appName": "HN-Mind-Hub",
+  "appId": "pro.hn-ai.mindhub",
+  "version": "1.0.0",
+  "domains": {
+    "primary": "https://api.hn-ai.pro",
+    "fallback": "https://hn-mind-hub.lovable.app"
+  },
+  "desktop": {
+    "platforms": ["win32", "linux"],
+    "arch": "x64",
+    "window": { "width": 1400, "height": 900 }
+  },
+  "android": {
+    "package": "pro.hn_ai.mindhub",
+    "name": "HN Mind Hub"
+  },
+  "publish": {
+    "forbiddenDeps": ["electron", "@electron/packager", "@capacitor/cli", "@capacitor/android"],
+    "requiredFiles": ["package.json", "bun.lock", "src/routes/__root.tsx", "src/routes/index.tsx"]
+  }
+}

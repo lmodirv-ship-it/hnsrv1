@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>HN Mind Hub — بدون اتصال</title>
+    <style>
+      :root { color-scheme: dark; }
+      body {
+        margin: 0; min-height: 100vh;
+        display: flex; align-items: center; justify-content: center;
+        background: linear-gradient(135deg, #0f172a, #1e293b);
+        color: #e2e8f0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      }
+      .card {
+        max-width: 520px; padding: 40px; text-align: center;
+        background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(148, 163, 184, 0.2);
+        border-radius: 16px; backdrop-filter: blur(12px);
+      }
+      h1 { margin: 0 0 12px; font-size: 24px; color: #f1f5f9; }
+      p { margin: 8px 0; color: #94a3b8; line-height: 1.7; }
+      button {
+        margin-top: 20px; padding: 12px 28px; border: 0; border-radius: 8px;
+        background: #3b82f6; color: white; font-size: 15px; font-weight: 600;
+        cursor: pointer;
+      }
+      button:hover { background: #2563eb; }
+      .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #ef4444; margin-inline-end: 6px; }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h1><span class="dot"></span>لا يوجد اتصال بالخادم</h1>
+      <p>تعذّر الوصول إلى <code id="url"></code></p>
+      <p>تحقّق من الاتصال بالإنترنت أو بدّل النطاق من قائمة <b>Domain</b>.</p>
+      <button onclick="location.reload()">إعادة المحاولة</button>
+    </div>
+    <script>
+      const params = new URLSearchParams(location.search);
+      document.getElementById("url").textContent = params.get("target") || "the server";
+    </script>
+  </body>
+</html>
