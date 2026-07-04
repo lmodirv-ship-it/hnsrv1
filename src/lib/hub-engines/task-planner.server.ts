@@ -9,40 +9,22 @@ import { chatJSON } from "./lovable-ai.server";
 // grounding examples for the AI planner.
 const TEMPLATES: Record<string, PlanTask[]> = {
   build_website: [
-    { id: "logo",       type: "logo",       title: "Design brand logo",       inputs: {}, depends_on: [] },
-    { id: "images",     type: "images",     title: "Generate hero + section images", inputs: {}, depends_on: ["logo"] },
-    { id: "texts",      type: "texts",      title: "Write site copy and sections",   inputs: {}, depends_on: [] },
-    { id: "database",   type: "database",   title: "Provision database schema",       inputs: {}, depends_on: [] },
-    { id: "website",    type: "website",    title: "Assemble website",                inputs: {}, depends_on: ["logo", "images", "texts", "database"] },
-    { id: "deployment", type: "deployment", title: "Deploy to HN Cloud",              inputs: {}, depends_on: ["website"] },
+    { id: "logo",       type: "logo_design",        title: "Design brand logo",       inputs: {}, depends_on: [] },
+    { id: "images",     type: "image_generation",   title: "Generate hero + section images", inputs: {}, depends_on: ["logo"] },
+    { id: "texts",      type: "text_generation",    title: "Write site copy and sections",   inputs: {}, depends_on: [] },
+    { id: "database",   type: "database_creation",  title: "Provision database schema",       inputs: {}, depends_on: [] },
+    { id: "website",    type: "website_building",   title: "Assemble website",                inputs: {}, depends_on: ["logo", "images", "texts", "database"] },
+    { id: "deployment", type: "deployment",         title: "Deploy to HN Cloud",              inputs: {}, depends_on: ["website"] },
   ],
-  generate_logo: [
-    { id: "logo", type: "logo", title: "Design logo", inputs: {}, depends_on: [] },
-  ],
-  generate_images: [
-    { id: "images", type: "images", title: "Generate images", inputs: {}, depends_on: [] },
-  ],
-  generate_texts: [
-    { id: "texts", type: "texts", title: "Generate texts", inputs: {}, depends_on: [] },
-  ],
-  setup_database: [
-    { id: "database", type: "database", title: "Provision database", inputs: {}, depends_on: [] },
-  ],
-  deploy_site: [
-    { id: "deployment", type: "deployment", title: "Deploy site", inputs: {}, depends_on: [] },
-  ],
-  video: [
-    { id: "video", type: "video", title: "Generate video", inputs: {}, depends_on: [] },
-  ],
-  chat: [
-    { id: "chat", type: "chat", title: "Answer with chat model", inputs: {}, depends_on: [] },
-  ],
-  single_task: [
-    { id: "task", type: "generic", title: "Handle single task", inputs: {}, depends_on: [] },
-  ],
-  unknown: [
-    { id: "task", type: "generic", title: "Handle request", inputs: {}, depends_on: [] },
-  ],
+  generate_logo:    [{ id: "logo",       type: "logo_design",       title: "Design logo",       inputs: {}, depends_on: [] }],
+  generate_images:  [{ id: "images",     type: "image_generation",  title: "Generate images",   inputs: {}, depends_on: [] }],
+  generate_texts:   [{ id: "texts",      type: "text_generation",   title: "Generate texts",    inputs: {}, depends_on: [] }],
+  setup_database:   [{ id: "database",   type: "database_creation", title: "Provision database", inputs: {}, depends_on: [] }],
+  deploy_site:      [{ id: "deployment", type: "deployment",        title: "Deploy site",       inputs: {}, depends_on: [] }],
+  video:            [{ id: "video",      type: "video_generation",  title: "Generate video",    inputs: {}, depends_on: [] }],
+  chat:             [{ id: "chat",       type: "chat",              title: "Answer with chat model", inputs: {}, depends_on: [] }],
+  single_task:      [{ id: "task",       type: "generic",           title: "Handle single task", inputs: {}, depends_on: [] }],
+  unknown:          [{ id: "task",       type: "generic",           title: "Handle request",     inputs: {}, depends_on: [] }],
 };
 
 function fromTemplate(analysis: AnalyzerResult, prompt: string): PlanGraph {
@@ -91,22 +73,34 @@ function sanitizeGraph(raw: unknown, analysis: AnalyzerResult, prompt: string): 
   return { tasks: cleaned };
 }
 
+export type RegistryHint = {
+  task_type: string;
+  providers: number;
+  sample_input: Record<string, unknown>;
+};
+
 export async function planTasks(
   prompt: string,
   analysis: AnalyzerResult,
-  availableCapabilities: string[],
+  registryHints: RegistryHint[],
 ): Promise<PlanGraph> {
   const template = fromTemplate(analysis, prompt);
+  const catalog = registryHints.length
+    ? registryHints
+        .map((h) => `${h.task_type} (${h.providers} provider${h.providers === 1 ? "" : "s"})`)
+        .join(", ")
+    : "text_generation, image_generation, audio_generation, video_generation, logo_design, database_creation, website_building, deployment, chat";
 
   const ai = await chatJSON<PlanGraph>({
     system:
       "You are the Task Planner for HN Service Hub. Given a user request and its analysis, produce an ordered task graph. " +
-      "Each task has: id (stable slug), type (capability slug), title, inputs (object of parameters), depends_on (list of task ids). " +
-      "Prefer capabilities from this catalog when they fit: " + (availableCapabilities.join(", ") || "logo, images, texts, database, website, deployment, chat, video") + ". " +
+      "Each task has: id (stable slug), type (task_type slug from the catalog), title, inputs (object of parameters), depends_on (list of task ids). " +
+      "ONLY use task types from this live registry catalog (others have no provider): " + catalog + ". " +
       "Keep it minimal — do not add tasks that aren't needed. Model real dependencies (e.g. deployment depends on website; website depends on assets).",
     user: JSON.stringify({
       prompt,
       analysis,
+      registry: registryHints,
       example_template_for_this_intent: template,
     }),
     schema: {

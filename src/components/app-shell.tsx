@@ -99,6 +99,7 @@ const groups: NavGroup[] = [
     url: "/discovery",
     items: [
       { key: "navDiscoverSites", url: "/discovery" },
+      { key: "navSiteRegistry", url: "/registry" },
       { key: "navAnalyzeSites", url: "/discovery#analyze" },
       { key: "navRescan", url: "/discovery#rescan" },
       { key: "navDiscoveryResults", url: "/discovery#results" },

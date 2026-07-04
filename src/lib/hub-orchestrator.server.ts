@@ -4,13 +4,11 @@
 
 import type { AuthedKey } from "./hub-executor.server";
 import { analyzeRequest } from "./hub-engines/request-analyzer.server";
-import {
-  listAvailableCapabilities,
-  dispatchPlan,
-} from "./hub-engines/task-dispatcher.server";
+import { dispatchPlan } from "./hub-engines/task-dispatcher.server";
 import { planTasks } from "./hub-engines/task-planner.server";
 import { collectResults } from "./hub-engines/result-collector.server";
 import { buildResponse } from "./hub-engines/response-builder.server";
+import { listAvailableTaskTypes } from "./hub-engines/capability-registry.server";
 import type { OrchestrateContext } from "./hub-engines/types";
 
 export type OrchestrateInput = {
@@ -74,8 +72,8 @@ export async function orchestrate(key: AuthedKey, input: OrchestrateInput) {
 
     // 2) Plan
     t = Date.now();
-    const caps = await listAvailableCapabilities();
-    const graph = await planTasks(prompt, analysis, caps);
+    const hints = await listAvailableTaskTypes();
+    const graph = await planTasks(prompt, analysis, hints);
     await stamp("plan", Date.now() - t, {
       status: "dispatching",
       plan_graph: graph as any,
