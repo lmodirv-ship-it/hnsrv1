@@ -3,6 +3,9 @@ import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { listSitesRich, createSite, deleteSite } from "@/lib/sites.functions";
 import { syncSitesFromAllHubs } from "@/lib/integrations.functions";
+import { analyzeAllSites } from "@/lib/discovery.functions";
+import { GenerateButton } from "@/components/generate-button";
+
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
