@@ -4,6 +4,7 @@
 // — without exposing upstream URLs or HN credentials to the caller.
 
 import bcrypt from "bcryptjs";
+import { assertSafeUpstreamUrl, isSafeKeyEnvName } from "./upstream-safety.server";
 
 export type ExecRequest = {
   requester_site?: string;
@@ -231,7 +232,9 @@ function buildUpstreamUrl(service: any, req: ExecRequest): string {
 
 function injectHnCredentials(service: any, headers: Headers) {
   const meta = service.sites?.metadata ?? {};
-  const envNames: string[] = [meta.keyEnv, meta.keyFallbackEnv].filter(Boolean);
+  const envNames: string[] = [meta.keyEnv, meta.keyFallbackEnv]
+    .filter(Boolean)
+    .filter((n) => isSafeKeyEnvName(n)); // block arbitrary secret exfiltration
   for (const name of envNames) {
     const val = process.env[name];
     if (val) {
@@ -251,6 +254,9 @@ function injectHnCredentials(service: any, headers: Headers) {
 async function callService(service: any, req: ExecRequest, requestId: string) {
   const method = (req.method ?? service.method ?? "POST").toUpperCase();
   const url = buildUpstreamUrl(service, req);
+  try { assertSafeUpstreamUrl(url); } catch (e: any) {
+    return { status: 400, data: null, latency: 0, error: `blocked upstream: ${e?.message ?? "unsafe url"}` };
+  }
   const headers = new Headers();
   headers.set("content-type", "application/json");
   headers.set("user-agent", "HN-Hub/1.0");

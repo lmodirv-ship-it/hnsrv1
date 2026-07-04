@@ -3,6 +3,9 @@
 // subtask to the best-matching service across the HN mesh, executes them,
 // then aggregates all outputs into a final package returned to the caller.
 
+import { assertSafeUpstreamUrl, isSafeKeyEnvName } from "./upstream-safety.server";
+
+
 type Kind =
   | "text"
   | "image"
@@ -105,6 +108,9 @@ async function callUpstream(service: any, input: unknown, requestId: string) {
   const meta = service.sites?.metadata ?? {};
   const baseSite = String(service.sites?.base_url ?? "").replace(/\/+$/, "");
   const url = service.endpoint_url || (baseSite + (service.endpoint_path ?? "/"));
+  try { assertSafeUpstreamUrl(url); } catch (e: any) {
+    return { status: 400, data: null, latency: 0, error: `blocked upstream: ${e?.message ?? "unsafe url"}` };
+  }
   const method = (service.method ?? "POST").toUpperCase();
   const headers = new Headers({
     "content-type": "application/json",
@@ -112,7 +118,9 @@ async function callUpstream(service: any, input: unknown, requestId: string) {
     "x-hn-request-id": requestId,
     "x-forwarded-by": "hn-service-hub",
   });
-  const envNames: string[] = [meta.keyEnv, meta.keyFallbackEnv].filter(Boolean);
+  const envNames: string[] = [meta.keyEnv, meta.keyFallbackEnv]
+    .filter(Boolean)
+    .filter((n) => isSafeKeyEnvName(n));
   for (const name of envNames) {
     const val = process.env[name];
     if (val) { headers.set("authorization", `Bearer ${val}`); headers.set("x-api-key", val); break; }
