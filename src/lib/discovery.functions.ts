@@ -586,7 +586,7 @@ export const importHnCatalog = createServerFn({ method: "POST" })
 
     // 1) Build unique site rows keyed by slug (dedupe URL variants like www.*)
     const seen = new Set<string>();
-    const siteRows: Array<Record<string, unknown>> = [];
+    const siteRows: any[] = [];
     const slugByIndex: string[] = [];
     for (const s of list) {
       const host = (s.host || s.url.replace(/^https?:\/\//, "").split("/")[0]).toLowerCase();
@@ -636,7 +636,7 @@ export const importHnCatalog = createServerFn({ method: "POST" })
     const idBySlug = new Map(upserted.map((s) => [s.slug, s.id]));
 
     // 3) Build service rows from capabilityIds.
-    const svcRows: Array<Record<string, unknown>> = [];
+    const svcRows: any[] = [];
     for (let i = 0; i < list.length; i++) {
       const s = list[i];
       const siteSlug = slugByIndex[i];
