@@ -302,6 +302,20 @@ function ServicesPage() {
                   <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
                     {r.last_tested_at ? new Date(r.last_tested_at).toLocaleDateString() : "—"}
                   </TableCell>
+                  <TableCell className="text-xs">
+                    {(r as any).consumer_count > 0 ? (
+                      <span className="px-1.5 py-0.5 rounded bg-primary/10 text-primary">{(r as any).consumer_count}</span>
+                    ) : <span className="text-muted-foreground">—</span>}
+                  </TableCell>
+                  <TableCell>
+                    {Array.isArray((r as any).depends_on) && (r as any).depends_on.length > 0 ? (
+                      <div className="flex flex-wrap gap-1">
+                        {(r as any).depends_on.map((sys: string) => (
+                          <span key={sys} className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">{sys}</span>
+                        ))}
+                      </div>
+                    ) : <span className="text-xs text-muted-foreground">—</span>}
+                  </TableCell>
                   <TableCell className="text-end">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
