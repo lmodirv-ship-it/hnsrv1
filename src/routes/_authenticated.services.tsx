@@ -186,6 +186,9 @@ function ServicesPage() {
     onError: (e: any) => toast.error(e.message ?? t("somethingWentWrong")),
   });
 
+  const rows = data as unknown as Row[];
+
+
 
 
   const filtered = useMemo(() => {
