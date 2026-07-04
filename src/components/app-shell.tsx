@@ -179,10 +179,10 @@ const groups: NavGroup[] = [
   {
     key: "navAdministration",
     icon: Shield,
-    url: "/settings",
+    url: "/admin-users",
     items: [
-      { key: "navUsers", url: "/settings#users" },
-      { key: "navRoles", url: "/settings#roles" },
+      { key: "navUsers", url: "/admin-users" },
+      { key: "navRoles", url: "/admin-users" },
       { key: "settings", url: "/settings" },
       { key: "navBackup", url: "/settings#backup" },
     ],

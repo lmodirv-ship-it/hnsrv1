@@ -30,6 +30,7 @@ import { Route as AuthenticatedFallbackRulesRouteImport } from './routes/_authen
 import { Route as AuthenticatedDiscoveryRouteImport } from './routes/_authenticated.discovery'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated.dashboard'
 import { Route as AuthenticatedApiConsoleRouteImport } from './routes/_authenticated.api-console'
+import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated.admin-users'
 import { Route as AuthenticatedSitesIndexRouteImport } from './routes/_authenticated.sites.index'
 import { Route as AuthenticatedPipelinesIndexRouteImport } from './routes/_authenticated.pipelines.index'
 import { Route as AuthenticatedSitesSlugRouteImport } from './routes/_authenticated.sites.$slug'
@@ -151,6 +152,11 @@ const AuthenticatedApiConsoleRoute = AuthenticatedApiConsoleRouteImport.update({
   path: '/api-console',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
+  id: '/admin-users',
+  path: '/admin-users',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedSitesIndexRoute = AuthenticatedSitesIndexRouteImport.update({
   id: '/sites/',
   path: '/sites/',
@@ -209,6 +215,7 @@ const ApiPublicV1DiscoveryRefreshRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/admin-users': typeof AuthenticatedAdminUsersRoute
   '/api-console': typeof AuthenticatedApiConsoleRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/discovery': typeof AuthenticatedDiscoveryRoute
@@ -241,6 +248,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/admin-users': typeof AuthenticatedAdminUsersRoute
   '/api-console': typeof AuthenticatedApiConsoleRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/discovery': typeof AuthenticatedDiscoveryRoute
@@ -275,6 +283,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/admin-users': typeof AuthenticatedAdminUsersRoute
   '/_authenticated/api-console': typeof AuthenticatedApiConsoleRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/discovery': typeof AuthenticatedDiscoveryRoute
@@ -309,6 +318,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/admin-users'
     | '/api-console'
     | '/dashboard'
     | '/discovery'
@@ -341,6 +351,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/admin-users'
     | '/api-console'
     | '/dashboard'
     | '/discovery'
@@ -374,6 +385,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/admin-users'
     | '/_authenticated/api-console'
     | '/_authenticated/dashboard'
     | '/_authenticated/discovery'
@@ -564,6 +576,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedApiConsoleRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/admin-users': {
+      id: '/_authenticated/admin-users'
+      path: '/admin-users'
+      fullPath: '/admin-users'
+      preLoaderRoute: typeof AuthenticatedAdminUsersRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/sites/': {
       id: '/_authenticated/sites/'
       path: '/sites'
@@ -638,6 +657,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteChildren {
+  AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
   AuthenticatedApiConsoleRoute: typeof AuthenticatedApiConsoleRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedDiscoveryRoute: typeof AuthenticatedDiscoveryRoute
@@ -663,6 +683,7 @@ interface AuthenticatedRouteChildren {
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
   AuthenticatedApiConsoleRoute: AuthenticatedApiConsoleRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedDiscoveryRoute: AuthenticatedDiscoveryRoute,
