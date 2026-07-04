@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { listClients, createClient, deleteClient, issueKey, revokeKey, recentRequests } from "@/lib/apiClients.functions";
+import { listClients, createClient, deleteClient, issueKey, revokeKey, recentRequests, provisionMeshKeys } from "@/lib/apiClients.functions";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
