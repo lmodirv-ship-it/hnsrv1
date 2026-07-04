@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { discoverSite, listDiscoveryJobs, saveDiscoveredServices } from "@/lib/discovery.functions";
+import { discoverSite, listDiscoveryJobs, saveDiscoveredServices, analyzeAllSites } from "@/lib/discovery.functions";
 import { syncSitesFromTvcc } from "@/lib/integrations.functions";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { Card } from "@/components/ui/card";
@@ -10,6 +10,8 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Compass, Loader2, RefreshCw, ShieldCheck } from "lucide-react";
 import { useState } from "react";
+import { GenerateButton } from "@/components/generate-button";
+
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/discovery")({
@@ -44,6 +46,8 @@ function DiscoveryPage() {
   const run = useServerFn(discoverSite);
   const save = useServerFn(saveDiscoveredServices);
   const tvccSync = useServerFn(syncSitesFromTvcc);
+  const analyzeAll = useServerFn(analyzeAllSites);
+
   const { data: jobs = [], refetch } = useQuery({ queryKey: ["discovery-jobs"], queryFn: () => list() });
   const [url, setUrl] = useState("");
   const [result, setResult] = useState<DiscoveryResult | null>(null);
@@ -95,10 +99,20 @@ function DiscoveryPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <Compass className="h-6 w-6 text-primary" />
-        <h1 className="text-2xl font-bold">{t("discovery")}</h1>
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div className="flex items-center gap-3">
+          <Compass className="h-6 w-6 text-primary" />
+          <h1 className="text-2xl font-bold">{t("discovery")}</h1>
+        </div>
+        <GenerateButton
+          label="توليد: حلّل جميع المواقع"
+          pendingLabel="جاري التحليل…"
+          onGenerate={() => analyzeAll()}
+          onDone={() => refetch()}
+          successMessage={(r: any) => `تم تحليل ${r.analyzed}/${r.total} • خدمات: ${r.servicesCreated}`}
+        />
       </div>
+
 
       <Card className="p-5 bg-card/60 backdrop-blur border-border/60 space-y-3">
         <div className="flex gap-2">

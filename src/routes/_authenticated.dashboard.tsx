@@ -1,10 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { dashboardStats } from "@/lib/monitoring.functions";
+import { analyzeAllSites } from "@/lib/discovery.functions";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { Card } from "@/components/ui/card";
+import { GenerateButton } from "@/components/generate-button";
 import { Globe, Boxes, KeyRound, Activity, Brain } from "lucide-react";
+
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -31,6 +34,8 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 function DashboardPage() {
   const { t } = useLanguage();
   const fn = useServerFn(dashboardStats);
+  const analyze = useServerFn(analyzeAllSites);
+  const qc = useQueryClient();
   const { data } = useQuery({ queryKey: ["dashboard-stats"], queryFn: () => fn() });
 
   const stats = [
@@ -42,15 +47,26 @@ function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <div className="h-10 w-10 rounded-lg bg-primary/15 border border-primary/30 flex items-center justify-center">
-          <Brain className="h-5 w-5 text-primary" />
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-lg bg-primary/15 border border-primary/30 flex items-center justify-center">
+            <Brain className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold">{t("dashboard")}</h1>
+            <p className="text-sm text-muted-foreground">{t("appTagline")}</p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-2xl font-bold">{t("dashboard")}</h1>
-          <p className="text-sm text-muted-foreground">{t("appTagline")}</p>
-        </div>
+        <GenerateButton
+          label="توليد: تحديث الإحصائيات"
+          pendingLabel="جاري التحليل…"
+          onGenerate={() => analyze()}
+          onDone={() => qc.invalidateQueries({ queryKey: ["dashboard-stats"] })}
+          successMessage={(r: any) => `تم تحليل ${r.analyzed}/${r.total} • خدمات: ${r.servicesCreated}`}
+        />
       </div>
+
+
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((s) => (

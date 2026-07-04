@@ -1,9 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getServiceNetwork } from "@/lib/network.functions";
+import { analyzeAllSites } from "@/lib/discovery.functions";
 import type { NetworkService, NetworkSite } from "@/lib/network.functions";
 import { useLanguage } from "@/i18n/LanguageProvider";
+import { GenerateButton } from "@/components/generate-button";
+
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -128,7 +131,10 @@ function SiteBranch({ site, onSelect }: { site: NetworkSite; onSelect: (s: Netwo
 function NetworkPage() {
   const { t } = useLanguage();
   const fn = useServerFn(getServiceNetwork);
+  const analyzeAll = useServerFn(analyzeAllSites);
+  const qc = useQueryClient();
   const { data = [] } = useQuery({ queryKey: ["service-network"], queryFn: () => fn() });
+
   const [q, setQ] = useState("");
   const [selected, setSelected] = useState<NetworkService | null>(null);
 
@@ -163,11 +169,21 @@ function NetworkPage() {
             {totals.sites} sites · {totals.services} services · {totals.deps} dependencies
           </p>
         </div>
-        <div className="relative w-64">
-          <Search className="h-4 w-4 absolute top-2.5 start-3 text-muted-foreground" />
-          <Input className="ps-9" placeholder={t("search")} value={q} onChange={(e) => setQ(e.target.value)} />
+        <div className="flex items-center gap-2">
+          <div className="relative w-64">
+            <Search className="h-4 w-4 absolute top-2.5 start-3 text-muted-foreground" />
+            <Input className="ps-9" placeholder={t("search")} value={q} onChange={(e) => setQ(e.target.value)} />
+          </div>
+          <GenerateButton
+            label="توليد: أعد بناء الشبكة"
+            pendingLabel="جاري التحليل…"
+            onGenerate={() => analyzeAll()}
+            onDone={() => qc.invalidateQueries({ queryKey: ["service-network"] })}
+            successMessage={(r: any) => `تم تحليل ${r.analyzed}/${r.total} • خدمات: ${r.servicesCreated}`}
+          />
         </div>
       </div>
+
 
       <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
         <div className="space-y-3">

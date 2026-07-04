@@ -3,6 +3,8 @@ import { useLanguage } from "@/i18n/LanguageProvider";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Settings, Languages, Plug, CheckCircle2, XCircle, Loader2, AlertCircle } from "lucide-react";
+import { GenerateButton } from "@/components/generate-button";
+
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { listIntegrations, testIntegration } from "@/lib/integrations.functions";
@@ -39,10 +41,25 @@ function SettingsPage() {
 
   return (
     <div className="space-y-6 max-w-3xl">
-      <div className="flex items-center gap-3">
-        <Settings className="h-6 w-6 text-primary" />
-        <h1 className="text-2xl font-bold">{t("settings")}</h1>
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div className="flex items-center gap-3">
+          <Settings className="h-6 w-6 text-primary" />
+          <h1 className="text-2xl font-bold">{t("settings")}</h1>
+        </div>
+        <GenerateButton
+          label="توليد: افحص كل التكاملات"
+          pendingLabel="جاري الفحص…"
+          onGenerate={async () => {
+            const hubs = ["tvcc", "hn_db", "hn_cloud", "hn_core"];
+            const results = await Promise.all(hubs.map((h) => test({ data: { hub: h as any } }).catch((e) => ({ ok: false, error: e?.message }))));
+            const ok = results.filter((r: any) => r.ok).length;
+            return { ok, total: hubs.length };
+          }}
+          onDone={() => refetch()}
+          successMessage={(r: any) => `تكاملات ناجحة: ${r.ok}/${r.total}`}
+        />
       </div>
+
 
       <Card className="p-5 bg-card/60 backdrop-blur border-border/60">
         <div className="flex items-center justify-between">

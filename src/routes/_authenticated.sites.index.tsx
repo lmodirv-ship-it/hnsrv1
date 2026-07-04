@@ -3,6 +3,9 @@ import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { listSitesRich, createSite, deleteSite } from "@/lib/sites.functions";
 import { syncSitesFromAllHubs } from "@/lib/integrations.functions";
+import { analyzeAllSites } from "@/lib/discovery.functions";
+import { GenerateButton } from "@/components/generate-button";
+
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -183,6 +186,8 @@ function SitesPage() {
   const create = useServerFn(createSite);
   const del = useServerFn(deleteSite);
   const syncAll = useServerFn(syncSitesFromAllHubs);
+  const analyzeAll = useServerFn(analyzeAllSites);
+
 
   const { data: sites = [] } = useQuery<Row[]>({
     queryKey: ["sites-rich"],
@@ -380,6 +385,13 @@ function SitesPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <GenerateButton
+            label="توليد: حلّل جميع المواقع"
+            pendingLabel="جاري التحليل…"
+            onGenerate={() => analyzeAll()}
+            onDone={() => qc.invalidateQueries({ queryKey: ["sites-rich"] })}
+            successMessage={(r: any) => `تم تحليل ${r.analyzed}/${r.total} • خدمات: ${r.servicesCreated}`}
+          />
           <Button variant="outline" onClick={() => syncMut.mutate()} disabled={syncMut.isPending}>
             {syncMut.isPending ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -388,6 +400,7 @@ function SitesPage() {
             )}
             <span className="ms-1">Sync all hubs</span>
           </Button>
+
           <Button variant="outline" onClick={exportCsv}>
             <Download className="h-4 w-4" />
             <span className="ms-1">Export</span>

@@ -1,9 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useQuery } from "@tanstack/react-query";
-import { latestHealth } from "@/lib/monitoring.functions";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { latestHealth, checkAllHealth } from "@/lib/monitoring.functions";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { Card } from "@/components/ui/card";
+import { GenerateButton } from "@/components/generate-button";
 import { Activity } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/monitoring")({
@@ -13,13 +14,24 @@ export const Route = createFileRoute("/_authenticated/monitoring")({
 function MonitoringPage() {
   const { t } = useLanguage();
   const fn = useServerFn(latestHealth);
+  const checkAll = useServerFn(checkAllHealth);
+  const qc = useQueryClient();
   const { data = [] } = useQuery({ queryKey: ["health"], queryFn: () => fn(), refetchInterval: 15000 });
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <Activity className="h-6 w-6 text-primary" />
-        <h1 className="text-2xl font-bold">{t("monitoring")}</h1>
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div className="flex items-center gap-3">
+          <Activity className="h-6 w-6 text-primary" />
+          <h1 className="text-2xl font-bold">{t("monitoring")}</h1>
+        </div>
+        <GenerateButton
+          label="توليد: افحص كل الخدمات"
+          pendingLabel="جاري الفحص…"
+          onGenerate={() => checkAll()}
+          onDone={() => qc.invalidateQueries({ queryKey: ["health"] })}
+          successMessage={(r: any) => `فُحصت ${r.checked} خدمة • ${r.online} online • ${r.failed} failed`}
+        />
       </div>
 
       {!data.length ? (
