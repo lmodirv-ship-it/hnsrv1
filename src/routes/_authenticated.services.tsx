@@ -266,7 +266,7 @@ function ServicesPage() {
             <TableBody>
               {paged.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={13} className="text-center text-sm text-muted-foreground py-10">
+                  <TableCell colSpan={15} className="text-center text-sm text-muted-foreground py-10">
                     {t("noData")}
                   </TableCell>
                 </TableRow>
