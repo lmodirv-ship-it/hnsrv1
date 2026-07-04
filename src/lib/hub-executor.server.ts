@@ -231,7 +231,7 @@ export async function executeAgainstService(key: AuthedKey, req: ExecRequest): P
       client_id: key.client_id,
       requester_site: req.requester_site ?? key.client?.name ?? null,
       service_intent: req.intent ?? null,
-      request_payload: req.payload ?? null,
+      request_payload: (req.payload ?? null) as any,
       execution_status: "no_service",
       status_code: 404,
       latency_ms: Date.now() - startedAt,
