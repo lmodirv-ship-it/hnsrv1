@@ -121,6 +121,60 @@ export type Database = {
         }
         Relationships: []
       }
+      fallback_rules: {
+        Row: {
+          created_at: string
+          enabled: boolean
+          fallback_service_id: string | null
+          id: string
+          intent_pattern: string
+          notes: string | null
+          owner_id: string | null
+          primary_service_id: string | null
+          priority: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean
+          fallback_service_id?: string | null
+          id?: string
+          intent_pattern: string
+          notes?: string | null
+          owner_id?: string | null
+          primary_service_id?: string | null
+          priority?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean
+          fallback_service_id?: string | null
+          id?: string
+          intent_pattern?: string
+          notes?: string | null
+          owner_id?: string | null
+          primary_service_id?: string | null
+          priority?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fallback_rules_fallback_service_id_fkey"
+            columns: ["fallback_service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fallback_rules_primary_service_id_fkey"
+            columns: ["primary_service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hub_integrations: {
         Row: {
           base_url: string | null
@@ -315,35 +369,62 @@ export type Database = {
       service_requests: {
         Row: {
           api_key_id: string | null
+          attempts: number
           client_id: string | null
           created_at: string
           error: string | null
+          execution_status: string | null
+          fallback_used: boolean
           id: string
           latency_ms: number | null
           method: string | null
+          provider_site: string | null
+          request_payload: Json | null
+          requester_site: string | null
+          response_payload: Json | null
+          routing_decision: Json | null
           service_id: string | null
+          service_intent: string | null
           status_code: number | null
         }
         Insert: {
           api_key_id?: string | null
+          attempts?: number
           client_id?: string | null
           created_at?: string
           error?: string | null
+          execution_status?: string | null
+          fallback_used?: boolean
           id?: string
           latency_ms?: number | null
           method?: string | null
+          provider_site?: string | null
+          request_payload?: Json | null
+          requester_site?: string | null
+          response_payload?: Json | null
+          routing_decision?: Json | null
           service_id?: string | null
+          service_intent?: string | null
           status_code?: number | null
         }
         Update: {
           api_key_id?: string | null
+          attempts?: number
           client_id?: string | null
           created_at?: string
           error?: string | null
+          execution_status?: string | null
+          fallback_used?: boolean
           id?: string
           latency_ms?: number | null
           method?: string | null
+          provider_site?: string | null
+          request_payload?: Json | null
+          requester_site?: string | null
+          response_payload?: Json | null
+          routing_decision?: Json | null
           service_id?: string | null
+          service_intent?: string | null
           status_code?: number | null
         }
         Relationships: [
