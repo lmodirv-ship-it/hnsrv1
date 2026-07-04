@@ -109,6 +109,7 @@ const groups: NavGroup[] = [
     icon: GitBranch,
     url: "/orchestrator",
     items: [
+      { key: "navHubOrchestration", url: "/orchestration" },
       { key: "navServiceOrchestration", url: "/orchestrator" },
       { key: "navPipelines", url: "/pipelines" },
       { key: "navSubtasks", url: "/subtasks" },

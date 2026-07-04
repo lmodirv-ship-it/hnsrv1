@@ -211,6 +211,88 @@ export type Database = {
         }
         Relationships: []
       }
+      hub_plans: {
+        Row: {
+          api_key_id: string | null
+          auth_mode: string
+          created_at: string
+          entities: Json
+          error: string | null
+          final_response: Json | null
+          id: string
+          internal_connector_id: string | null
+          language: string | null
+          plan_graph: Json
+          prompt: string
+          request_id: string | null
+          requester_site: string | null
+          status: string
+          timings: Json
+          updated_at: string
+          user_intent: string | null
+        }
+        Insert: {
+          api_key_id?: string | null
+          auth_mode?: string
+          created_at?: string
+          entities?: Json
+          error?: string | null
+          final_response?: Json | null
+          id?: string
+          internal_connector_id?: string | null
+          language?: string | null
+          plan_graph?: Json
+          prompt: string
+          request_id?: string | null
+          requester_site?: string | null
+          status?: string
+          timings?: Json
+          updated_at?: string
+          user_intent?: string | null
+        }
+        Update: {
+          api_key_id?: string | null
+          auth_mode?: string
+          created_at?: string
+          entities?: Json
+          error?: string | null
+          final_response?: Json | null
+          id?: string
+          internal_connector_id?: string | null
+          language?: string | null
+          plan_graph?: Json
+          prompt?: string
+          request_id?: string | null
+          requester_site?: string | null
+          status?: string
+          timings?: Json
+          updated_at?: string
+          user_intent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hub_plans_api_key_id_fkey"
+            columns: ["api_key_id"]
+            isOneToOne: false
+            referencedRelation: "api_keys"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hub_plans_internal_connector_id_fkey"
+            columns: ["internal_connector_id"]
+            isOneToOne: false
+            referencedRelation: "internal_connectors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hub_plans_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "service_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       internal_connectors: {
         Row: {
           allowed_internal_services: Json
@@ -302,6 +384,8 @@ export type Database = {
           assigned_service_id: string | null
           attempts: number
           created_at: string
+          depends_on: string[]
+          engine_stage: string | null
           error: string | null
           finished_at: string | null
           id: string
@@ -311,10 +395,14 @@ export type Database = {
           latency_ms: number | null
           output_payload: Json | null
           pipeline_id: string
+          plan_id: string | null
+          plan_step: number | null
           started_at: string | null
           status: string
           status_code: number | null
+          task_key: string | null
           task_order: number
+          task_type: string | null
           updated_at: string
         }
         Insert: {
@@ -322,6 +410,8 @@ export type Database = {
           assigned_service_id?: string | null
           attempts?: number
           created_at?: string
+          depends_on?: string[]
+          engine_stage?: string | null
           error?: string | null
           finished_at?: string | null
           id?: string
@@ -331,10 +421,14 @@ export type Database = {
           latency_ms?: number | null
           output_payload?: Json | null
           pipeline_id: string
+          plan_id?: string | null
+          plan_step?: number | null
           started_at?: string | null
           status?: string
           status_code?: number | null
+          task_key?: string | null
           task_order?: number
+          task_type?: string | null
           updated_at?: string
         }
         Update: {
@@ -342,6 +436,8 @@ export type Database = {
           assigned_service_id?: string | null
           attempts?: number
           created_at?: string
+          depends_on?: string[]
+          engine_stage?: string | null
           error?: string | null
           finished_at?: string | null
           id?: string
@@ -351,10 +447,14 @@ export type Database = {
           latency_ms?: number | null
           output_payload?: Json | null
           pipeline_id?: string
+          plan_id?: string | null
+          plan_step?: number | null
           started_at?: string | null
           status?: string
           status_code?: number | null
+          task_key?: string | null
           task_order?: number
+          task_type?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -370,6 +470,13 @@ export type Database = {
             columns: ["pipeline_id"]
             isOneToOne: false
             referencedRelation: "pipelines"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pipeline_subtasks_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "hub_plans"
             referencedColumns: ["id"]
           },
         ]
@@ -702,6 +809,7 @@ export type Database = {
         Row: {
           api_required: boolean
           approval_status: string
+          capabilities: string[]
           category: string | null
           confidence_score: number
           created_at: string
@@ -730,6 +838,7 @@ export type Database = {
         Insert: {
           api_required?: boolean
           approval_status?: string
+          capabilities?: string[]
           category?: string | null
           confidence_score?: number
           created_at?: string
@@ -758,6 +867,7 @@ export type Database = {
         Update: {
           api_required?: boolean
           approval_status?: string
+          capabilities?: string[]
           category?: string | null
           confidence_score?: number
           created_at?: string
