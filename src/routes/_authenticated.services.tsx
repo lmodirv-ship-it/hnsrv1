@@ -177,8 +177,16 @@ function ServicesPage() {
     },
     onError: (e: any) => toast.error(e.message ?? t("somethingWentWrong")),
   });
+  const mLinkConsumer = useMutation({
+    mutationFn: (url: string) => linkConsumer({ data: { url } }),
+    onSuccess: (r: any) => {
+      toast.success(`تم ربط ${r.host} كمستهلك • ${r.linked_services} خدمة متاحة`);
+      invalidate();
+    },
+    onError: (e: any) => toast.error(e.message ?? t("somethingWentWrong")),
+  });
 
-  const rows = data as unknown as Row[];
+
 
   const filtered = useMemo(() => {
     const query = q.trim().toLowerCase();
