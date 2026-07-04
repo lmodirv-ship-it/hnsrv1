@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_actions: {
+        Row: {
+          action: string
+          actor_id: string | null
+          created_at: string
+          id: string
+          payload: Json
+          result: Json
+          status: string
+          target: string | null
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          created_at?: string
+          id?: string
+          payload?: Json
+          result?: Json
+          status?: string
+          target?: string | null
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          created_at?: string
+          id?: string
+          payload?: Json
+          result?: Json
+          status?: string
+          target?: string | null
+        }
+        Relationships: []
+      }
       api_clients: {
         Row: {
           allowed_services: string[] | null
@@ -1082,6 +1115,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      platform_settings: {
+        Row: {
+          created_at: string
+          description: string | null
+          key: string
+          updated_at: string
+          updated_by: string | null
+          value: Json
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          key: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          key?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
