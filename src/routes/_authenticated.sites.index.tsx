@@ -385,6 +385,13 @@ function SitesPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <GenerateButton
+            label="توليد: حلّل جميع المواقع"
+            pendingLabel="جاري التحليل…"
+            onGenerate={() => analyzeAll()}
+            onDone={() => qc.invalidateQueries({ queryKey: ["sites-rich"] })}
+            successMessage={(r: any) => `تم تحليل ${r.analyzed}/${r.total} • خدمات: ${r.servicesCreated}`}
+          />
           <Button variant="outline" onClick={() => syncMut.mutate()} disabled={syncMut.isPending}>
             {syncMut.isPending ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -393,6 +400,7 @@ function SitesPage() {
             )}
             <span className="ms-1">Sync all hubs</span>
           </Button>
+
           <Button variant="outline" onClick={exportCsv}>
             <Download className="h-4 w-4" />
             <span className="ms-1">Export</span>
