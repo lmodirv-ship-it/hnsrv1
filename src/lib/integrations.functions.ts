@@ -109,9 +109,37 @@ export const testIntegration = createServerFn({ method: "POST" })
     return final;
   });
 
+const hubSiteSchema = z
+  .object({
+    id: z.union([z.string(), z.number()]).optional(),
+    _id: z.union([z.string(), z.number()]).optional(),
+    slug: z.string().max(120).optional(),
+    name: z.string().max(200).optional(),
+    title: z.string().max(200).optional(),
+    base_url: z.string().url().optional(),
+    url: z.string().url().optional(),
+    domain: z.string().max(255).optional(),
+    category: z.string().max(80).optional().nullable(),
+    type: z.string().max(80).optional().nullable(),
+    description: z.string().max(2000).optional().nullable(),
+    logo_url: z.string().url().optional().nullable(),
+    logo: z.string().url().optional().nullable(),
+    icon: z.string().url().optional().nullable(),
+  })
+  .passthrough()
+  .refine((s) => !!(s.base_url ?? s.url ?? s.domain), {
+    message: "Site is missing base_url/url/domain",
+  });
+
+const hubSitesPayloadSchema = z.union([
+  z.array(z.unknown()),
+  z.object({ sites: z.array(z.unknown()) }).passthrough(),
+  z.object({ data: z.array(z.unknown()) }).passthrough(),
+]);
+
 async function fetchSitesFromHub(hub: HubKey) {
   const { url } = envFor(hub);
-  if (!url) return { ok: false, reason: "not_configured", list: [] as any[], path: "" };
+  if (!url) return { ok: false as const, reason: "not_configured", list: [], path: "" };
   const base = url.replace(/\/+$/, "");
   const candidates = ["/sites", "/api/sites", "/v1/sites"];
   for (const p of candidates) {
@@ -120,18 +148,45 @@ async function fetchSitesFromHub(hub: HubKey) {
     try {
       const res = await fetch(base + p, { headers: hubHeaders(hub), signal: ctrl.signal });
       clearTimeout(to);
-      if (res.ok) {
-        const payload: any = await res.json().catch(() => null);
-        if (payload) {
-          const list: any[] = Array.isArray(payload) ? payload : payload.sites ?? payload.data ?? [];
-          return { ok: true, list, path: base + p };
-        }
+      if (!res.ok) continue;
+      const raw = await res.json().catch(() => null);
+      if (raw == null) continue;
+
+      const shape = hubSitesPayloadSchema.safeParse(raw);
+      if (!shape.success) {
+        return {
+          ok: false as const,
+          reason: "invalid_shape",
+          detail: `Response at ${p} is not an array or { sites | data: [...] }`,
+          list: [],
+          path: base + p,
+        };
       }
+      const rawList: unknown[] = Array.isArray(raw) ? raw : (raw as any).sites ?? (raw as any).data ?? [];
+
+      const list: any[] = [];
+      const errors: string[] = [];
+      rawList.forEach((item, i) => {
+        const parsed = hubSiteSchema.safeParse(item);
+        if (parsed.success) list.push(parsed.data);
+        else errors.push(`#${i}: ${parsed.error.issues.map((x) => x.message).join(", ")}`);
+      });
+
+      if (list.length === 0 && errors.length > 0) {
+        return {
+          ok: false as const,
+          reason: "invalid_items",
+          detail: `No valid sites in response (${errors.length} invalid). First: ${errors[0]}`,
+          list: [],
+          path: base + p,
+        };
+      }
+      return { ok: true as const, list, path: base + p, skipped: errors.length };
     } catch {
       clearTimeout(to);
     }
   }
-  return { ok: false, reason: "no_endpoint", list: [] as any[], path: "" };
+  return { ok: false as const, reason: "no_endpoint", list: [], path: "" };
 }
 
 async function upsertSites(ctx: any, hub: HubKey, list: any[]) {
