@@ -127,6 +127,7 @@ function ServicesPage() {
   const analyzeAll = useServerFn(analyzeAllSites);
   const importCatalog = useServerFn(importHnCatalog);
   const linkConsumer = useServerFn(linkConsumerSite);
+  const approveAll = useServerFn(approveAllPending);
 
   const { data = [] } = useQuery({ queryKey: ["services"], queryFn: () => fn() });
   const [q, setQ] = useState("");
