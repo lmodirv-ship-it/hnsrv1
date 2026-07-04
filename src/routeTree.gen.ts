@@ -39,6 +39,7 @@ import { Route as AuthenticatedSitesIndexRouteImport } from './routes/_authentic
 import { Route as AuthenticatedPipelinesIndexRouteImport } from './routes/_authenticated.pipelines.index'
 import { Route as AuthenticatedSitesSlugRouteImport } from './routes/_authenticated.sites.$slug'
 import { Route as AuthenticatedPipelinesIdRouteImport } from './routes/_authenticated.pipelines.$id'
+import { Route as ApiPublicV1VerifyDomainRouteImport } from './routes/api/public/v1/verify-domain'
 import { Route as ApiPublicV1PipelineRouteImport } from './routes/api/public/v1/pipeline'
 import { Route as ApiPublicV1OrchestrateRouteImport } from './routes/api/public/v1/orchestrate'
 import { Route as ApiPublicV1ExecuteRouteImport } from './routes/api/public/v1/execute'
@@ -205,6 +206,11 @@ const AuthenticatedPipelinesIdRoute =
     path: '/pipelines/$id',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const ApiPublicV1VerifyDomainRoute = ApiPublicV1VerifyDomainRouteImport.update({
+  id: '/api/public/v1/verify-domain',
+  path: '/api/public/v1/verify-domain',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicV1PipelineRoute = ApiPublicV1PipelineRouteImport.update({
   id: '/api/public/v1/pipeline',
   path: '/api/public/v1/pipeline',
@@ -272,6 +278,7 @@ export interface FileRoutesByFullPath {
   '/api/public/v1/execute': typeof ApiPublicV1ExecuteRoute
   '/api/public/v1/orchestrate': typeof ApiPublicV1OrchestrateRouteWithChildren
   '/api/public/v1/pipeline': typeof ApiPublicV1PipelineRoute
+  '/api/public/v1/verify-domain': typeof ApiPublicV1VerifyDomainRoute
   '/api/public/v1/discovery/refresh': typeof ApiPublicV1DiscoveryRefreshRoute
   '/api/public/v1/orchestrate/$id': typeof ApiPublicV1OrchestrateIdRoute
 }
@@ -309,6 +316,7 @@ export interface FileRoutesByTo {
   '/api/public/v1/execute': typeof ApiPublicV1ExecuteRoute
   '/api/public/v1/orchestrate': typeof ApiPublicV1OrchestrateRouteWithChildren
   '/api/public/v1/pipeline': typeof ApiPublicV1PipelineRoute
+  '/api/public/v1/verify-domain': typeof ApiPublicV1VerifyDomainRoute
   '/api/public/v1/discovery/refresh': typeof ApiPublicV1DiscoveryRefreshRoute
   '/api/public/v1/orchestrate/$id': typeof ApiPublicV1OrchestrateIdRoute
 }
@@ -348,6 +356,7 @@ export interface FileRoutesById {
   '/api/public/v1/execute': typeof ApiPublicV1ExecuteRoute
   '/api/public/v1/orchestrate': typeof ApiPublicV1OrchestrateRouteWithChildren
   '/api/public/v1/pipeline': typeof ApiPublicV1PipelineRoute
+  '/api/public/v1/verify-domain': typeof ApiPublicV1VerifyDomainRoute
   '/api/public/v1/discovery/refresh': typeof ApiPublicV1DiscoveryRefreshRoute
   '/api/public/v1/orchestrate/$id': typeof ApiPublicV1OrchestrateIdRoute
 }
@@ -387,6 +396,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/execute'
     | '/api/public/v1/orchestrate'
     | '/api/public/v1/pipeline'
+    | '/api/public/v1/verify-domain'
     | '/api/public/v1/discovery/refresh'
     | '/api/public/v1/orchestrate/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -424,6 +434,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/execute'
     | '/api/public/v1/orchestrate'
     | '/api/public/v1/pipeline'
+    | '/api/public/v1/verify-domain'
     | '/api/public/v1/discovery/refresh'
     | '/api/public/v1/orchestrate/$id'
   id:
@@ -462,6 +473,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/execute'
     | '/api/public/v1/orchestrate'
     | '/api/public/v1/pipeline'
+    | '/api/public/v1/verify-domain'
     | '/api/public/v1/discovery/refresh'
     | '/api/public/v1/orchestrate/$id'
   fileRoutesById: FileRoutesById
@@ -474,6 +486,7 @@ export interface RootRouteChildren {
   ApiPublicV1ExecuteRoute: typeof ApiPublicV1ExecuteRoute
   ApiPublicV1OrchestrateRoute: typeof ApiPublicV1OrchestrateRouteWithChildren
   ApiPublicV1PipelineRoute: typeof ApiPublicV1PipelineRoute
+  ApiPublicV1VerifyDomainRoute: typeof ApiPublicV1VerifyDomainRoute
   ApiPublicV1DiscoveryRefreshRoute: typeof ApiPublicV1DiscoveryRefreshRoute
 }
 
@@ -689,6 +702,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPipelinesIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/api/public/v1/verify-domain': {
+      id: '/api/public/v1/verify-domain'
+      path: '/api/public/v1/verify-domain'
+      fullPath: '/api/public/v1/verify-domain'
+      preLoaderRoute: typeof ApiPublicV1VerifyDomainRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/v1/pipeline': {
       id: '/api/public/v1/pipeline'
       path: '/api/public/v1/pipeline'
@@ -820,6 +840,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicV1ExecuteRoute: ApiPublicV1ExecuteRoute,
   ApiPublicV1OrchestrateRoute: ApiPublicV1OrchestrateRouteWithChildren,
   ApiPublicV1PipelineRoute: ApiPublicV1PipelineRoute,
+  ApiPublicV1VerifyDomainRoute: ApiPublicV1VerifyDomainRoute,
   ApiPublicV1DiscoveryRefreshRoute: ApiPublicV1DiscoveryRefreshRoute,
 }
 export const routeTree = rootRouteImport
