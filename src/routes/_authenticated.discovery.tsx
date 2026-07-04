@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { discoverSite, listDiscoveryJobs, saveDiscoveredServices } from "@/lib/discovery.functions";
+import { discoverSite, listDiscoveryJobs, saveDiscoveredServices, analyzeAllSites } from "@/lib/discovery.functions";
 import { syncSitesFromTvcc } from "@/lib/integrations.functions";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { Card } from "@/components/ui/card";
