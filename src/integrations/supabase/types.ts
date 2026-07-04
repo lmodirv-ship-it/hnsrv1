@@ -213,7 +213,21 @@ export type Database = {
             foreignKeyName: "fallback_rules_fallback_service_id_fkey"
             columns: ["fallback_service_id"]
             isOneToOne: false
+            referencedRelation: "service_registry"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fallback_rules_fallback_service_id_fkey"
+            columns: ["fallback_service_id"]
+            isOneToOne: false
             referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fallback_rules_primary_service_id_fkey"
+            columns: ["primary_service_id"]
+            isOneToOne: false
+            referencedRelation: "service_registry"
             referencedColumns: ["id"]
           },
           {
@@ -515,6 +529,13 @@ export type Database = {
             foreignKeyName: "pipeline_subtasks_assigned_service_id_fkey"
             columns: ["assigned_service_id"]
             isOneToOne: false
+            referencedRelation: "service_registry"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pipeline_subtasks_assigned_service_id_fkey"
+            columns: ["assigned_service_id"]
+            isOneToOne: false
             referencedRelation: "services"
             referencedColumns: ["id"]
           },
@@ -530,6 +551,13 @@ export type Database = {
             columns: ["pipeline_id"]
             isOneToOne: false
             referencedRelation: "pipelines"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pipeline_subtasks_pipeline_id_fkey"
+            columns: ["pipeline_id"]
+            isOneToOne: false
+            referencedRelation: "task_runs"
             referencedColumns: ["id"]
           },
           {
@@ -668,6 +696,72 @@ export type Database = {
         }
         Relationships: []
       }
+      service_capabilities: {
+        Row: {
+          capability: string
+          category: string | null
+          confidence: number
+          created_at: string
+          description: string | null
+          id: string
+          input_schema: Json
+          is_active: boolean
+          metadata: Json
+          output_schema: Json
+          priority: number
+          service_id: string
+          task_type: string
+          updated_at: string
+        }
+        Insert: {
+          capability: string
+          category?: string | null
+          confidence?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          input_schema?: Json
+          is_active?: boolean
+          metadata?: Json
+          output_schema?: Json
+          priority?: number
+          service_id: string
+          task_type: string
+          updated_at?: string
+        }
+        Update: {
+          capability?: string
+          category?: string | null
+          confidence?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          input_schema?: Json
+          is_active?: boolean
+          metadata?: Json
+          output_schema?: Json
+          priority?: number
+          service_id?: string
+          task_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_capabilities_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "service_registry"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_capabilities_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       service_dependencies: {
         Row: {
           confidence: number
@@ -714,7 +808,21 @@ export type Database = {
             foreignKeyName: "service_dependencies_depends_on_service_id_fkey"
             columns: ["depends_on_service_id"]
             isOneToOne: false
+            referencedRelation: "service_registry"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_dependencies_depends_on_service_id_fkey"
+            columns: ["depends_on_service_id"]
+            isOneToOne: false
             referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_dependencies_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "service_registry"
             referencedColumns: ["id"]
           },
           {
@@ -752,6 +860,13 @@ export type Database = {
           status?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "service_health_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "service_registry"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "service_health_service_id_fkey"
             columns: ["service_id"]
@@ -814,6 +929,13 @@ export type Database = {
           window_start?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "service_metrics_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "service_registry"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "service_metrics_service_id_fkey"
             columns: ["service_id"]
@@ -916,6 +1038,13 @@ export type Database = {
             columns: ["internal_connector_id"]
             isOneToOne: false
             referencedRelation: "internal_connectors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_requests_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "service_registry"
             referencedColumns: ["id"]
           },
           {
@@ -1079,6 +1208,13 @@ export type Database = {
             foreignKeyName: "site_capabilities_service_id_fkey"
             columns: ["service_id"]
             isOneToOne: false
+            referencedRelation: "service_registry"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "site_capabilities_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
             referencedRelation: "services"
             referencedColumns: ["id"]
           },
@@ -1208,6 +1344,13 @@ export type Database = {
             foreignKeyName: "task_router_rules_preferred_service_id_fkey"
             columns: ["preferred_service_id"]
             isOneToOne: false
+            referencedRelation: "service_registry"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_router_rules_preferred_service_id_fkey"
+            columns: ["preferred_service_id"]
+            isOneToOne: false
             referencedRelation: "services"
             referencedColumns: ["id"]
           },
@@ -1276,6 +1419,13 @@ export type Database = {
             foreignKeyName: "websites_services_service_id_fkey"
             columns: ["service_id"]
             isOneToOne: false
+            referencedRelation: "service_registry"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "websites_services_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
             referencedRelation: "services"
             referencedColumns: ["id"]
           },
@@ -1290,7 +1440,328 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      service_registry: {
+        Row: {
+          api_required: boolean | null
+          approval_status: string | null
+          capabilities: string[] | null
+          category: string | null
+          confidence_score: number | null
+          created_at: string | null
+          description: string | null
+          discovered_from_job_id: string | null
+          endpoint_path: string | null
+          endpoint_url: string | null
+          gateway_url: string | null
+          id: string | null
+          input_schema: Json | null
+          is_active: boolean | null
+          last_health_status: string | null
+          last_tested_at: string | null
+          method: string | null
+          name: string | null
+          network_type: Database["public"]["Enums"]["network_type"] | null
+          output_schema: Json | null
+          rate_limit_per_min: number | null
+          routing_mode: string | null
+          scopes: string[] | null
+          site_id: string | null
+          slug: string | null
+          tags: string[] | null
+          updated_at: string | null
+        }
+        Insert: {
+          api_required?: boolean | null
+          approval_status?: string | null
+          capabilities?: string[] | null
+          category?: string | null
+          confidence_score?: number | null
+          created_at?: string | null
+          description?: string | null
+          discovered_from_job_id?: string | null
+          endpoint_path?: string | null
+          endpoint_url?: string | null
+          gateway_url?: string | null
+          id?: string | null
+          input_schema?: Json | null
+          is_active?: boolean | null
+          last_health_status?: string | null
+          last_tested_at?: string | null
+          method?: string | null
+          name?: string | null
+          network_type?: Database["public"]["Enums"]["network_type"] | null
+          output_schema?: Json | null
+          rate_limit_per_min?: number | null
+          routing_mode?: string | null
+          scopes?: string[] | null
+          site_id?: string | null
+          slug?: string | null
+          tags?: string[] | null
+          updated_at?: string | null
+        }
+        Update: {
+          api_required?: boolean | null
+          approval_status?: string | null
+          capabilities?: string[] | null
+          category?: string | null
+          confidence_score?: number | null
+          created_at?: string | null
+          description?: string | null
+          discovered_from_job_id?: string | null
+          endpoint_path?: string | null
+          endpoint_url?: string | null
+          gateway_url?: string | null
+          id?: string | null
+          input_schema?: Json | null
+          is_active?: boolean | null
+          last_health_status?: string | null
+          last_tested_at?: string | null
+          method?: string | null
+          name?: string | null
+          network_type?: Database["public"]["Enums"]["network_type"] | null
+          output_schema?: Json | null
+          rate_limit_per_min?: number | null
+          routing_mode?: string | null
+          scopes?: string[] | null
+          site_id?: string | null
+          slug?: string | null
+          tags?: string[] | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "services_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      task_runs: {
+        Row: {
+          api_key_id: string | null
+          auth_mode: string | null
+          client_id: string | null
+          created_at: string | null
+          error: string | null
+          final_package: Json | null
+          finished_at: string | null
+          gateway_site: string | null
+          id: string | null
+          input_payload: Json | null
+          intent: string | null
+          internal_connector_id: string | null
+          journey_path: Json | null
+          latency_ms: number | null
+          owner_id: string | null
+          prompt: string | null
+          requester_site: string | null
+          started_at: string | null
+          status: string | null
+          subtasks_done: number | null
+          subtasks_total: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          api_key_id?: string | null
+          auth_mode?: string | null
+          client_id?: string | null
+          created_at?: string | null
+          error?: string | null
+          final_package?: Json | null
+          finished_at?: string | null
+          gateway_site?: string | null
+          id?: string | null
+          input_payload?: Json | null
+          intent?: string | null
+          internal_connector_id?: string | null
+          journey_path?: Json | null
+          latency_ms?: number | null
+          owner_id?: string | null
+          prompt?: string | null
+          requester_site?: string | null
+          started_at?: string | null
+          status?: string | null
+          subtasks_done?: number | null
+          subtasks_total?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          api_key_id?: string | null
+          auth_mode?: string | null
+          client_id?: string | null
+          created_at?: string | null
+          error?: string | null
+          final_package?: Json | null
+          finished_at?: string | null
+          gateway_site?: string | null
+          id?: string | null
+          input_payload?: Json | null
+          intent?: string | null
+          internal_connector_id?: string | null
+          journey_path?: Json | null
+          latency_ms?: number | null
+          owner_id?: string | null
+          prompt?: string | null
+          requester_site?: string | null
+          started_at?: string | null
+          status?: string | null
+          subtasks_done?: number | null
+          subtasks_total?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pipelines_api_key_id_fkey"
+            columns: ["api_key_id"]
+            isOneToOne: false
+            referencedRelation: "api_keys"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pipelines_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "api_clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pipelines_internal_connector_id_fkey"
+            columns: ["internal_connector_id"]
+            isOneToOne: false
+            referencedRelation: "internal_connectors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      task_steps: {
+        Row: {
+          assigned_provider_site: string | null
+          assigned_service_id: string | null
+          attempts: number | null
+          capability_id: string | null
+          created_at: string | null
+          depends_on: string[] | null
+          engine_stage: string | null
+          error: string | null
+          finished_at: string | null
+          id: string | null
+          input_payload: Json | null
+          intent: string | null
+          kind: string | null
+          latency_ms: number | null
+          output_payload: Json | null
+          pipeline_id: string | null
+          plan_id: string | null
+          plan_step: number | null
+          started_at: string | null
+          status: string | null
+          status_code: number | null
+          task_key: string | null
+          task_order: number | null
+          task_type: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          assigned_provider_site?: string | null
+          assigned_service_id?: string | null
+          attempts?: number | null
+          capability_id?: string | null
+          created_at?: string | null
+          depends_on?: string[] | null
+          engine_stage?: string | null
+          error?: string | null
+          finished_at?: string | null
+          id?: string | null
+          input_payload?: Json | null
+          intent?: string | null
+          kind?: string | null
+          latency_ms?: number | null
+          output_payload?: Json | null
+          pipeline_id?: string | null
+          plan_id?: string | null
+          plan_step?: number | null
+          started_at?: string | null
+          status?: string | null
+          status_code?: number | null
+          task_key?: string | null
+          task_order?: number | null
+          task_type?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          assigned_provider_site?: string | null
+          assigned_service_id?: string | null
+          attempts?: number | null
+          capability_id?: string | null
+          created_at?: string | null
+          depends_on?: string[] | null
+          engine_stage?: string | null
+          error?: string | null
+          finished_at?: string | null
+          id?: string | null
+          input_payload?: Json | null
+          intent?: string | null
+          kind?: string | null
+          latency_ms?: number | null
+          output_payload?: Json | null
+          pipeline_id?: string | null
+          plan_id?: string | null
+          plan_step?: number | null
+          started_at?: string | null
+          status?: string | null
+          status_code?: number | null
+          task_key?: string | null
+          task_order?: number | null
+          task_type?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pipeline_subtasks_assigned_service_id_fkey"
+            columns: ["assigned_service_id"]
+            isOneToOne: false
+            referencedRelation: "service_registry"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pipeline_subtasks_assigned_service_id_fkey"
+            columns: ["assigned_service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pipeline_subtasks_capability_id_fkey"
+            columns: ["capability_id"]
+            isOneToOne: false
+            referencedRelation: "site_capabilities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pipeline_subtasks_pipeline_id_fkey"
+            columns: ["pipeline_id"]
+            isOneToOne: false
+            referencedRelation: "pipelines"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pipeline_subtasks_pipeline_id_fkey"
+            columns: ["pipeline_id"]
+            isOneToOne: false
+            referencedRelation: "task_runs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pipeline_subtasks_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "hub_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       has_role: {
