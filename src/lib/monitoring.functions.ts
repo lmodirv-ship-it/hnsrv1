@@ -38,6 +38,36 @@ export const checkServiceHealth = createServerFn({ method: "POST" })
     return result;
   });
 
+export const checkAllHealth = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: svcs, error } = await context.supabase
+      .from("services")
+      .select("id, endpoint_path, sites(base_url)")
+      .eq("is_active", true);
+    if (error) throw new Error(error.message);
+    let checked = 0;
+    let online = 0;
+    let failed = 0;
+    for (const svc of svcs ?? []) {
+      const site: any = (svc as any).sites;
+      if (!site?.base_url) continue;
+      const url = String(site.base_url).replace(/\/$/, "") + ((svc as any).endpoint_path ?? "/");
+      const r = await ping(url);
+      await context.supabase.from("service_health").insert({
+        service_id: (svc as any).id,
+        status: r.status,
+        latency_ms: r.latency_ms,
+        error: r.error ?? null,
+      });
+      checked++;
+      if (r.status === "online") online++; else failed++;
+    }
+    return { checked, online, failed };
+  });
+
+
+
 export const latestHealth = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
