@@ -80,3 +80,64 @@ export const listAvailableTaskTypesFn = createServerFn({ method: "GET" })
     const { listAvailableTaskTypes } = await import("@/lib/hub-engines/capability-registry.server");
     return (await listAvailableTaskTypes()) as any;
   });
+
+// Seed site_capabilities from currently approved+active services, using a
+// keyword heuristic to infer task_type. Marks entries as "online / inferred"
+// so the Dispatcher immediately has providers to route to. Existing rows are
+// left untouched.
+export const seedRegistryFromServices = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdminOrDeveloper(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: services, error } = await supabaseAdmin
+      .from("services")
+      .select("id, site_id, name, category, tags, description")
+      .eq("is_active", true)
+      .eq("approval_status", "approved");
+    if (error) throw new Error(error.message);
+
+    const infer = (s: any): string => {
+      const cat = String(s.category ?? "").toLowerCase();
+      const hay = [s.name, s.category, s.description, ...(Array.isArray(s.tags) ? s.tags : [])]
+        .filter(Boolean).join(" ").toLowerCase();
+      const has = (...w: string[]) => w.some((k) => hay.includes(k));
+      if (has("logo")) return "logo_design";
+      if (has("translate", "translat", "ترجم")) return "translation";
+      if (has("image", "picture", "photo", "صور")) return "image_generation";
+      if (has("video", "فيديو")) return "video_generation";
+      if (has("audio", "voice", "tts", "speech", "صوت")) return "audio_generation";
+      if (cat === "chat" || has("chat", "conversation", "assistant", "دردش", "محادث")) return "chat";
+      if (has("deploy", "publish", "نشر")) return "deployment";
+      if (has("build", "website", "site builder", "بناء", "موقع")) return "website_building";
+      if (cat === "database" || has("database", " db ", "sql", "postgres", "supabase", "قاعدة")) return "database_creation";
+      if (cat === "ai" || has("text", "write", "copy", "blog", "article", "gpt", "llm", "نص", "مقال")) return "text_generation";
+      return "generic";
+    };
+
+    const rows = (services ?? []).map((s: any) => ({
+      site_id: s.site_id,
+      service_id: s.id,
+      task_type: infer(s),
+      status: "online" as const,
+      source: "inferred" as const,
+      input_schema: {},
+      output_schema: {},
+      metadata: { seeded_from: "services", inferred_at: new Date().toISOString() },
+      last_probed_at: new Date().toISOString(),
+      last_ok_at: new Date().toISOString(),
+    }));
+
+    // Skip services that already have a capability row.
+    const { data: existing } = await supabaseAdmin
+      .from("site_capabilities")
+      .select("service_id");
+    const seen = new Set((existing ?? []).map((r: any) => r.service_id));
+    const toInsert = rows.filter((r) => !seen.has(r.service_id));
+    if (!toInsert.length) return { ok: true, inserted: 0, total_services: rows.length };
+
+    const { error: iErr } = await supabaseAdmin.from("site_capabilities").insert(toInsert as any);
+    if (iErr) throw new Error(iErr.message);
+    return { ok: true, inserted: toInsert.length, total_services: rows.length };
+  });

@@ -1,0 +1,1 @@
+DELETE FROM public.site_capabilities WHERE source = 'inferred';

@@ -22,6 +22,7 @@ import {
   runSiteDiscovery,
   previewSiteManifest,
   listAvailableTaskTypesFn,
+  seedRegistryFromServices,
 } from "@/lib/registry.functions";
 
 export const Route = createFileRoute("/_authenticated/registry")({
@@ -65,6 +66,7 @@ function RegistryPage() {
   const discoverFn = useServerFn(runSiteDiscovery);
   const previewFn = useServerFn(previewSiteManifest);
   const typesFn = useServerFn(listAvailableTaskTypesFn);
+  const seedFn = useServerFn(seedRegistryFromServices);
 
   const { data: sites = [] } = useQuery({ queryKey: ["registry-sites"], queryFn: () => sitesFn() as Promise<SiteRow[]> });
   const { data: caps = [] } = useQuery({ queryKey: ["registry-caps"], queryFn: () => capsFn() as Promise<CapRow[]>, refetchInterval: 5000 });
@@ -93,6 +95,15 @@ function RegistryPage() {
     onError: (e: any) => toast.error(String(e?.message ?? e)),
   });
 
+  const seedMut = useMutation({
+    mutationFn: () => seedFn(),
+    onSuccess: (r: any) => {
+      toast.success(`Seeded ${r.inserted} capabilities (from ${r.total_services} services)`);
+      qc.invalidateQueries();
+    },
+    onError: (e: any) => toast.error(String(e?.message ?? e)),
+  });
+
   const filteredCaps = caps.filter((c) => {
     const f = filter.trim().toLowerCase();
     if (!f) return true;
@@ -115,15 +126,26 @@ function RegistryPage() {
             Site Inventory → Service Discovery → Capability Registry. The Task Planner and Dispatcher read from here.
           </p>
         </div>
-        <Button
-          onClick={() => runMut.mutate(null)}
-          disabled={runMut.isPending}
-          size="lg"
-          className="bg-gradient-to-r from-primary to-primary/70 shadow-lg"
-        >
-          <RefreshCw className={"h-4 w-4 mr-2 " + (runMut.isPending ? "animate-spin" : "")} />
-          {runMut.isPending ? "Discovering…" : `Discover All Sites (${sites.length})`}
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            onClick={() => seedMut.mutate()}
+            disabled={seedMut.isPending}
+            variant="secondary"
+            size="lg"
+          >
+            <FileJson className={"h-4 w-4 mr-2 " + (seedMut.isPending ? "animate-pulse" : "")} />
+            {seedMut.isPending ? "Seeding…" : "Seed registry from services"}
+          </Button>
+          <Button
+            onClick={() => runMut.mutate(null)}
+            disabled={runMut.isPending}
+            size="lg"
+            className="bg-gradient-to-r from-primary to-primary/70 shadow-lg"
+          >
+            <RefreshCw className={"h-4 w-4 mr-2 " + (runMut.isPending ? "animate-spin" : "")} />
+            {runMut.isPending ? "Discovering…" : `Discover All Sites (${sites.length})`}
+          </Button>
+        </div>
       </div>
 
       <div className="flex flex-wrap gap-2">
