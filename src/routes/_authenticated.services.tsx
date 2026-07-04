@@ -283,6 +283,19 @@ function ServicesPage() {
             {mAnalyzeAll.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
             {mAnalyzeAll.isPending ? "جاري التحليل…" : "توليد: حلّل جميع المواقع"}
           </Button>
+          <Button
+            variant="secondary"
+            onClick={() => {
+              if (stats.pending === 0) { toast.info("لا توجد خدمات بانتظار الاعتماد"); return; }
+              if (confirm(`اعتماد وتفعيل ${stats.pending} خدمة معلّقة؟`)) mApproveAll.mutate();
+            }}
+            disabled={mApproveAll.isPending || stats.pending === 0}
+            className="gap-2"
+            title="Approve & Activate All Pending Services"
+          >
+            {mApproveAll.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+            {mApproveAll.isPending ? "جاري الاعتماد…" : `اعتماد وتفعيل الكل (${stats.pending})`}
+          </Button>
         </div>
       </div>
 
