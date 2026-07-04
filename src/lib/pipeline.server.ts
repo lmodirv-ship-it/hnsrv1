@@ -250,12 +250,21 @@ export async function runPipeline(args: RunPipelineArgs) {
   const finishedAt = new Date();
   const latencyMs = finishedAt.getTime() - startedAt.getTime();
   const status = anyFailed ? (done > 0 ? "partial" : "failed") : "success";
+  const journeyPath = [
+    { step: "received_from", site: requesterSite, via: gatewaySite ?? "tvcc" },
+    { step: "hub_planned_subtasks", count: plan.length },
+    { step: "hub_dispatched", providers: Object.keys(finalPackage) },
+    { step: "hub_aggregated", status },
+    { step: "returned_via_gateway", via: gatewaySite ?? "tvcc" },
+    { step: "delivered_to", site: requesterSite },
+  ];
   await supabaseAdmin.from("pipelines").update({
     status,
     subtasks_done: done,
     final_package: finalPackage as any,
     latency_ms: latencyMs,
     finished_at: finishedAt.toISOString(),
+    journey_path: journeyPath as any,
   }).eq("id", pipeline.id);
 
   return {
@@ -267,5 +276,8 @@ export async function runPipeline(args: RunPipelineArgs) {
     subtasks_done: done,
     latency_ms: latencyMs,
     final_package: finalPackage,
+    return_via: gatewaySite ?? "tvcc",
+    deliver_to: requesterSite,
+    journey_path: journeyPath,
   };
 }
