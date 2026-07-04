@@ -27,6 +27,7 @@ function ApiConsolePage() {
   const issue = useServerFn(issueKey);
   const revoke = useServerFn(revokeKey);
   const logsFn = useServerFn(recentRequests);
+  const provisionMesh = useServerFn(provisionMeshKeys);
 
   const { data: clients = [] } = useQuery({ queryKey: ["api-clients"], queryFn: () => list() });
   const { data: logs = [] } = useQuery({ queryKey: ["req-logs"], queryFn: () => logsFn() });
