@@ -82,6 +82,12 @@ const groups: NavGroup[] = [
     ],
   },
   {
+    key: "navSystemFlow",
+    icon: GitBranch,
+    url: "/system-flow",
+    items: [{ key: "navSystemFlow", url: "/system-flow" }],
+  },
+  {
     key: "navServiceNetwork",
     icon: Network,
     url: "/network",

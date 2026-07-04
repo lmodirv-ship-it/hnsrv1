@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedSystemFlowRouteImport } from './routes/_authenticated.system-flow'
 import { Route as AuthenticatedSubtasksRouteImport } from './routes/_authenticated.subtasks'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated.settings'
 import { Route as AuthenticatedServicesRouteImport } from './routes/_authenticated.services'
@@ -48,6 +49,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedSystemFlowRoute = AuthenticatedSystemFlowRouteImport.update({
+  id: '/system-flow',
+  path: '/system-flow',
+  getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedSubtasksRoute = AuthenticatedSubtasksRouteImport.update({
   id: '/subtasks',
@@ -183,6 +189,7 @@ export interface FileRoutesByFullPath {
   '/services': typeof AuthenticatedServicesRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/subtasks': typeof AuthenticatedSubtasksRoute
+  '/system-flow': typeof AuthenticatedSystemFlowRoute
   '/pipelines/$id': typeof AuthenticatedPipelinesIdRoute
   '/sites/$slug': typeof AuthenticatedSitesSlugRoute
   '/pipelines/': typeof AuthenticatedPipelinesIndexRoute
@@ -209,6 +216,7 @@ export interface FileRoutesByTo {
   '/services': typeof AuthenticatedServicesRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/subtasks': typeof AuthenticatedSubtasksRoute
+  '/system-flow': typeof AuthenticatedSystemFlowRoute
   '/pipelines/$id': typeof AuthenticatedPipelinesIdRoute
   '/sites/$slug': typeof AuthenticatedSitesSlugRoute
   '/pipelines': typeof AuthenticatedPipelinesIndexRoute
@@ -237,6 +245,7 @@ export interface FileRoutesById {
   '/_authenticated/services': typeof AuthenticatedServicesRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/subtasks': typeof AuthenticatedSubtasksRoute
+  '/_authenticated/system-flow': typeof AuthenticatedSystemFlowRoute
   '/_authenticated/pipelines/$id': typeof AuthenticatedPipelinesIdRoute
   '/_authenticated/sites/$slug': typeof AuthenticatedSitesSlugRoute
   '/_authenticated/pipelines/': typeof AuthenticatedPipelinesIndexRoute
@@ -265,6 +274,7 @@ export interface FileRouteTypes {
     | '/services'
     | '/settings'
     | '/subtasks'
+    | '/system-flow'
     | '/pipelines/$id'
     | '/sites/$slug'
     | '/pipelines/'
@@ -291,6 +301,7 @@ export interface FileRouteTypes {
     | '/services'
     | '/settings'
     | '/subtasks'
+    | '/system-flow'
     | '/pipelines/$id'
     | '/sites/$slug'
     | '/pipelines'
@@ -318,6 +329,7 @@ export interface FileRouteTypes {
     | '/_authenticated/services'
     | '/_authenticated/settings'
     | '/_authenticated/subtasks'
+    | '/_authenticated/system-flow'
     | '/_authenticated/pipelines/$id'
     | '/_authenticated/sites/$slug'
     | '/_authenticated/pipelines/'
@@ -360,6 +372,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/system-flow': {
+      id: '/_authenticated/system-flow'
+      path: '/system-flow'
+      fullPath: '/system-flow'
+      preLoaderRoute: typeof AuthenticatedSystemFlowRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/subtasks': {
       id: '/_authenticated/subtasks'
@@ -533,6 +552,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedServicesRoute: typeof AuthenticatedServicesRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedSubtasksRoute: typeof AuthenticatedSubtasksRoute
+  AuthenticatedSystemFlowRoute: typeof AuthenticatedSystemFlowRoute
   AuthenticatedPipelinesIdRoute: typeof AuthenticatedPipelinesIdRoute
   AuthenticatedSitesSlugRoute: typeof AuthenticatedSitesSlugRoute
   AuthenticatedPipelinesIndexRoute: typeof AuthenticatedPipelinesIndexRoute
@@ -554,6 +574,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedServicesRoute: AuthenticatedServicesRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedSubtasksRoute: AuthenticatedSubtasksRoute,
+  AuthenticatedSystemFlowRoute: AuthenticatedSystemFlowRoute,
   AuthenticatedPipelinesIdRoute: AuthenticatedPipelinesIdRoute,
   AuthenticatedSitesSlugRoute: AuthenticatedSitesSlugRoute,
   AuthenticatedPipelinesIndexRoute: AuthenticatedPipelinesIndexRoute,
