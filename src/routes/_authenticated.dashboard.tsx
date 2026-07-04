@@ -437,7 +437,7 @@ function DashboardPage() {
               {t("viewAll")} <ArrowUpRight className="h-3 w-3" />
             </Link>
           </div>
-          <EcosystemMap sitesList={data?.sitesList ?? []} />
+          <EcosystemMap nodes={(ecoNodes as EcoNode[] | undefined) ?? []} lang={lang} />
         </GlassCard>
 
         <GlassCard glow="emerald" className="p-5">
