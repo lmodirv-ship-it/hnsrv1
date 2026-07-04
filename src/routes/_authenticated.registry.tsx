@@ -22,6 +22,7 @@ import {
   runSiteDiscovery,
   previewSiteManifest,
   listAvailableTaskTypesFn,
+  seedRegistryFromServices,
 } from "@/lib/registry.functions";
 
 export const Route = createFileRoute("/_authenticated/registry")({
