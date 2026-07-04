@@ -144,6 +144,7 @@ export const translations = {
     navRoles: "الأدوار والصلاحيات",
     navBackup: "النسخ الاحتياطي",
     navServiceNetwork: "شبكة الخدمات",
+    navInternalConnectors: "الاتصالات الداخلية",
     navSystemFlow: "مخطط النظام",
     systemFlowTitle: "مخطط تدفق منظومة HN",
     systemFlowSubtitle: "كل طلب: المستخدم → موقع HN → TVCC → HN Service Hub → المزود → عودة عبر Hub ثم TVCC إلى الموقع الطالب",
