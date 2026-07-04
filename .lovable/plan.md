@@ -1,91 +1,110 @@
-# HN Service Hub — 5-Engine Architecture
+# Site Inventory → Service Discovery → Capability Registry → Task Engine
 
-Restructure the Hub from a simple router into a full orchestration brain with five sequential engines. The **Task Planner** becomes the heart of the system: it turns a natural-language request into an ordered task graph, then the Dispatcher sends each task to the right HN site.
+Add the missing layer that lets the Task Planner actually know what each HN site can do. Today `services.capabilities` is a free-text array — good enough to route, not good enough to plan against. This turns it into a structured, discoverable registry, wired directly into the 5-engine orchestrator.
 
-## The 5 Engines
+## The 4 layers, in order
 
 ```text
-User Request
-     │
-     ▼
-┌────────────────────┐
-│ 1. Request Analyzer│  → understand intent, extract entities, detect language
-└────────────────────┘
-     │
-     ▼
-┌────────────────────┐
-│ 2. Task Planner    │  → decompose into ordered tasks with dependencies
-└────────────────────┘   (uses Lovable AI to build a task graph)
-     │
-     ▼
-┌────────────────────┐
-│ 3. Task Dispatcher │  → map each task → HN site (Logo→HN Image, DB→HN DB…)
-└────────────────────┘   run in parallel where possible, serial where dependent
-     │
-     ▼
-┌────────────────────┐
-│ 4. Result Collector│  → gather subtask outputs, retry/fallback on failure
-└────────────────────┘
-     │
-     ▼
-┌────────────────────┐
-│ 5. Response Builder│  → assemble final structured response for the caller
-└────────────────────┘
-     │
-     ▼
-Final Response
+1. Site Inventory       ← TVCC verified sites
+        │
+        ▼
+2. Service Discovery    ← Hub probes each site's manifest
+        │
+        ▼
+3. Capability Registry  ← site | service | task_type | inputs | outputs | status
+        │
+        ▼
+4. Task Engine          ← Planner + Dispatcher read from registry only
 ```
 
-## What Changes
+## Database
 
-### 1. Database (new migration)
-- New table `hub_plans` — one row per user request, stores analyzer output + planner graph + final response.
-  - `id`, `request_id` (FK service_requests), `user_intent`, `entities` jsonb, `language`, `plan_graph` jsonb, `status`, `final_response` jsonb, timestamps.
-- Extend `pipeline_subtasks` with `depends_on uuid[]`, `plan_step` int, `engine_stage` text (`analyze|plan|dispatch|collect|build`).
-- Grants + RLS aligned with existing tables (authenticated + service_role; org-scoped).
+New table **site_capabilities** — the canonical registry row per (service, task_type):
 
-### 2. Engine modules (`src/lib/hub-engines/`)
-Each engine is a pure server module composed by the executor:
-- `request-analyzer.server.ts` — calls Lovable AI to classify intent (`website|logo|content|deployment|…`), extract entities, detect language.
-- `task-planner.server.ts` — calls Lovable AI with a structured JSON schema to produce `{ tasks: [{ id, type, inputs, depends_on }] }`. Includes a rule-based fallback for common patterns (e.g. "restaurant website" → logo→images→texts→db→site→deploy).
-- `task-dispatcher.server.ts` — resolves each task type to a target site via `services` table (`service.capability = task.type`), respects `depends_on` topological order, parallelizes independent tasks. Reuses the existing internal-connector auth path.
-- `result-collector.server.ts` — awaits subtasks, applies `fallback_rules` on failure, stores partial results.
-- `response-builder.server.ts` — merges collected artifacts (urls, ids, text) into one caller-facing payload keyed by task id.
+- `id`, `site_id`, `service_id`, `task_type` (e.g. `image_generation`, `audio_generation`, `video_generation`, `text_generation`, `database_creation`, `website_building`, `deployment`)
+- `input_schema` jsonb (e.g. `{ text: "string", style?: "string" }`)
+- `output_schema` jsonb (e.g. `{ url: "string", mime: "image/png" }`)
+- `status` enum: `online | degraded | offline | unknown`
+- `last_probed_at`, `last_ok_at`, `probe_error`
+- `source` enum: `manifest | manual | inferred`
+- Unique on `(service_id, task_type)`.
 
-### 3. Hub Executor
-`src/lib/hub-executor.server.ts` gains a new entry `orchestrate(request)` that runs the 5 engines in sequence, writing progress into `hub_plans` and `pipeline_subtasks`. The existing single-service `execute()` path stays for direct calls; `orchestrate()` is the default for natural-language requests coming through `/api/public/v1/ask`.
+New table **discovery_runs** — one row per discovery pass:
 
-### 4. Public API
-- `POST /api/public/v1/orchestrate` — new endpoint: `{ prompt, context? }` → returns `{ plan_id, tasks, response }`.
-- `GET /api/public/v1/orchestrate/:id` — poll plan status + partial results.
-- `/api/public/v1/ask` switches to call `orchestrate()` internally instead of a single service.
+- `id`, `site_id` (nullable = all sites), `started_at`, `finished_at`, `services_found`, `capabilities_found`, `errors_count`, `status`, `initiated_by`.
 
-### 5. UI (`/orchestration`)
-New authenticated route showing:
-- Live plan graph (each node = task, edges = dependencies, colored by stage).
-- Per-engine timing (analyze / plan / dispatch / collect / build).
-- Drill-down into each subtask (target site, request, response, tokens/cost).
-- Replay button (re-runs planner with same prompt).
+Extend **sites** with a discovery-manifest hint: `manifest_path text default '/.well-known/hn-services'`.
 
-Sidebar entry under "HN Service Hub" section (i18n keys added for AR/EN).
+Grants + RLS: admins/developers can view; admins manage; `service_role` full.
 
-## Technical Notes
+Task-type vocabulary is stable/enumerable in code (`TASK_TYPES` constant) so the Planner can plan against a known set even when the registry is empty.
 
-- Task Planner prompt uses `response_format: json_schema` (Lovable AI Gateway supports it) so we get a strict `{ tasks: [...] }` back.
-- Dispatcher's site resolution: extend `services` with a `capabilities text[]` column so a task type like `"logo"` finds any service declaring that capability; falls back to `fallback_rules`.
-- All engines run inside a single `createServerFn` `orchestrate` so SSR / RPC boundary is respected; no client-side orchestration.
-- Internal-connector auth from previous work is reused verbatim for dispatcher → HN sites.
-- Response Builder returns a stable shape: `{ plan_id, status, results: { [taskId]: { type, output, site, ms } }, summary }`.
+## Service Discovery
 
-## Files (approximate)
+For each verified internal site (TVCC status = `verified`, `network_type = internal`):
 
-- `supabase/migrations/<ts>_hub_engines.sql` — `hub_plans`, subtask cols, `services.capabilities`.
-- `src/lib/hub-engines/{request-analyzer,task-planner,task-dispatcher,result-collector,response-builder}.server.ts`
-- `src/lib/hub-orchestrator.functions.ts` — `orchestrate`, `getPlan` server fns.
-- `src/lib/hub-executor.server.ts` — wire `orchestrate()`.
-- `src/routes/api/public/v1/orchestrate.ts` (+ `orchestrate.$id.ts`)
-- `src/routes/api/public/v1/ask.ts` — delegate to orchestrator.
-- `src/routes/_authenticated.orchestration.tsx` — plan graph UI.
-- `src/components/app-shell.tsx`, `src/i18n/translations.ts` — nav + strings.
+1. Hub `GET`s the site's manifest URL (`base_url + manifest_path`) with the internal service token.
+2. Manifest shape (Hub-defined, sites implement it):
+   ```json
+   {
+     "site": { "name": "HN Audio AI", "version": "1.2.0" },
+     "services": [
+       {
+         "slug": "voice-over",
+         "name": "Voice Over",
+         "endpoint": "/api/voice-over",
+         "method": "POST",
+         "capabilities": [
+           {
+             "task_type": "audio_generation",
+             "input_schema": { "text": "string", "voice?": "string" },
+             "output_schema": { "url": "string", "mime": "audio/mpeg" }
+           }
+         ]
+       }
+     ]
+   }
+   ```
+3. Hub upserts `services` and `site_capabilities` rows, marks missing ones as `offline`.
+4. Sites without a manifest fall back to `inferred` capabilities from existing `services.category` / `capabilities` columns so nothing breaks mid-migration.
+5. Optional per-capability health probe (`HEAD` or configured `probe_path`) sets `status`.
 
-Approve and I'll build it end-to-end.
+Discovery is a `createServerFn` (admin/developer-gated) plus a public route `POST /api/public/v1/discovery/refresh` (internal token or admin JWT), so it can be triggered manually, on schedule, or by a webhook when TVCC verifies a new site.
+
+## Task Engine, rewired
+
+- **Planner** now receives the registry (`{ task_type, sites_offering_it, sample_input_schema }`) instead of a flat capabilities list, so it plans only against task types that are actually offered.
+- **Dispatcher** picks a service by exact `task_type` match with `status = online`; ties broken by trust level then latency. Falls back to `degraded` if no `online`. Records the chosen capability id on each subtask.
+- Subtasks store `capability_id` (nullable) so the UI can show "task X → HN Audio AI · voice_over · audio_generation".
+
+## UI
+
+New route `/registry` (under Discovery engine in the sidebar):
+
+- **Sites tab** — TVCC-verified sites, "Refresh" per site, "Refresh all", last-discovered timestamp.
+- **Registry tab** — searchable grid: task_type · site · service · status · last probed. Filter by task_type.
+- **Manifest preview** — for a selected site, show the raw manifest JSON we ingested.
+
+The Orchestration page (`/orchestration`) gets a small "Available task types" header pulled from the registry, so it's obvious what the planner can produce.
+
+## Files
+
+- `supabase/migrations/<ts>_site_registry.sql` — `site_capabilities`, `discovery_runs`, `sites.manifest_path`.
+- `src/lib/hub-engines/service-discovery.server.ts` — manifest probe + registry upsert.
+- `src/lib/hub-engines/capability-registry.server.ts` — read helpers (listByTaskType, listAll, forSite).
+- `src/lib/hub-engines/task-types.ts` — canonical `TASK_TYPES` enum shared with Planner.
+- `src/lib/hub-engines/task-dispatcher.server.ts` — swap capability lookup to `site_capabilities`.
+- `src/lib/hub-engines/task-planner.server.ts` — feed registry-derived context into the AI prompt + template.
+- `src/lib/registry.functions.ts` — server fns: `runDiscovery`, `listCapabilities`, `listRegistrySites`, `getSiteManifest`.
+- `src/routes/api/public/v1/discovery.refresh.ts` — external trigger (internal-token or admin).
+- `src/routes/_authenticated.registry.tsx` — Sites / Registry / Manifest UI.
+- `src/components/app-shell.tsx`, `src/i18n/translations.ts` — nav + strings (`navRegistry`).
+
+## Technical notes
+
+- Manifest fetch uses the same credential-injection path as `hub-executor` (`site.metadata.keyEnv` → `HN_API_KEY` fallback). No new secret plumbing.
+- All manifest ingestion is server-only (`.server.ts`) and gated by the internal auth path; external callers can never mutate the registry.
+- Registry writes are idempotent (upsert on `(service_id, task_type)`); a discovery run never drops a capability, only marks it `offline` — history is preserved.
+- Task Planner's fallback templates stay, but they now cross-check against the live registry and drop tasks with no online provider (Planner returns a `warnings[]` listing them instead of silently failing at dispatch time).
+
+Approve and I'll implement.

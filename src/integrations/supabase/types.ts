@@ -121,6 +121,56 @@ export type Database = {
         }
         Relationships: []
       }
+      discovery_runs: {
+        Row: {
+          capabilities_found: number
+          created_at: string
+          errors: Json
+          errors_count: number
+          finished_at: string | null
+          id: string
+          initiated_by: string | null
+          services_found: number
+          site_id: string | null
+          started_at: string
+          status: string
+        }
+        Insert: {
+          capabilities_found?: number
+          created_at?: string
+          errors?: Json
+          errors_count?: number
+          finished_at?: string | null
+          id?: string
+          initiated_by?: string | null
+          services_found?: number
+          site_id?: string | null
+          started_at?: string
+          status?: string
+        }
+        Update: {
+          capabilities_found?: number
+          created_at?: string
+          errors?: Json
+          errors_count?: number
+          finished_at?: string | null
+          id?: string
+          initiated_by?: string | null
+          services_found?: number
+          site_id?: string | null
+          started_at?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "discovery_runs_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       fallback_rules: {
         Row: {
           created_at: string
@@ -383,6 +433,7 @@ export type Database = {
           assigned_provider_site: string | null
           assigned_service_id: string | null
           attempts: number
+          capability_id: string | null
           created_at: string
           depends_on: string[]
           engine_stage: string | null
@@ -409,6 +460,7 @@ export type Database = {
           assigned_provider_site?: string | null
           assigned_service_id?: string | null
           attempts?: number
+          capability_id?: string | null
           created_at?: string
           depends_on?: string[]
           engine_stage?: string | null
@@ -435,6 +487,7 @@ export type Database = {
           assigned_provider_site?: string | null
           assigned_service_id?: string | null
           attempts?: number
+          capability_id?: string | null
           created_at?: string
           depends_on?: string[]
           engine_stage?: string | null
@@ -463,6 +516,13 @@ export type Database = {
             columns: ["assigned_service_id"]
             isOneToOne: false
             referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pipeline_subtasks_capability_id_fkey"
+            columns: ["capability_id"]
+            isOneToOne: false
+            referencedRelation: "site_capabilities"
             referencedColumns: ["id"]
           },
           {
@@ -903,6 +963,72 @@ export type Database = {
           },
         ]
       }
+      site_capabilities: {
+        Row: {
+          created_at: string
+          id: string
+          input_schema: Json
+          last_ok_at: string | null
+          last_probed_at: string | null
+          metadata: Json
+          output_schema: Json
+          probe_error: string | null
+          service_id: string
+          site_id: string
+          source: Database["public"]["Enums"]["capability_source"]
+          status: Database["public"]["Enums"]["capability_status"]
+          task_type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          input_schema?: Json
+          last_ok_at?: string | null
+          last_probed_at?: string | null
+          metadata?: Json
+          output_schema?: Json
+          probe_error?: string | null
+          service_id: string
+          site_id: string
+          source?: Database["public"]["Enums"]["capability_source"]
+          status?: Database["public"]["Enums"]["capability_status"]
+          task_type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          input_schema?: Json
+          last_ok_at?: string | null
+          last_probed_at?: string | null
+          metadata?: Json
+          output_schema?: Json
+          probe_error?: string | null
+          service_id?: string
+          site_id?: string
+          source?: Database["public"]["Enums"]["capability_source"]
+          status?: Database["public"]["Enums"]["capability_status"]
+          task_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "site_capabilities_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "site_capabilities_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sites: {
         Row: {
           base_url: string
@@ -916,6 +1042,7 @@ export type Database = {
           integration_log: Json
           layer: Database["public"]["Enums"]["site_layer"]
           logo_url: string | null
+          manifest_path: string
           metadata: Json
           name: string
           network_type: Database["public"]["Enums"]["network_type"]
@@ -938,6 +1065,7 @@ export type Database = {
           integration_log?: Json
           layer?: Database["public"]["Enums"]["site_layer"]
           logo_url?: string | null
+          manifest_path?: string
           metadata?: Json
           name: string
           network_type?: Database["public"]["Enums"]["network_type"]
@@ -960,6 +1088,7 @@ export type Database = {
           integration_log?: Json
           layer?: Database["public"]["Enums"]["site_layer"]
           logo_url?: string | null
+          manifest_path?: string
           metadata?: Json
           name?: string
           network_type?: Database["public"]["Enums"]["network_type"]
@@ -1008,6 +1137,8 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "developer" | "viewer"
+      capability_source: "manifest" | "manual" | "inferred"
+      capability_status: "online" | "degraded" | "offline" | "unknown"
       network_type: "internal" | "external"
       site_layer:
         | "gateway"
@@ -1144,6 +1275,8 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "developer", "viewer"],
+      capability_source: ["manifest", "manual", "inferred"],
+      capability_status: ["online", "degraded", "offline", "unknown"],
       network_type: ["internal", "external"],
       site_layer: [
         "gateway",
