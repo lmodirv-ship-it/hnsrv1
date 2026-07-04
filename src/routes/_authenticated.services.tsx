@@ -258,6 +258,8 @@ function ServicesPage() {
                 <TableHead>Health</TableHead>
                 <TableHead onClick={() => setSort("confidence_score")} className="cursor-pointer">Confidence</TableHead>
                 <TableHead onClick={() => setSort("last_tested_at")} className="cursor-pointer whitespace-nowrap">Last Tested</TableHead>
+                <TableHead className="whitespace-nowrap">{t("usedBy")}</TableHead>
+                <TableHead className="whitespace-nowrap">{t("dependsOn")}</TableHead>
                 <TableHead className="text-end">Actions</TableHead>
               </TableRow>
             </TableHeader>
