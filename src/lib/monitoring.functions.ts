@@ -83,7 +83,19 @@ export const latestHealth = createServerFn({ method: "GET" })
 export const dashboardStats = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const [sites, services, keys, requests] = await Promise.all([
+    const [
+      sites,
+      services,
+      keys,
+      requests,
+      pipelinesTotal,
+      pipelinesRunning,
+      pipelinesDone,
+      users,
+      sitesList,
+      healthLatest,
+      recentPipelines,
+    ] = await Promise.all([
       context.supabase.from("sites").select("id", { count: "exact", head: true }),
       context.supabase.from("services").select("id", { count: "exact", head: true }),
       context.supabase.from("api_keys").select("id", { count: "exact", head: true }).is("revoked_at", null),
@@ -92,11 +104,39 @@ export const dashboardStats = createServerFn({ method: "GET" })
         .select("*, services(name), api_clients(name)")
         .order("created_at", { ascending: false })
         .limit(10),
+      context.supabase.from("pipelines").select("id", { count: "exact", head: true }),
+      context.supabase.from("pipelines").select("id", { count: "exact", head: true }).in("status", ["running", "planning", "dispatching", "collecting"]),
+      context.supabase.from("pipelines").select("id", { count: "exact", head: true }).eq("status", "done"),
+      context.supabase.from("profiles").select("id", { count: "exact", head: true }),
+      context.supabase.from("sites").select("id, name, slug, base_url, network_type, metadata"),
+      context.supabase.from("service_health").select("service_id, status, latency_ms, checked_at, services(name, slug)").order("checked_at", { ascending: false }).limit(50),
+      context.supabase.from("pipelines").select("id, intent, status, created_at, finished_at").order("created_at", { ascending: false }).limit(8),
     ]);
+
+    // Avg latency + success rate across recent requests
+    const recent = requests.data ?? [];
+    const withLatency = recent.filter((r: any) => typeof r.latency_ms === "number");
+    const avgLatency = withLatency.length
+      ? Math.round(withLatency.reduce((a: number, r: any) => a + r.latency_ms, 0) / withLatency.length)
+      : 0;
+    const successCount = recent.filter((r: any) => r.status_code && r.status_code < 400).length;
+    const successRate = recent.length ? Math.round((successCount / recent.length) * 100) : 100;
+
     return {
       sites: sites.count ?? 0,
       services: services.count ?? 0,
       keys: keys.count ?? 0,
-      recent: requests.data ?? [],
+      recent,
+      pipelines: {
+        total: pipelinesTotal.count ?? 0,
+        running: pipelinesRunning.count ?? 0,
+        completed: pipelinesDone.count ?? 0,
+      },
+      users: users.count ?? 0,
+      avgLatencyMs: avgLatency,
+      successRate,
+      sitesList: sitesList.data ?? [],
+      health: healthLatest.data ?? [],
+      recentPipelines: recentPipelines.data ?? [],
     };
   });
