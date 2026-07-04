@@ -276,6 +276,27 @@ function ServicesPage() {
       </div>
 
       <Card className="p-3 bg-card/60 backdrop-blur border-border/60">
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="text-sm font-medium">ربط موقع خارجي كمستهلك لكل الخدمات:</div>
+          <Input
+            className="flex-1 min-w-64"
+            placeholder="https://example.lovable.app"
+            value={consumerUrl}
+            onChange={(e) => setConsumerUrl(e.target.value)}
+          />
+          <Button
+            onClick={() => mLinkConsumer.mutate(consumerUrl.trim())}
+            disabled={mLinkConsumer.isPending || !consumerUrl.trim()}
+            className="gap-2"
+          >
+            {mLinkConsumer.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+            {mLinkConsumer.isPending ? "جاري الربط…" : "حلّل واربط كمستهلك"}
+          </Button>
+        </div>
+      </Card>
+
+
+      <Card className="p-3 bg-card/60 backdrop-blur border-border/60">
         <div className="flex items-center gap-3 flex-wrap">
           <div className="relative flex-1 min-w-64">
             <Search className="h-4 w-4 absolute top-2.5 start-3 text-muted-foreground" />
