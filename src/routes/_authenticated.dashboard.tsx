@@ -357,12 +357,14 @@ function MiniChart({ data }: { data: number[] }) {
 // ---------- Page ----------
 
 function DashboardPage() {
-  const { t, dir } = useLanguage();
+  const { t, dir, lang } = useLanguage();
   const fn = useServerFn(dashboardStats);
+  const ecoFn = useServerFn(ecosystemMap);
   const analyze = useServerFn(analyzeAllSites);
   const healthAll = useServerFn(checkAllHealth);
   const qc = useQueryClient();
   const { data } = useQuery({ queryKey: ["dashboard-stats"], queryFn: () => fn(), refetchInterval: 30_000 });
+  const { data: ecoNodes } = useQuery({ queryKey: ["ecosystem-map"], queryFn: () => ecoFn(), refetchInterval: 30_000 });
 
   // Build a smooth-ish series from pipelines (fallback to noise)
   const series = (() => {
