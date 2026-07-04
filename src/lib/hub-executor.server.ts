@@ -444,7 +444,7 @@ export async function executeAgainstService(
   };
 
   const journeyPath = [
-    { step: "received_from", site: requesterSite, via: gatewaySite ?? "tvcc" },
+    { step: "received_from", site: requesterSite, via: gatewaySite ?? "tvcc", auth_mode: authMode },
     { step: "hub_routed_to", service: chosen?.name ?? null, site: chosen?.sites?.slug ?? null },
     ...(attempt > 1 ? [{ step: "used_fallback", attempts: attempt } as any] : []),
     { step: "returned_to_hub", status: lastResult.status },
@@ -452,12 +452,18 @@ export async function executeAgainstService(
     { step: "delivered_to", site: requesterSite },
   ];
 
-  await supabaseAdmin.from("api_keys")
-    .update({ last_used_at: new Date().toISOString() })
-    .eq("id", key.id);
+  if (isInternal) {
+    await supabaseAdmin.from("internal_connectors")
+      .update({ last_used_at: new Date().toISOString() })
+      .eq("id", key.id);
+  } else {
+    await supabaseAdmin.from("api_keys")
+      .update({ last_used_at: new Date().toISOString() })
+      .eq("id", key.id);
+  }
   await supabaseAdmin.from("service_requests").insert({
-    api_key_id: key.id,
-    client_id: key.client_id,
+    ...authIds(),
+    auth_mode: authMode,
     service_id: chosen?.id ?? null,
     method: (req.method ?? chosen?.method ?? "POST").toUpperCase(),
     status_code: lastResult.status,
@@ -472,13 +478,14 @@ export async function executeAgainstService(
     execution_status: executionStatus,
     fallback_used: attempt > 1,
     attempts: attempt,
-    routing_decision: routingDecision,
+    routing_decision: { ...routingDecision, auth_mode: authMode } as any,
     journey_path: journeyPath as any,
   });
 
   return jsonResponse(200, {
     ok,
     request_id: requestId,
+    auth_mode: authMode,
     execution_status: executionStatus,
     fallback_used: attempt > 1,
     attempts: attempt,
