@@ -27,8 +27,44 @@ export const listServices = createServerFn({ method: "GET" })
       .select("*, sites(id, name, slug, base_url, logo_url, category)")
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
-    return data ?? [];
+    const list = data ?? [];
+    if (!list.length) return [];
+
+    const ids = list.map((s: any) => s.id);
+    const { data: depsData } = await context.supabase
+      .from("service_dependencies" as any)
+      .select("service_id, depends_on_system, depends_on_service_id, consumer_site_id, relation_type")
+      .in("service_id", ids);
+    const deps = ((depsData ?? []) as unknown) as Array<{
+      service_id: string;
+      depends_on_system: string | null;
+      depends_on_service_id: string | null;
+      consumer_site_id: string | null;
+      relation_type: string;
+    }>;
+
+    const depsByService = new Map<string, Set<string>>();
+    const consumersByService = new Map<string, Set<string>>();
+    for (const d of deps) {
+      if (d.relation_type === "consumes" && d.consumer_site_id) {
+        const s = consumersByService.get(d.service_id) ?? new Set<string>();
+        s.add(d.consumer_site_id);
+        consumersByService.set(d.service_id, s);
+      } else if (d.depends_on_system) {
+        const s = depsByService.get(d.service_id) ?? new Set<string>();
+        s.add(d.depends_on_system);
+        depsByService.set(d.service_id, s);
+      }
+    }
+
+
+    return list.map((s: any) => ({
+      ...s,
+      depends_on: Array.from(depsByService.get(s.id) ?? []),
+      consumer_count: (consumersByService.get(s.id) ?? new Set()).size,
+    }));
   });
+
 
 export const approveService = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])

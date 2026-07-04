@@ -96,6 +96,42 @@ type DiscoveredService = {
   source: string;
 };
 
+// Framework/library fingerprints
+const FRAMEWORK_PATTERNS: Array<{ re: RegExp; name: string }> = [
+  { re: /_next\/static|__NEXT_DATA__/i, name: "Next.js" },
+  { re: /nuxt|__nuxt/i, name: "Nuxt" },
+  { re: /vite\/|@vite\/client/i, name: "Vite" },
+  { re: /react(?:-dom)?[/@]/i, name: "React" },
+  { re: /\bvue(?:\.runtime)?\b|__VUE__/i, name: "Vue" },
+  { re: /svelte/i, name: "Svelte" },
+  { re: /angular|ng-version/i, name: "Angular" },
+  { re: /wp-content|wordpress/i, name: "WordPress" },
+  { re: /shopify|cdn\.shopify/i, name: "Shopify" },
+  { re: /supabase/i, name: "Supabase" },
+  { re: /firebase/i, name: "Firebase" },
+];
+
+function detectFrameworks(html: string): string[] {
+  const found = new Set<string>();
+  for (const p of FRAMEWORK_PATTERNS) if (p.re.test(html)) found.add(p.name);
+  return Array.from(found);
+}
+
+// HN ecosystem / external system dependencies
+const SYSTEM_PATTERNS: Array<{ re: RegExp; system: string }> = [
+  { re: /hn[-_ ]?db\b|hn-db\.fun|hn-dbpro|hn_db_api/i, system: "hn-db" },
+  { re: /hn[-_ ]?cloud|hn_cloud_api/i, system: "hn-cloud" },
+  { re: /\btvcc\b|tvcc[-_ ]api|tvcc-hub/i, system: "tvcc" },
+  { re: /hn[-_ ]?core/i, system: "hn-core" },
+  { re: /hn[-_ ]?ai|openai\.com|api\.openai|gpt-[34]|anthropic|claude|gemini|lovable[-_ ]?ai/i, system: "hn-ai" },
+];
+
+function detectSystems(hay: string): string[] {
+  const found = new Set<string>();
+  for (const p of SYSTEM_PATTERNS) if (p.re.test(hay)) found.add(p.system);
+  return Array.from(found);
+}
+
 function inferServices(params: {
   meta: { title: string | null; description: string | null; keywords: string[] };
   headings: string[];
@@ -208,6 +244,11 @@ export const discoverSite = createServerFn({ method: "POST" })
         links,
       });
 
+      // Framework + ecosystem hints from HTML + extra texts + links
+      const combinedText = [html, ...extraTexts, ...links].join(" \n ");
+      const frameworks = detectFrameworks(html);
+      const systems = detectSystems(combinedText);
+
       // Overall confidence: presence of title/desc/api/services
       let overall = 20;
       if (meta.title) overall += 15;
@@ -223,9 +264,12 @@ export const discoverSite = createServerFn({ method: "POST" })
         headings: headings.slice(0, 10),
         api_hints: okHints,
         sample_links: links.slice(0, 20),
+        frameworks,
+        systems,
         discovered_services,
         overall_confidence: Math.min(100, overall),
       };
+
 
       await context.supabase
         .from("discovery_jobs")
@@ -346,5 +390,34 @@ export const saveDiscoveredServices = createServerFn({ method: "POST" })
       .upsert(rows, { onConflict: "site_id,slug", ignoreDuplicates: false })
       .select();
     if (error) throw new Error(error.message);
+
+    // Auto-write service_dependencies from the job's detected systems
+    const { data: job } = await context.supabase
+      .from("discovery_jobs").select("result").eq("id", data.job_id).single();
+    const jobResult = (job?.result ?? {}) as { systems?: string[] };
+    const systems = Array.isArray(jobResult.systems) ? jobResult.systems : [];
+    if (inserted && inserted.length && systems.length) {
+      const svcIds = inserted.map((s: any) => s.id);
+      // Refresh auto-detected system deps for these services
+      await context.supabase
+        .from("service_dependencies" as any)
+        .delete()
+        .in("service_id", svcIds)
+        .eq("source", "auto")
+        .not("depends_on_system", "is", null);
+      const depRows = inserted.flatMap((svc: any) =>
+        systems.map((sys) => ({
+          service_id: svc.id,
+          depends_on_system: sys,
+          relation_type: "depends_on",
+          confidence: 70,
+          source: "auto",
+        }))
+      );
+      await context.supabase.from("service_dependencies" as any).insert(depRows);
+    }
+
+
     return { inserted: inserted?.length ?? 0, site_id: siteId };
   });
+

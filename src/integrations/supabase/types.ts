@@ -219,6 +219,64 @@ export type Database = {
         }
         Relationships: []
       }
+      service_dependencies: {
+        Row: {
+          confidence: number
+          consumer_site_id: string | null
+          created_at: string
+          depends_on_service_id: string | null
+          depends_on_system: string | null
+          id: string
+          relation_type: string
+          service_id: string
+          source: string
+        }
+        Insert: {
+          confidence?: number
+          consumer_site_id?: string | null
+          created_at?: string
+          depends_on_service_id?: string | null
+          depends_on_system?: string | null
+          id?: string
+          relation_type?: string
+          service_id: string
+          source?: string
+        }
+        Update: {
+          confidence?: number
+          consumer_site_id?: string | null
+          created_at?: string
+          depends_on_service_id?: string | null
+          depends_on_system?: string | null
+          id?: string
+          relation_type?: string
+          service_id?: string
+          source?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_dependencies_consumer_site_id_fkey"
+            columns: ["consumer_site_id"]
+            isOneToOne: false
+            referencedRelation: "sites"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_dependencies_depends_on_service_id_fkey"
+            columns: ["depends_on_service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_dependencies_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       service_health: {
         Row: {
           checked_at: string

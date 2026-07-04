@@ -258,13 +258,15 @@ function ServicesPage() {
                 <TableHead>Health</TableHead>
                 <TableHead onClick={() => setSort("confidence_score")} className="cursor-pointer">Confidence</TableHead>
                 <TableHead onClick={() => setSort("last_tested_at")} className="cursor-pointer whitespace-nowrap">Last Tested</TableHead>
+                <TableHead className="whitespace-nowrap">{t("usedBy")}</TableHead>
+                <TableHead className="whitespace-nowrap">{t("dependsOn")}</TableHead>
                 <TableHead className="text-end">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {paged.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={13} className="text-center text-sm text-muted-foreground py-10">
+                  <TableCell colSpan={15} className="text-center text-sm text-muted-foreground py-10">
                     {t("noData")}
                   </TableCell>
                 </TableRow>
@@ -299,6 +301,20 @@ function ServicesPage() {
                   <TableCell><ScoreBar value={r.confidence_score ?? 0} /></TableCell>
                   <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
                     {r.last_tested_at ? new Date(r.last_tested_at).toLocaleDateString() : "—"}
+                  </TableCell>
+                  <TableCell className="text-xs">
+                    {(r as any).consumer_count > 0 ? (
+                      <span className="px-1.5 py-0.5 rounded bg-primary/10 text-primary">{(r as any).consumer_count}</span>
+                    ) : <span className="text-muted-foreground">—</span>}
+                  </TableCell>
+                  <TableCell>
+                    {Array.isArray((r as any).depends_on) && (r as any).depends_on.length > 0 ? (
+                      <div className="flex flex-wrap gap-1">
+                        {(r as any).depends_on.map((sys: string) => (
+                          <span key={sys} className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">{sys}</span>
+                        ))}
+                      </div>
+                    ) : <span className="text-xs text-muted-foreground">—</span>}
                   </TableCell>
                   <TableCell className="text-end">
                     <DropdownMenu>
