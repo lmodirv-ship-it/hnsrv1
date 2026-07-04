@@ -102,7 +102,11 @@ export async function listAvailableTaskTypes(): Promise<
 export function pickBestProvider(
   entries: RegistryEntry[],
   taskType: string,
-  opts: { internalOnly: boolean },
+  opts: {
+    internalOnly: boolean;
+    preferredServiceId?: string | null;
+    fallbackServiceIds?: string[];
+  },
 ): RegistryEntry | null {
   const candidates = entries.filter(
     (e) =>
@@ -111,6 +115,39 @@ export function pickBestProvider(
   );
   if (!candidates.length) return null;
   const rank = (s: string) => (s === "online" ? 0 : s === "degraded" ? 1 : s === "unknown" ? 2 : 3);
-  candidates.sort((a, b) => rank(a.status) - rank(b.status));
+  const preferred = opts.preferredServiceId ?? null;
+  const fallbacks = new Set(opts.fallbackServiceIds ?? []);
+  const rulePriority = (svcId: string) =>
+    svcId === preferred ? 0 : fallbacks.has(svcId) ? 1 : 2;
+  candidates.sort((a, b) => {
+    const rp = rulePriority(a.service.id) - rulePriority(b.service.id);
+    if (rp !== 0) return rp;
+    return rank(a.status) - rank(b.status);
+  });
   return candidates[0] ?? null;
+}
+
+export type RouterRule = {
+  task_type: string;
+  category: string | null;
+  preferred_service_id: string | null;
+  fallback_service_ids: string[] | null;
+  priority: number | null;
+  conditions: Record<string, unknown> | null;
+};
+
+export async function loadActiveRouterRules(taskTypes: string[]): Promise<Map<string, RouterRule>> {
+  const map = new Map<string, RouterRule>();
+  if (!taskTypes.length) return map;
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data } = await supabaseAdmin
+    .from("task_router_rules")
+    .select("task_type, category, preferred_service_id, fallback_service_ids, priority, conditions")
+    .in("task_type", taskTypes)
+    .eq("is_active", true)
+    .order("priority", { ascending: true });
+  for (const r of (data ?? []) as any[]) {
+    if (!map.has(r.task_type)) map.set(r.task_type, r as RouterRule);
+  }
+  return map;
 }

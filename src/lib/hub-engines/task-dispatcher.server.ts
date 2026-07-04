@@ -12,6 +12,7 @@ import type {
 import { topologicalOrder } from "./task-planner.server";
 import {
   listRegistry,
+  loadActiveRouterRules,
   pickBestProvider,
   type RegistryEntry,
 } from "./capability-registry.server";
@@ -127,13 +128,22 @@ export async function dispatchPlan(
   const by_task: Record<string, TaskExecution> = {};
   const order: string[] = [];
 
+  // Load router rules for every task_type in this plan
+  const allTaskTypes = Array.from(
+    new Set(layers.flatMap((layer) => layer.map((t) => t.type))),
+  );
+  const rules = await loadActiveRouterRules(allTaskTypes);
+
   let stepCounter = 0;
   for (const layer of layers) {
     await Promise.all(
       layer.map(async (task) => {
         stepCounter += 1;
+        const rule = rules.get(task.type) ?? null;
         const entry = pickBestProvider(registry, task.type, {
           internalOnly: ctx.authMode === "internal",
+          preferredServiceId: rule?.preferred_service_id ?? null,
+          fallbackServiceIds: rule?.fallback_service_ids ?? [],
         });
         const started = new Date().toISOString();
         const exec: TaskExecution = {
