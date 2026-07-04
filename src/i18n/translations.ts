@@ -291,6 +291,7 @@ export const translations = {
     navRescan: "Rescan",
     navDiscoveryResults: "Discovery results",
     navOrchestratorEngine: "Orchestrator engine",
+    navHubOrchestration: "Hub Orchestration (5 engines)",
     navServiceOrchestration: "Service orchestration",
     navExecutionFlows: "Execution flows",
     navExecutionLog: "Execution log",
