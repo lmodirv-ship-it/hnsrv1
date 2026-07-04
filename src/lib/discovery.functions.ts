@@ -765,6 +765,109 @@ export const linkConsumerSite = createServerFn({ method: "POST" })
     return { site_id: siteId, slug, host, linked_services: linked, systems_detected: systems };
   });
 
+// Build a full mesh: every HN site becomes a consumer of every approved+active
+// service that belongs to a DIFFERENT site. Also registers the current app
+// (or a supplied URL) as the "coordinator" site that orchestrates the mesh.
+const meshInput = z.object({
+  coordinator_url: z.string().trim().url().max(500).optional(),
+}).optional();
 
+export const linkAllSitesMesh = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => meshInput.parse(d) ?? {})
+  .handler(async ({ data, context }) => {
+    // 1) Register coordinator site (this orchestrator app)
+    let coordinatorId: string | null = null;
+    if (data?.coordinator_url) {
+      const baseUrl = data.coordinator_url.replace(/\/+$/, "");
+      const host = new URL(baseUrl).hostname.replace(/^www\./, "");
+      const slug = slugify(host);
+      const { data: existing } = await context.supabase
+        .from("sites").select("id").eq("slug", slug).maybeSingle();
+      if (existing) {
+        coordinatorId = existing.id;
+        await context.supabase.from("sites").update({
+          base_url: baseUrl,
+          category: "coordinator",
+          status: "active",
+        }).eq("id", coordinatorId);
+      } else {
+        const { data: ns, error: sErr } = await context.supabase
+          .from("sites").insert({
+            name: host,
+            slug,
+            base_url: baseUrl,
+            owner_id: context.userId,
+            status: "active",
+            category: "coordinator",
+            description: "Orchestrator / coordinator for the HN mesh",
+            discovered_at: new Date().toISOString(),
+          }).select("id").single();
+        if (sErr) throw new Error(sErr.message);
+        coordinatorId = ns.id;
+      }
+    }
 
+    // 2) Collect HN sites (same filter as analyzeAllSites) + all sites when coordinator present.
+    const { data: hnSites, error: hnErr } = await context.supabase
+      .from("sites")
+      .select("id, slug, base_url, tvcc_id, hn_db_id, hn_cloud_id, category")
+      .or("tvcc_id.not.is.null,hn_db_id.not.is.null,hn_cloud_id.not.is.null,base_url.ilike.%hn-%,base_url.ilike.%hn.%,slug.ilike.hn-%,category.eq.consumer,category.eq.coordinator");
+    if (hnErr) throw new Error(hnErr.message);
+
+    const siteIds = (hnSites ?? []).map((s: any) => s.id);
+    if (coordinatorId && !siteIds.includes(coordinatorId)) siteIds.push(coordinatorId);
+    if (!siteIds.length) return { sites: 0, services: 0, links: 0 };
+
+    // 3) All approved & active services (with owning site)
+    const { data: services, error: svcErr } = await context.supabase
+      .from("services")
+      .select("id, site_id")
+      .eq("approval_status", "approved")
+      .eq("is_active", true);
+    if (svcErr) throw new Error(svcErr.message);
+    const svcList = services ?? [];
+    if (!svcList.length) return { sites: siteIds.length, services: 0, links: 0 };
+
+    // 4) Wipe previous mesh links for these sites
+    await context.supabase.from("service_dependencies" as any)
+      .delete()
+      .eq("relation_type", "consumes")
+      .eq("source", "mesh")
+      .in("consumer_site_id", siteIds);
+
+    // 5) Build mesh rows: each site consumes every service NOT belonging to it
+    const rows: any[] = [];
+    for (const siteId of siteIds) {
+      for (const svc of svcList) {
+        if (svc.site_id === siteId) continue;
+        rows.push({
+          service_id: svc.id,
+          consumer_site_id: siteId,
+          relation_type: "consumes",
+          confidence: 100,
+          source: "mesh",
+        });
+      }
+    }
+
+    // 6) Insert in chunks
+    let inserted = 0;
+    for (let i = 0; i < rows.length; i += 500) {
+      const chunk = rows.slice(i, i + 500);
+      const { data: ins, error } = await context.supabase
+        .from("service_dependencies" as any)
+        .insert(chunk)
+        .select("id");
+      if (error) throw new Error(error.message);
+      inserted += ins?.length ?? 0;
+    }
+
+    return {
+      sites: siteIds.length,
+      services: svcList.length,
+      links: inserted,
+      coordinator_id: coordinatorId,
+    };
+  });
 

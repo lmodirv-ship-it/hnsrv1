@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getServiceNetwork } from "@/lib/network.functions";
-import { analyzeAllSites } from "@/lib/discovery.functions";
+import { analyzeAllSites, linkAllSitesMesh } from "@/lib/discovery.functions";
 import type { NetworkService, NetworkSite } from "@/lib/network.functions";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { GenerateButton } from "@/components/generate-button";
@@ -132,6 +132,7 @@ function NetworkPage() {
   const { t } = useLanguage();
   const fn = useServerFn(getServiceNetwork);
   const analyzeAll = useServerFn(analyzeAllSites);
+  const linkMesh = useServerFn(linkAllSitesMesh);
   const qc = useQueryClient();
   const { data = [] } = useQuery({ queryKey: ["service-network"], queryFn: () => fn() });
 
@@ -180,6 +181,19 @@ function NetworkPage() {
             onGenerate={() => analyzeAll()}
             onDone={() => qc.invalidateQueries({ queryKey: ["service-network"] })}
             successMessage={(r: any) => `تم تحليل ${r.analyzed}/${r.total} • خدمات: ${r.servicesCreated}`}
+          />
+          <GenerateButton
+            label="اربط الكل ↔ الكل (Mesh)"
+            pendingLabel="جاري الربط…"
+            onGenerate={() =>
+              linkMesh({
+                data: { coordinator_url: window.location.origin },
+              })
+            }
+            onDone={() => qc.invalidateQueries({ queryKey: ["service-network"] })}
+            successMessage={(r: any) =>
+              `تم ربط ${r.links} علاقة • ${r.sites} موقع × ${r.services} خدمة`
+            }
           />
         </div>
       </div>
