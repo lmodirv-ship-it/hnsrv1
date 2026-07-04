@@ -84,6 +84,13 @@ function ApiConsolePage() {
             onDone={(r: any) => { setNewKey(r.key); qc.invalidateQueries({ queryKey: ["api-clients"] }); }}
             successMessage={() => "تم إنشاء عميل جديد ومفتاح API"}
           />
+          <GenerateButton
+            label="أصدر مفاتيح Mesh لكل المواقع"
+            pendingLabel="جاري الإصدار…"
+            onGenerate={() => provisionMesh()}
+            onDone={() => qc.invalidateQueries({ queryKey: ["api-clients"] })}
+            successMessage={(r: any) => `تم إصدار ${r.issued} مفتاح • تم تخطي ${r.skipped} (موجود مسبقاً)`}
+          />
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild><Button variant="outline"><Plus className="h-4 w-4" />{t("createClient")}</Button></DialogTrigger>
             <DialogContent>
