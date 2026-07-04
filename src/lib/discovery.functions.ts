@@ -481,8 +481,11 @@ export const analyzeAllSites = createServerFn({ method: "POST" })
   .handler(async ({ context }) => {
     const { data: sites, error } = await context.supabase
       .from("sites")
-      .select("id, base_url, slug")
-      .not("base_url", "is", null);
+      .select("id, base_url, slug, tvcc_id, hn_db_id, hn_cloud_id, base_url")
+      .not("base_url", "is", null)
+      // HN group only: sites synced from any HN hub (TVCC / HN-DB / HN-Cloud)
+      // or whose URL / slug matches the hn.* naming.
+      .or("tvcc_id.not.is.null,hn_db_id.not.is.null,hn_cloud_id.not.is.null,base_url.ilike.%hn-%,base_url.ilike.%hn.%,slug.ilike.hn-%");
     if (error) throw new Error(error.message);
 
     let analyzed = 0;
