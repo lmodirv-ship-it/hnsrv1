@@ -145,7 +145,10 @@ function SettingsPage() {
         </div>
       </Card>
 
+      <OrganizationSettings />
+
       <div>
+
         <div className="flex items-center gap-3 mb-3">
           <Plug className="h-5 w-5 text-primary" />
           <h2 className="text-lg font-semibold">Integrations</h2>
