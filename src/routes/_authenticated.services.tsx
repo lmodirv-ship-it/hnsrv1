@@ -156,6 +156,15 @@ function ServicesPage() {
     onError: (e: any) => toast.error(e.message),
   });
 
+  const mAnalyzeAll = useMutation({
+    mutationFn: () => analyzeAll(),
+    onSuccess: (r: any) => {
+      toast.success(`تم تحليل ${r.analyzed}/${r.total} • خدمات جديدة: ${r.servicesCreated}${r.failed ? ` • فشل: ${r.failed}` : ""}`);
+      invalidate();
+    },
+    onError: (e: any) => toast.error(e.message ?? t("somethingWentWrong")),
+  });
+
   const rows = data as unknown as Row[];
 
   const filtered = useMemo(() => {
