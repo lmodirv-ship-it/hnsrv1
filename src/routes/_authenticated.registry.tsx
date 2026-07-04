@@ -126,15 +126,26 @@ function RegistryPage() {
             Site Inventory → Service Discovery → Capability Registry. The Task Planner and Dispatcher read from here.
           </p>
         </div>
-        <Button
-          onClick={() => runMut.mutate(null)}
-          disabled={runMut.isPending}
-          size="lg"
-          className="bg-gradient-to-r from-primary to-primary/70 shadow-lg"
-        >
-          <RefreshCw className={"h-4 w-4 mr-2 " + (runMut.isPending ? "animate-spin" : "")} />
-          {runMut.isPending ? "Discovering…" : `Discover All Sites (${sites.length})`}
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            onClick={() => seedMut.mutate()}
+            disabled={seedMut.isPending}
+            variant="secondary"
+            size="lg"
+          >
+            <FileJson className={"h-4 w-4 mr-2 " + (seedMut.isPending ? "animate-pulse" : "")} />
+            {seedMut.isPending ? "Seeding…" : "Seed registry from services"}
+          </Button>
+          <Button
+            onClick={() => runMut.mutate(null)}
+            disabled={runMut.isPending}
+            size="lg"
+            className="bg-gradient-to-r from-primary to-primary/70 shadow-lg"
+          >
+            <RefreshCw className={"h-4 w-4 mr-2 " + (runMut.isPending ? "animate-spin" : "")} />
+            {runMut.isPending ? "Discovering…" : `Discover All Sites (${sites.length})`}
+          </Button>
+        </div>
       </div>
 
       <div className="flex flex-wrap gap-2">
