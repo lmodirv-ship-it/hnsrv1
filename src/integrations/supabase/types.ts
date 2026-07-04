@@ -761,6 +761,68 @@ export type Database = {
           },
         ]
       }
+      service_metrics: {
+        Row: {
+          avg_duration_ms: number
+          created_at: string
+          id: string
+          last_error: string | null
+          last_run_at: string | null
+          metadata: Json
+          p95_duration_ms: number
+          requests_failed: number
+          requests_success: number
+          requests_total: number
+          service_id: string
+          success_rate: number
+          updated_at: string
+          window_end: string | null
+          window_start: string
+        }
+        Insert: {
+          avg_duration_ms?: number
+          created_at?: string
+          id?: string
+          last_error?: string | null
+          last_run_at?: string | null
+          metadata?: Json
+          p95_duration_ms?: number
+          requests_failed?: number
+          requests_success?: number
+          requests_total?: number
+          service_id: string
+          success_rate?: number
+          updated_at?: string
+          window_end?: string | null
+          window_start?: string
+        }
+        Update: {
+          avg_duration_ms?: number
+          created_at?: string
+          id?: string
+          last_error?: string | null
+          last_run_at?: string | null
+          metadata?: Json
+          p95_duration_ms?: number
+          requests_failed?: number
+          requests_success?: number
+          requests_total?: number
+          service_id?: string
+          success_rate?: number
+          updated_at?: string
+          window_end?: string | null
+          window_start?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_metrics_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       service_requests: {
         Row: {
           api_key_id: string | null
@@ -1101,6 +1163,56 @@ export type Database = {
         }
         Relationships: []
       }
+      task_router_rules: {
+        Row: {
+          category: string | null
+          conditions: Json
+          created_at: string
+          fallback_service_ids: string[]
+          id: string
+          is_active: boolean
+          notes: string | null
+          preferred_service_id: string | null
+          priority: number
+          task_type: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          conditions?: Json
+          created_at?: string
+          fallback_service_ids?: string[]
+          id?: string
+          is_active?: boolean
+          notes?: string | null
+          preferred_service_id?: string | null
+          priority?: number
+          task_type: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          conditions?: Json
+          created_at?: string
+          fallback_service_ids?: string[]
+          id?: string
+          is_active?: boolean
+          notes?: string | null
+          preferred_service_id?: string | null
+          priority?: number
+          task_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_router_rules_preferred_service_id_fkey"
+            columns: ["preferred_service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -1121,6 +1233,60 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      websites_services: {
+        Row: {
+          created_at: string
+          id: string
+          metadata: Json
+          notes: string | null
+          path: string | null
+          service_id: string | null
+          service_name: string
+          site_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          metadata?: Json
+          notes?: string | null
+          path?: string | null
+          service_id?: string | null
+          service_name: string
+          site_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          metadata?: Json
+          notes?: string | null
+          path?: string | null
+          service_id?: string | null
+          service_name?: string
+          site_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "websites_services_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "websites_services_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "sites"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
