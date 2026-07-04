@@ -356,22 +356,50 @@ export async function executeAgainstService(
     });
   }
 
-  // 2) Enforce scope (allowed_services) on the *first* candidate; skip disallowed.
-  const allowed = key.client?.allowed_services ?? null;
-  if (Array.isArray(allowed) && allowed.length > 0) {
-    candidates = candidates.filter((s) => allowed.includes(s.id));
-    if (!candidates.length) {
-      await supabaseAdmin.from("service_requests").insert({
-        api_key_id: key.id, client_id: key.client_id,
-        requester_site: requesterSite,
-        gateway_site: gatewaySite,
-        service_intent: req.intent ?? null,
-        execution_status: "forbidden",
-        status_code: 403, latency_ms: Date.now() - startedAt,
-        error: "No allowed service matches",
-      });
-      return jsonResponse(403, { ok: false, error: "No service in your allowed scope matches" });
+  // 2) Enforce scope. Internal connectors: allowed_internal_services (ids or slugs).
+  //    External clients: allowed_services (ids).
+  const internalAllow = isInternal ? key.connector?.allowed_internal_services ?? [] : [];
+  const externalAllow = !isInternal ? key.client?.allowed_services ?? null : null;
+
+  const passesAllow = (svc: any) => {
+    if (isInternal) {
+      if (!internalAllow.length) return true; // empty = all internal services
+      return internalAllow.includes(svc.id) || internalAllow.includes(svc.slug);
     }
+    if (Array.isArray(externalAllow) && externalAllow.length > 0) {
+      return externalAllow.includes(svc.id);
+    }
+    return true;
+  };
+
+  // External calls are ONLY allowed against external-network services.
+  // Internal calls may reach both, but internal is the primary path.
+  const beforeFilter = candidates.length;
+  candidates = candidates.filter((s) => {
+    if (!passesAllow(s)) return false;
+    if (!isInternal && s.network_type === "internal") return false;
+    return true;
+  });
+
+  if (!candidates.length) {
+    await supabaseAdmin.from("service_requests").insert({
+      ...authIds(),
+      auth_mode: authMode,
+      requester_site: requesterSite,
+      gateway_site: gatewaySite,
+      service_intent: req.intent ?? null,
+      execution_status: "forbidden",
+      status_code: 403, latency_ms: Date.now() - startedAt,
+      error: beforeFilter
+        ? (isInternal ? "No allowed internal service matches" : "External key cannot reach an internal-only service")
+        : "No matching service",
+    });
+    return jsonResponse(403, {
+      ok: false,
+      error: isInternal
+        ? "No service in your internal scope matches"
+        : "External API key cannot reach the requested internal service",
+    });
   }
 
   // 3) Add configured fallbacks after the primary
