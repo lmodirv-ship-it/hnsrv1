@@ -42,8 +42,9 @@ export const setHubEngineEnabled = createServerFn({ method: "POST" })
   .handler(async ({ context, data }) => {
     await assertAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const patch: Record<string, unknown> = { is_enabled: data.enabled };
-    if (data.enabled) patch.last_activated_at = new Date().toISOString();
+    const patch = data.enabled
+      ? { is_enabled: true, last_activated_at: new Date().toISOString() }
+      : { is_enabled: false };
     const { error } = await supabaseAdmin
       .from("hub_engines")
       .update(patch)
