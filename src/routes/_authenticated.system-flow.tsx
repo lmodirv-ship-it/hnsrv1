@@ -1,8 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { supabase } from "@/integrations/supabase/client";
+import { activateAllTasks } from "@/lib/activate-tasks.functions";
 import {
   User,
   Globe,
@@ -12,6 +16,8 @@ import {
   Boxes,
   ArrowDown,
   ArrowUp,
+  Zap,
+  Loader2,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/system-flow")({
@@ -118,8 +124,22 @@ function Arrow({ up = false, label }: { up?: boolean; label?: string }) {
 }
 
 function SystemFlowPage() {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
+  const qc = useQueryClient();
   const { data } = useQuery({ queryKey: ["system-flow-stats"], queryFn: loadStats });
+
+  const activateFn = useServerFn(activateAllTasks);
+  const activate = useMutation({
+    mutationFn: () => activateFn({}),
+    onSuccess: (r: any) => {
+      const msg = lang === "ar"
+        ? `تم تفعيل جميع المهام: ${r.services_activated} خدمة، ${r.site_capabilities_online} قدرة، ${r.sites_active} موقع، ${r.router_rules_active} قاعدة توجيه`
+        : `Activated: ${r.services_activated} services, ${r.site_capabilities_online} capabilities, ${r.sites_active} sites, ${r.router_rules_active} routing rules`;
+      toast.success(msg);
+      qc.invalidateQueries({ queryKey: ["system-flow-stats"] });
+    },
+    onError: (e: any) => toast.error(e?.message ?? "Failed to activate"),
+  });
 
   const totalStr = data ? `${data.total} req/24h` : "—";
   const okStr = data ? `${data.ok} ok · ${data.failed} fail` : "—";
@@ -131,13 +151,28 @@ function SystemFlowPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold flex items-center gap-2">
-          <Brain className="h-6 w-6 text-primary" />
-          {t("systemFlowTitle")}
-        </h1>
-        <p className="text-sm text-muted-foreground mt-1">{t("systemFlowSubtitle")}</p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold flex items-center gap-2">
+            <Brain className="h-6 w-6 text-primary" />
+            {t("systemFlowTitle")}
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">{t("systemFlowSubtitle")}</p>
+        </div>
+        <Button
+          onClick={() => activate.mutate()}
+          disabled={activate.isPending}
+          className="gap-2 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white hover:opacity-90"
+        >
+          {activate.isPending ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Zap className="h-4 w-4" />
+          )}
+          {lang === "ar" ? "تفعيل جميع المهام" : "Activate all tasks"}
+        </Button>
       </div>
+
 
       <div className="grid gap-4 md:grid-cols-4">
         <Card className="p-3">
