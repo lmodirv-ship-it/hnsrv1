@@ -12,7 +12,7 @@ export const Route = createFileRoute("/api/public/v1/execute")({
       },
       POST: async ({ request }) => {
         const {
-          authenticateKey, checkRateLimit, executeAgainstService, jsonResponse,
+          authenticateKey, checkRateLimit, executeAgainstService, extractGatewayContext, jsonResponse,
         } = await import("@/lib/hub-executor.server");
 
         const auth = await authenticateKey(request);
@@ -29,6 +29,7 @@ export const Route = createFileRoute("/api/public/v1/execute")({
           return jsonResponse(400, { ok: false, error: "Provide `intent` or `service_id`" });
         }
 
+        const ctx = extractGatewayContext(request);
         return executeAgainstService(auth.key, {
           requester_site: body.requester_site,
           intent: body.intent,
@@ -38,7 +39,7 @@ export const Route = createFileRoute("/api/public/v1/execute")({
           query: body.query,
           payload: body.payload,
           timeout_ms: body.timeout_ms,
-        });
+        }, ctx);
       },
     },
   },
