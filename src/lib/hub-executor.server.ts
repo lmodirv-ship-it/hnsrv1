@@ -299,7 +299,12 @@ export async function executeAgainstService(
   const requestId = crypto.randomUUID();
   const startedAt = Date.now();
   const gatewaySite = ctx.gateway_site;
-  const requesterSite = ctx.requester_site ?? req.requester_site ?? key.client?.name ?? null;
+  const isInternal = key.auth_mode === "internal";
+  const requesterSite =
+    ctx.requester_site ??
+    req.requester_site ??
+    (isInternal ? key.connector?.site_slug ?? null : key.client?.name ?? null);
+  const authMode = key.auth_mode;
 
   // 1) Resolve candidates
   let candidates: any[] = [];
