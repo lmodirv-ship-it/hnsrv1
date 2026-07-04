@@ -273,6 +273,143 @@ export type Database = {
           },
         ]
       }
+      hn_agent_runs: {
+        Row: {
+          agent_id: string
+          created_at: string
+          error: string | null
+          finished_at: string | null
+          id: string
+          input: Json | null
+          latency_ms: number | null
+          output: Json | null
+          started_at: string
+          status: string
+        }
+        Insert: {
+          agent_id: string
+          created_at?: string
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          input?: Json | null
+          latency_ms?: number | null
+          output?: Json | null
+          started_at?: string
+          status?: string
+        }
+        Update: {
+          agent_id?: string
+          created_at?: string
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          input?: Json | null
+          latency_ms?: number | null
+          output?: Json | null
+          started_at?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hn_agent_runs_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "hn_agents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hn_agents: {
+        Row: {
+          agent_number: number
+          created_at: string
+          description: string | null
+          id: string
+          inputs: Json
+          is_active: boolean
+          last_run_at: string | null
+          last_run_status: string | null
+          name: string
+          outputs: Json
+          role: string
+          runs_count: number
+          runtime_path: string | null
+          script_content: string | null
+          script_lang: string
+          service_id: string | null
+          service_name: string | null
+          site_id: string | null
+          site_name: string | null
+          slug: string
+          tools: string[]
+          updated_at: string
+        }
+        Insert: {
+          agent_number?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          inputs?: Json
+          is_active?: boolean
+          last_run_at?: string | null
+          last_run_status?: string | null
+          name: string
+          outputs?: Json
+          role?: string
+          runs_count?: number
+          runtime_path?: string | null
+          script_content?: string | null
+          script_lang?: string
+          service_id?: string | null
+          service_name?: string | null
+          site_id?: string | null
+          site_name?: string | null
+          slug: string
+          tools?: string[]
+          updated_at?: string
+        }
+        Update: {
+          agent_number?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          inputs?: Json
+          is_active?: boolean
+          last_run_at?: string | null
+          last_run_status?: string | null
+          name?: string
+          outputs?: Json
+          role?: string
+          runs_count?: number
+          runtime_path?: string | null
+          script_content?: string | null
+          script_lang?: string
+          service_id?: string | null
+          service_name?: string | null
+          site_id?: string | null
+          site_name?: string | null
+          slug?: string
+          tools?: string[]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hn_agents_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hn_agents_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hub_engines: {
         Row: {
           config: Json
