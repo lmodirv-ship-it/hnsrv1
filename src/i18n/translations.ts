@@ -324,6 +324,7 @@ export const translations = {
     navRoles: "Roles & permissions",
     navBackup: "Backup",
     navServiceNetwork: "Service Network",
+    navInternalConnectors: "Internal Connectors",
     navSystemFlow: "System Flow",
     systemFlowTitle: "HN System Flow",
     systemFlowSubtitle: "Every request: User → HN Site → TVCC → HN Service Hub → Provider → back through Hub then TVCC to the requesting site",
