@@ -679,4 +679,92 @@ export const importHnCatalog = createServerFn({ method: "POST" })
   });
 
 
+// Register an external site as a consumer of all approved & active services.
+// - Analyzes the URL (best-effort) to grab title / description / systems
+// - Upserts a `sites` row (status='consumer', category='consumer')
+// - Wipes previous auto consumer_site_id rows for this site, then inserts
+//   one `relation_type='consumes'` row per approved+active service.
+export const linkConsumerSite = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => urlInput.parse(d))
+  .handler(async ({ data, context }) => {
+    const baseUrl = data.url.replace(/\/+$/, "");
+    const host = new URL(baseUrl).hostname.replace(/^www\./, "");
+    const slug = slugify(host);
+
+    // Best-effort analysis (never fatal — still register the site)
+    let meta: { title?: string | null; description?: string | null } = {};
+    let systems: string[] = [];
+    try {
+      const r = await analyzeUrl(baseUrl);
+      meta = r.meta ?? {};
+      systems = r.systems ?? [];
+    } catch { /* ignore analyzer errors */ }
+
+    // Upsert site
+    const { data: existing } = await context.supabase
+      .from("sites").select("id").eq("slug", slug).maybeSingle();
+    let siteId: string;
+    if (existing) {
+      siteId = existing.id;
+      await context.supabase.from("sites").update({
+        base_url: baseUrl,
+        name: meta.title ?? host,
+        description: meta.description ?? null,
+        category: "consumer",
+        status: "active",
+      }).eq("id", siteId);
+    } else {
+      const { data: newSite, error: siteErr } = await context.supabase
+        .from("sites").insert({
+          name: meta.title ?? host,
+          slug,
+          base_url: baseUrl,
+          description: meta.description ?? null,
+          owner_id: context.userId,
+          status: "active",
+          category: "consumer",
+          discovered_at: new Date().toISOString(),
+        }).select("id").single();
+      if (siteErr) throw new Error(siteErr.message);
+      siteId = newSite.id;
+    }
+
+    // All approved & active services become available to this consumer.
+    const { data: services, error: svcErr } = await context.supabase
+      .from("services")
+      .select("id")
+      .eq("approval_status", "approved")
+      .eq("is_active", true);
+    if (svcErr) throw new Error(svcErr.message);
+    const svcIds = (services ?? []).map((s: any) => s.id);
+
+    // Refresh consumer links for this site
+    await context.supabase.from("service_dependencies" as any)
+      .delete()
+      .eq("consumer_site_id", siteId)
+      .eq("relation_type", "consumes");
+
+    let linked = 0;
+    if (svcIds.length) {
+      const rows = svcIds.map((id) => ({
+        service_id: id,
+        consumer_site_id: siteId,
+        relation_type: "consumes",
+        confidence: 100,
+        source: "manual",
+      }));
+      const { data: ins, error: depErr } = await context.supabase
+        .from("service_dependencies" as any)
+        .insert(rows)
+        .select("id");
+      if (depErr) throw new Error(depErr.message);
+      linked = ins?.length ?? 0;
+    }
+
+    return { site_id: siteId, slug, host, linked_services: linked, systems_detected: systems };
+  });
+
+
+
 

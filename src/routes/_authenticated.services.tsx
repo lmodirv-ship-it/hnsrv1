@@ -7,7 +7,7 @@ import {
   rejectService,
   deleteService,
 } from "@/lib/services.functions";
-import { analyzeAllSites, importHnCatalog } from "@/lib/discovery.functions";
+import { analyzeAllSites, importHnCatalog, linkConsumerSite } from "@/lib/discovery.functions";
 import { checkServiceHealth } from "@/lib/monitoring.functions";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { Card } from "@/components/ui/card";
@@ -125,6 +125,7 @@ function ServicesPage() {
   const health = useServerFn(checkServiceHealth);
   const analyzeAll = useServerFn(analyzeAllSites);
   const importCatalog = useServerFn(importHnCatalog);
+  const linkConsumer = useServerFn(linkConsumerSite);
 
   const { data = [] } = useQuery({ queryKey: ["services"], queryFn: () => fn() });
   const [q, setQ] = useState("");
@@ -132,7 +133,9 @@ function ServicesPage() {
   const [sortKey, setSortKey] = useState<SortKey>("name");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
   const [page, setPage] = useState(1);
+  const [consumerUrl, setConsumerUrl] = useState("https://prompt-build-magic-37.lovable.app");
   const perPage = 25;
+
 
   const invalidate = () => qc.invalidateQueries({ queryKey: ["services"] });
 
@@ -174,8 +177,19 @@ function ServicesPage() {
     },
     onError: (e: any) => toast.error(e.message ?? t("somethingWentWrong")),
   });
+  const mLinkConsumer = useMutation({
+    mutationFn: (url: string) => linkConsumer({ data: { url } }),
+    onSuccess: (r: any) => {
+      toast.success(`تم ربط ${r.host} كمستهلك • ${r.linked_services} خدمة متاحة`);
+      invalidate();
+    },
+    onError: (e: any) => toast.error(e.message ?? t("somethingWentWrong")),
+  });
 
   const rows = data as unknown as Row[];
+
+
+
 
   const filtered = useMemo(() => {
     const query = q.trim().toLowerCase();
@@ -260,6 +274,27 @@ function ServicesPage() {
           </Button>
         </div>
       </div>
+
+      <Card className="p-3 bg-card/60 backdrop-blur border-border/60">
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="text-sm font-medium">ربط موقع خارجي كمستهلك لكل الخدمات:</div>
+          <Input
+            className="flex-1 min-w-64"
+            placeholder="https://example.lovable.app"
+            value={consumerUrl}
+            onChange={(e) => setConsumerUrl(e.target.value)}
+          />
+          <Button
+            onClick={() => mLinkConsumer.mutate(consumerUrl.trim())}
+            disabled={mLinkConsumer.isPending || !consumerUrl.trim()}
+            className="gap-2"
+          >
+            {mLinkConsumer.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+            {mLinkConsumer.isPending ? "جاري الربط…" : "حلّل واربط كمستهلك"}
+          </Button>
+        </div>
+      </Card>
+
 
       <Card className="p-3 bg-card/60 backdrop-blur border-border/60">
         <div className="flex items-center gap-3 flex-wrap">
