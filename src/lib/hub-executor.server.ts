@@ -210,11 +210,19 @@ async function callService(service: any, req: ExecRequest, requestId: string) {
   }
 }
 
+export type GatewayContext = { gateway_site: string | null; requester_site: string | null };
+
 // Core: pick service(s), execute with fallback, log everything.
-export async function executeAgainstService(key: AuthedKey, req: ExecRequest): Promise<Response> {
+export async function executeAgainstService(
+  key: AuthedKey,
+  req: ExecRequest,
+  ctx: GatewayContext = { gateway_site: null, requester_site: null },
+): Promise<Response> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const requestId = crypto.randomUUID();
   const startedAt = Date.now();
+  const gatewaySite = ctx.gateway_site;
+  const requesterSite = ctx.requester_site ?? req.requester_site ?? key.client?.name ?? null;
 
   // 1) Resolve candidates
   let candidates: any[] = [];
