@@ -171,6 +171,54 @@ export type Database = {
           },
         ]
       }
+      external_schema_mirrors: {
+        Row: {
+          created_at: string
+          id: string
+          last_attempt_at: string | null
+          last_error: string | null
+          last_sync_at: string | null
+          payload_hash: string | null
+          source_name: string
+          status: string
+          tables_count: number
+          tables_snapshot: Json | null
+          target_name: string
+          target_url: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_attempt_at?: string | null
+          last_error?: string | null
+          last_sync_at?: string | null
+          payload_hash?: string | null
+          source_name?: string
+          status?: string
+          tables_count?: number
+          tables_snapshot?: Json | null
+          target_name: string
+          target_url: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_attempt_at?: string | null
+          last_error?: string | null
+          last_sync_at?: string | null
+          payload_hash?: string | null
+          source_name?: string
+          status?: string
+          tables_count?: number
+          tables_snapshot?: Json | null
+          target_name?: string
+          target_url?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       fallback_rules: {
         Row: {
           created_at: string
