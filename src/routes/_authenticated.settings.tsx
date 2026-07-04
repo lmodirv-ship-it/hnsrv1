@@ -13,6 +13,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { listIntegrations, testIntegration } from "@/lib/integrations.functions";
 import { getMyOrganization, upsertMyOrganization } from "@/lib/organization.functions";
 import { toast } from "sonner";
+import { OwnerPanel } from "@/components/owner-panel";
 
 export const Route = createFileRoute("/_authenticated/settings")({
   component: SettingsPage,
