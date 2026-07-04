@@ -1,94 +1,67 @@
+# تثبيت تدفق المنظومة الرسمي
 
-# جعل هذا الموقع "قلب المنظومة" الخفي
+الهدف: جعل HN Service Hub يعمل بدقة وفق التدفق:
+`User → أي موقع HN → TVCC → Hub → مزود الخدمة → Hub → TVCC → الموقع الطالب`
 
-الهدف: كل موقع في المجموعة يرسل طلبه إلى هذا الموقع فقط، ونحن نختار الخدمة المناسبة، ننفّذها على موقع الخدمة، ونعيد النتيجة كاملة للمرسِل — دون أن يعرف المستخدم النهائي مَن نفّذ الطلب.
+بحيث يكون TVCC هو البوابة (Gateway) و Hub هو العقل (Router/Orchestrator).
 
-## الوضع الحالي
-- يوجد فعلاً `POST /api/public/v1/orchestrate` يتحقق من مفتاح API ويختار الخدمة، **لكنه يُرجع فقط عنوان الوجهة ولا ينفّذ الطلب** ("Proxy execution arrives in v2").
-- جداول `api_clients` / `api_keys` / `service_requests` جاهزة، وسجّلنا سابقاً كل المواقع كـ Mesh.
-- `sites.metadata` يحوي `keyEnv` / `urlEnv` لخدمات HN.
+## المرحلة 1 — تعريف الأدوار في قاعدة البيانات
 
-## ما سنبنيه
+إضافة أعمدة على `sites`:
+- `layer` (enum): `gateway` | `orchestrator` | `app` | `provider` | `infrastructure`
+- `role` (نص): وصف الدور (مثال: "System Gateway", "Execution Brain")
 
-### 1) بوابة تنفيذ حقيقية `POST /api/public/v1/execute`
-مسار جديد أنظف من `orchestrate` (نُبقي `orchestrate` كـ dry-run للاستكشاف).
+تحديث بيانات المواقع:
+- **TVCC** → `layer=gateway`, دور: بوابة الدخول والهوية والنشر
+- **HN Service Hub** → `layer=orchestrator`, دور: العقل التنفيذي
+- **HN Build / HN Apps / HN Chat** → `layer=app`
+- **HN Video / HN Image / HN AI / HN Voice** → `layer=provider`
+- **HN Core / HN DB / HN Cloud** → `layer=infrastructure`
 
-المدخلات:
-```json
-{
-  "intent": "ولّد شعار لمتجري",   // أو
-  "service_id": "uuid",
-  "method": "POST",                 // اختياري، الافتراضي من تعريف الخدمة
-  "path": "/generate",              // اختياري لإلحاقه بمسار الخدمة
-  "payload": { ... },               // جسم الطلب للخدمة النهائية
-  "query": { "lang": "ar" },        // اختياري
-  "timeout_ms": 20000               // اختياري (سقف 30s)
-}
-```
+## المرحلة 2 — فرض تدفق TVCC كبوابة
 
-سلوك المعالج:
-1. تحقق من `Authorization: Bearer hn_xxx.secret` (كما هو اليوم) + Rate limit.
-2. تحديد الخدمة: `service_id` أو أفضل تطابق من `intent`.
-3. تحديد الوجهة: `service.endpoint_url` أو `sites.base_url + endpoint_path (+ path)`، حسب `routing_mode` (`direct` / `via_tvcc` / `auto/gateway`).
-4. **حقن اعتماد HN إن وُجد**: قراءة `sites.metadata.keyEnv` والبحث في `process.env` — إن وُجد يُضاف `Authorization: Bearer <value>` أو `x-api-key` للطلب الخارج (يبقى مخفياً عن المُنادي).
-5. تنفيذ `fetch` بـ `AbortController` (الافتراضي 15s):
-   - Forward: method, query, JSON body، إضافة `X-HN-Request-Id`, `X-Forwarded-For`, `User-Agent: HN-Hub/1.0`.
-   - **Strip**: كل رؤوس المُنادي (خصوصاً `authorization`، ملفات الكوكيز) قبل التمرير — الموقع يعمل باسمه هو، لا باسم المُنادي.
-6. قراءة الاستجابة (JSON أو text)، حساب `latency_ms`, `status_code`.
-7. سجل صف في `service_requests` (نجاح/فشل، bytes، خطأ).
-8. الرد للمُنادي:
-```json
-{
-  "ok": true,
-  "request_id": "uuid",
-  "service": { "id": "...", "name": "..." },
-  "status": 200,
-  "latency_ms": 812,
-  "data": { ... }        // ناتج الخدمة كما هو
-}
-```
-لا نُرجع `url` الحقيقي ولا مفاتيح HN — الموقع خفي.
+على مسارات `/api/public/v1/execute` و `/pipeline` و `/orchestrate`:
+- إضافة تحقق من هوية المُرسل: يجب أن يكون الطلب صادرًا من TVCC أو موقع HN معتمد.
+- استخراج ترويسة `x-hn-requester-site` (الموقع الأصلي الذي طلب) و `x-hn-gateway` (TVCC).
+- تخزين الحقلين في `service_requests.requester_site` و `pipelines.requester_site`.
+- رفض الطلبات التي لا تمر عبر TVCC (اختياري: عبر flag على api_client).
 
-### 2) مسار مساعد ذكي `POST /api/public/v1/ask`
-واجهة مبسّطة موحّدة لمواقع HN:
-```json
-{ "prompt": "حوّل هذا النص إلى صوت عربي: مرحبا" }
-```
-يبني internally: `findServiceByIntent(prompt)` → `execute` → يعيد النتيجة. مفيد كي لا يحتاج أي موقع HN لمعرفة كتالوج الخدمات.
+## المرحلة 3 — تدفق الإرجاع عبر TVCC
 
-### 3) إصدار مفاتيح تلقائية لمواقع HN (Auto-provisioning)
-سكربت/زر في لوحة API Console: "أصدر مفاتيح لكل مواقع Mesh":
-- لكل موقع في `sites` بحالة Mesh ينشئ `api_clients` (إن لم يوجد) و `api_keys` بصلاحيات `allowed_services = null` (الكل) وحدّ 120 req/min.
-- يُخزّن المفتاح مرة واحدة في `sites.metadata.hn_hub_key` للعرض في اللوحة (النص الخام يظهر مرة واحدة فقط).
+في response من Hub:
+- إضافة `return_via: "tvcc"` وحقل `deliver_to: <requester_site>` في المخرجات.
+- تسجيل خطوات الرحلة كاملة في `routing_decision`:
+  ```
+  { path: [
+    { step: "received_from", site: "hn-build", via: "tvcc" },
+    { step: "hub_routed_to", service: "hn-video" },
+    { step: "returned_to", site: "tvcc" },
+    { step: "delivered_to", site: "hn-build" }
+  ]}
+  ```
 
-### 4) واجهة "سجل الطلبات المباشر" في `/orchestrator`
-لوحة صغيرة تعرض آخر 50 صفاً من `service_requests` (client → service → status → latency) لمراقبة عمل القلب الخفي.
+## المرحلة 4 — صفحة "System Flow" مرئية
 
-### 5) توثيق قصير في `/api-console`
-Snippet جاهز يوضح لأي موقع HN كيف يستدعي البوابة:
-```bash
-curl -X POST https://<hub>/api/public/v1/ask \
-  -H "Authorization: Bearer hn_xxx.yyy" \
-  -H "Content-Type: application/json" \
-  -d '{"prompt":"ولّد شعار متجري"}'
-```
+صفحة جديدة `/system-flow` تعرض المخطط المرسوم من المستخدم:
+- رسم بياني عمودي: User → Site → TVCC → Hub → Providers → Hub → TVCC → Site.
+- إحصائيات حية على كل حافة: عدد الطلبات، متوسط الاستجابة، نسبة النجاح.
+- ألوان حسب حالة كل طبقة (gateway / orchestrator / providers).
 
-## ملاحظات تقنية
+## المرحلة 5 — تحديث Capability Map و Network
 
-- **Runtime**: كل شيء داخل `createFileRoute('/api/public/v1/*')` — يعمل على Cloudflare Worker، `fetch` مدعوم أصلاً، لا حاجة لأي مكتبة إضافية.
-- **الأمان**:
-  - رفض تحويل الطلب إن كانت الخدمة غير معتمدة (`approval_status='approved'` و `is_active=true`).
-  - رفض إن كان `sites.base_url` غير https (خيار قابل للتعطيل).
-  - Timeout إجباري لتفادي تعليق العامل.
-- **السرية**: لا نُرجع للمُنادي `endpoint_url` أو `base_url` أو أي رأس أعلى. حتى رسائل الخطأ من الخدمة النهائية تُلَفّ:
-  `{ ok:false, status:502, error:"Upstream service failed" }` مع تفاصيل حقيقية فقط في `service_requests` (للوحة الإدارة).
-- **بدون تغيير UI ظاهر للمستخدم النهائي** — البوابة تعمل خلف الكواليس.
+- صفحة `network` تُعرض بحسب الطبقات (gateway/orchestrator/app/provider/infrastructure) بدل ترتيب مسطح.
+- سهم كل طلب يمر بالضرورة عبر TVCC ثم Hub.
 
-## الملفات المتأثرة
+## تفاصيل تقنية
 
-- إنشاء: `src/routes/api/public/v1/execute.ts`, `src/routes/api/public/v1/ask.ts`
-- تعديل: `src/lib/apiClients.functions.ts` (إضافة `provisionMeshKeys`)
-- تعديل: `src/routes/_authenticated.api-console.tsx` (زر إصدار مفاتيح Mesh + Snippet)
-- تعديل: `src/routes/_authenticated.orchestrator.tsx` (سجل الطلبات الحيّ)
+- Migration جديد (سيُقدم للموافقة): إضافة `layer` كـ enum + `role` text على `sites`، مع GRANT/RLS كما هي.
+- Seed data: تحديث المواقع الحالية بالطبقات الصحيحة عبر `supabase--insert` بعد الترحيل.
+- تعديل `hub-executor.server.ts` و `pipeline.server.ts` لقراءة `x-hn-requester-site` و `x-hn-gateway`.
+- إضافة helper `verifyGateway(request)` يتحقق من مرور الطلب عبر TVCC.
+- إضافة route `_authenticated.system-flow.tsx` مع مخطط SVG وإحصائيات من `service_requests`.
 
-لا تغييرات على مخطط قاعدة البيانات — كل الجداول موجودة.
+## ما لن يتغير
+
+- منطق تقسيم المهام في `planSubtasks` يبقى كما هو.
+- شكل المفاتيح والصلاحيات في `api_clients` / `api_keys` بدون تعديل.
+- واجهات Pipelines/Subtasks/Providers تبقى كما هي مع إضافة عمود "via gateway".
