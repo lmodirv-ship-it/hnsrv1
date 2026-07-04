@@ -248,18 +248,27 @@ export const syncSitesFromTvcc = createServerFn({ method: "POST" })
   .handler(async ({ context }) => {
     const r = await fetchSitesFromHub("tvcc");
     if (!r.ok) {
+      const msg =
+        r.reason === "not_configured"
+          ? "TVCC_API_URL not configured"
+          : r.reason === "invalid_shape"
+            ? `TVCC response has invalid shape — ${r.detail}`
+            : r.reason === "invalid_items"
+              ? `TVCC returned malformed sites — ${r.detail}`
+              : "TVCC did not return a sites list";
       return {
         ok: false,
         fallback: true,
-        error: r.reason === "not_configured" ? "TVCC_API_URL not configured" : "TVCC did not return a sites list",
-        source: "",
+        error: msg,
+        reason: r.reason,
+        source: r.path ?? "",
         count: 0,
         inserted: 0,
         updated: 0,
       };
     }
     const { inserted, updated } = await upsertSites(context, "tvcc", r.list);
-    return { ok: true, source: r.path, count: r.list.length, inserted, updated };
+    return { ok: true, source: r.path, count: r.list.length, inserted, updated, skipped: r.skipped ?? 0 };
   });
 
 // Pull sites from every configured hub and upsert them locally.
