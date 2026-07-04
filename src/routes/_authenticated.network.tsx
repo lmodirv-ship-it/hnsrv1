@@ -182,6 +182,19 @@ function NetworkPage() {
             onDone={() => qc.invalidateQueries({ queryKey: ["service-network"] })}
             successMessage={(r: any) => `تم تحليل ${r.analyzed}/${r.total} • خدمات: ${r.servicesCreated}`}
           />
+          <GenerateButton
+            label="اربط الكل ↔ الكل (Mesh)"
+            pendingLabel="جاري الربط…"
+            onGenerate={() =>
+              linkMesh({
+                data: { coordinator_url: window.location.origin },
+              })
+            }
+            onDone={() => qc.invalidateQueries({ queryKey: ["service-network"] })}
+            successMessage={(r: any) =>
+              `تم ربط ${r.links} علاقة • ${r.sites} موقع × ${r.services} خدمة`
+            }
+          />
         </div>
       </div>
 
