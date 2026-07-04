@@ -14,8 +14,8 @@ export type HnAgent = {
   service_name: string | null;
   role: string;
   description: string | null;
-  inputs: unknown;
-  outputs: unknown;
+  inputs: Record<string, unknown> | null;
+  outputs: Record<string, unknown> | null;
   tools: string[];
   script_lang: string;
   script_content: string | null;
