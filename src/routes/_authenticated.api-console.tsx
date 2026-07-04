@@ -113,6 +113,26 @@ function ApiConsolePage() {
         </div>
       </Card>
 
+      <Card className="p-4 bg-card/60 backdrop-blur border-border/60">
+        <div className="text-sm font-semibold mb-2">🧠 القلب الخفي — كيف تستدعي أي خدمة</div>
+        <p className="text-xs text-muted-foreground mb-3">
+          كل مواقع HN ترسل طلباتها هنا فقط. نحن نختار الخدمة المناسبة، ننفّذها بهوية HN، ونعيد النتيجة — دون كشف الخدمة الحقيقية للمُنادي.
+        </p>
+        <pre className="text-[11px] leading-relaxed bg-background/60 rounded p-3 overflow-x-auto font-mono">
+{`# نيّة طبيعية (يختار الهَب الخدمة تلقائياً)
+curl -X POST ${typeof window !== "undefined" ? window.location.origin : "https://<hub>"}/api/public/v1/ask \\
+  -H "Authorization: Bearer hn_xxx.yyy" \\
+  -H "Content-Type: application/json" \\
+  -d '{"prompt":"ولّد شعار متجري"}'
+
+# استدعاء خدمة محددة مع payload
+curl -X POST ${typeof window !== "undefined" ? window.location.origin : "https://<hub>"}/api/public/v1/execute \\
+  -H "Authorization: Bearer hn_xxx.yyy" \\
+  -H "Content-Type: application/json" \\
+  -d '{"service_id":"<uuid>","payload":{"text":"مرحبا"}}'`}
+        </pre>
+      </Card>
+
       {newKey && (
         <Card className="p-4 border-amber-500/50 bg-amber-500/5">
           <div className="text-sm font-semibold text-amber-400">{t("keyOnceWarning")}</div>
