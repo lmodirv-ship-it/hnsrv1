@@ -22,7 +22,7 @@ export type PlanTask = {
   id: string; // stable id used for depends_on refs (e.g. "t1", "logo")
   type: string; // capability slug (e.g. "logo", "images", "texts", "database", "website", "deployment")
   title: string;
-  inputs: Record<string, unknown>;
+  inputs: Record<string, Json>;
   depends_on: string[]; // ids of other tasks
 };
 
@@ -36,7 +36,7 @@ export type TaskExecution = {
   status: "pending" | "running" | "succeeded" | "failed" | "skipped";
   target_service_id: string | null;
   target_site: string | null;
-  output: unknown;
+  output: Json;
   error: string | null;
   started_at?: string;
   finished_at?: string;
@@ -54,7 +54,7 @@ export type BuiltResponse = {
   results: Record<string, {
     type: string;
     site: string | null;
-    output: unknown;
+    output: Json;
     error: string | null;
     ms?: number;
   }>;
