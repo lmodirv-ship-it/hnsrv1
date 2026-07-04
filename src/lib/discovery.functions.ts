@@ -397,6 +397,14 @@ export const saveDiscoveredServices = createServerFn({ method: "POST" })
     const jobResult = (job?.result ?? {}) as { systems?: string[] };
     const systems = Array.isArray(jobResult.systems) ? jobResult.systems : [];
     if (inserted && inserted.length && systems.length) {
+      const svcIds = inserted.map((s: any) => s.id);
+      // Refresh auto-detected system deps for these services
+      await context.supabase
+        .from("service_dependencies" as any)
+        .delete()
+        .in("service_id", svcIds)
+        .eq("source", "auto")
+        .not("depends_on_system", "is", null);
       const depRows = inserted.flatMap((svc: any) =>
         systems.map((sys) => ({
           service_id: svc.id,
@@ -406,10 +414,9 @@ export const saveDiscoveredServices = createServerFn({ method: "POST" })
           source: "auto",
         }))
       );
-      await context.supabase
-        .from("service_dependencies" as any)
-        .upsert(depRows, { onConflict: "service_id,depends_on_service_id,depends_on_system,consumer_site_id,relation_type", ignoreDuplicates: true });
+      await context.supabase.from("service_dependencies" as any).insert(depRows);
     }
+
 
     return { inserted: inserted?.length ?? 0, site_id: siteId };
   });
