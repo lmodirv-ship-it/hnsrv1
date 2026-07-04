@@ -25,6 +25,43 @@ type HnCatalogSite = {
 
 const urlInput = z.object({ url: z.string().trim().url().max(500) });
 
+// SSRF guard: only allow public https URLs. Block loopback, link-local,
+// private ranges, and cloud-metadata style hostnames.
+function assertPublicHttpsUrl(raw: string): URL {
+  const u = new URL(raw);
+  if (u.protocol !== "https:") throw new Error("Only https:// URLs are allowed");
+  const host = u.hostname.toLowerCase();
+  if (
+    host === "localhost" ||
+    host.endsWith(".local") ||
+    host.endsWith(".internal") ||
+    host === "metadata.google.internal" ||
+    host === "metadata.goog"
+  ) throw new Error("Host not allowed");
+  // IPv6 literals
+  if (host.includes(":")) {
+    const h = host.replace(/^\[|\]$/g, "");
+    if (h === "::1" || h.startsWith("fc") || h.startsWith("fd") || h.startsWith("fe80")) {
+      throw new Error("Private IPv6 not allowed");
+    }
+  }
+  // IPv4 literal
+  const m = host.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+  if (m) {
+    const [a, b] = [parseInt(m[1], 10), parseInt(m[2], 10)];
+    if (
+      a === 10 ||
+      a === 127 ||
+      a === 0 ||
+      (a === 169 && b === 254) ||
+      (a === 172 && b >= 16 && b <= 31) ||
+      (a === 192 && b === 168) ||
+      a >= 224 // multicast + reserved
+    ) throw new Error("Private/reserved IPv4 not allowed");
+  }
+  return u;
+}
+
 async function fetchWithTimeout(url: string, ms = 8000): Promise<Response | null> {
   const ctrl = new AbortController();
   const to = setTimeout(() => ctrl.abort(), ms);
@@ -213,6 +250,7 @@ export const discoverSite = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => urlInput.parse(d))
   .handler(async ({ data, context }) => {
+    assertPublicHttpsUrl(data.url);
     const { data: job, error: jErr } = await context.supabase
       .from("discovery_jobs")
       .insert({ url: data.url, requested_by: context.userId, status: "running" })
