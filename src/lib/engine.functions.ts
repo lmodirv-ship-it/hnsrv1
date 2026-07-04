@@ -89,14 +89,22 @@ export const runPipelineNow = createServerFn({ method: "POST" })
     prompt: z.string().max(2000).optional(),
     requester_site: z.string().max(200).optional(),
   }).parse(d))
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }): Promise<{ ok: boolean; pipeline_id: string; status: string; subtasks_total: number; subtasks_done: number; latency_ms: number }> => {
     const { runPipeline } = await import("@/lib/pipeline.server");
-    return runPipeline({
+    const r = await runPipeline({
       intent: data.intent,
       prompt: data.prompt,
       requester_site: data.requester_site ?? "hn-hub-console",
       owner_id: context.userId,
     });
+    return {
+      ok: r.ok,
+      pipeline_id: r.pipeline_id,
+      status: r.status,
+      subtasks_total: r.subtasks_total,
+      subtasks_done: r.subtasks_done,
+      latency_ms: r.latency_ms,
+    };
   });
 
 // ---------- Requests engine / routing decisions (existing) ----------
