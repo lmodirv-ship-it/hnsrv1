@@ -24,13 +24,12 @@ for (const f of cfg.publish.requiredFiles) {
   existsSync(f) ? ok(`file ${f}`) : fail(`missing required file: ${f}`);
 }
 
-// 2. bun.lock freshness — must be newer or equal to package.json
+// 2. bun.lock freshness (soft — confirmed by --frozen-lockfile below)
 if (existsSync("bun.lock") && existsSync("package.json")) {
   const lockAge = statSync("bun.lock").mtimeMs;
   const pkgAge = statSync("package.json").mtimeMs;
-  if (pkgAge > lockAge + 2000) {
-    fail("bun.lock is older than package.json — run `bun install --ignore-scripts` to refresh");
-  } else ok("bun.lock in sync with package.json");
+  if (pkgAge > lockAge + 2000) warnMsg("bun.lock older than package.json (mtime) — will be validated by --frozen-lockfile");
+  else ok("bun.lock newer than package.json");
 }
 
 // 3. No forbidden deps leaking into published bundle
