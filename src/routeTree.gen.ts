@@ -20,6 +20,7 @@ import { Route as AuthenticatedOrchestratorRouteImport } from './routes/_authent
 import { Route as AuthenticatedNetworkRouteImport } from './routes/_authenticated.network'
 import { Route as AuthenticatedMonitoringRouteImport } from './routes/_authenticated.monitoring'
 import { Route as AuthenticatedKnowledgeRouteImport } from './routes/_authenticated.knowledge'
+import { Route as AuthenticatedFallbackRulesRouteImport } from './routes/_authenticated.fallback-rules'
 import { Route as AuthenticatedDiscoveryRouteImport } from './routes/_authenticated.discovery'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated.dashboard'
 import { Route as AuthenticatedApiConsoleRouteImport } from './routes/_authenticated.api-console'
@@ -86,6 +87,12 @@ const AuthenticatedKnowledgeRoute = AuthenticatedKnowledgeRouteImport.update({
   path: '/knowledge',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedFallbackRulesRoute =
+  AuthenticatedFallbackRulesRouteImport.update({
+    id: '/fallback-rules',
+    path: '/fallback-rules',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedDiscoveryRoute = AuthenticatedDiscoveryRouteImport.update({
   id: '/discovery',
   path: '/discovery',
@@ -133,6 +140,7 @@ export interface FileRoutesByFullPath {
   '/api-console': typeof AuthenticatedApiConsoleRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/discovery': typeof AuthenticatedDiscoveryRoute
+  '/fallback-rules': typeof AuthenticatedFallbackRulesRoute
   '/knowledge': typeof AuthenticatedKnowledgeRoute
   '/monitoring': typeof AuthenticatedMonitoringRoute
   '/network': typeof AuthenticatedNetworkRoute
@@ -153,6 +161,7 @@ export interface FileRoutesByTo {
   '/api-console': typeof AuthenticatedApiConsoleRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/discovery': typeof AuthenticatedDiscoveryRoute
+  '/fallback-rules': typeof AuthenticatedFallbackRulesRoute
   '/knowledge': typeof AuthenticatedKnowledgeRoute
   '/monitoring': typeof AuthenticatedMonitoringRoute
   '/network': typeof AuthenticatedNetworkRoute
@@ -175,6 +184,7 @@ export interface FileRoutesById {
   '/_authenticated/api-console': typeof AuthenticatedApiConsoleRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/discovery': typeof AuthenticatedDiscoveryRoute
+  '/_authenticated/fallback-rules': typeof AuthenticatedFallbackRulesRoute
   '/_authenticated/knowledge': typeof AuthenticatedKnowledgeRoute
   '/_authenticated/monitoring': typeof AuthenticatedMonitoringRoute
   '/_authenticated/network': typeof AuthenticatedNetworkRoute
@@ -197,6 +207,7 @@ export interface FileRouteTypes {
     | '/api-console'
     | '/dashboard'
     | '/discovery'
+    | '/fallback-rules'
     | '/knowledge'
     | '/monitoring'
     | '/network'
@@ -217,6 +228,7 @@ export interface FileRouteTypes {
     | '/api-console'
     | '/dashboard'
     | '/discovery'
+    | '/fallback-rules'
     | '/knowledge'
     | '/monitoring'
     | '/network'
@@ -238,6 +250,7 @@ export interface FileRouteTypes {
     | '/_authenticated/api-console'
     | '/_authenticated/dashboard'
     | '/_authenticated/discovery'
+    | '/_authenticated/fallback-rules'
     | '/_authenticated/knowledge'
     | '/_authenticated/monitoring'
     | '/_authenticated/network'
@@ -341,6 +354,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedKnowledgeRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/fallback-rules': {
+      id: '/_authenticated/fallback-rules'
+      path: '/fallback-rules'
+      fullPath: '/fallback-rules'
+      preLoaderRoute: typeof AuthenticatedFallbackRulesRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/discovery': {
       id: '/_authenticated/discovery'
       path: '/discovery'
@@ -404,6 +424,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedApiConsoleRoute: typeof AuthenticatedApiConsoleRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedDiscoveryRoute: typeof AuthenticatedDiscoveryRoute
+  AuthenticatedFallbackRulesRoute: typeof AuthenticatedFallbackRulesRoute
   AuthenticatedKnowledgeRoute: typeof AuthenticatedKnowledgeRoute
   AuthenticatedMonitoringRoute: typeof AuthenticatedMonitoringRoute
   AuthenticatedNetworkRoute: typeof AuthenticatedNetworkRoute
@@ -420,6 +441,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedApiConsoleRoute: AuthenticatedApiConsoleRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedDiscoveryRoute: AuthenticatedDiscoveryRoute,
+  AuthenticatedFallbackRulesRoute: AuthenticatedFallbackRulesRoute,
   AuthenticatedKnowledgeRoute: AuthenticatedKnowledgeRoute,
   AuthenticatedMonitoringRoute: AuthenticatedMonitoringRoute,
   AuthenticatedNetworkRoute: AuthenticatedNetworkRoute,
