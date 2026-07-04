@@ -244,6 +244,11 @@ export const discoverSite = createServerFn({ method: "POST" })
         links,
       });
 
+      // Framework + ecosystem hints from HTML + extra texts + links
+      const combinedText = [html, ...extraTexts, ...links].join(" \n ");
+      const frameworks = detectFrameworks(html);
+      const systems = detectSystems(combinedText);
+
       // Overall confidence: presence of title/desc/api/services
       let overall = 20;
       if (meta.title) overall += 15;
@@ -259,9 +264,12 @@ export const discoverSite = createServerFn({ method: "POST" })
         headings: headings.slice(0, 10),
         api_hints: okHints,
         sample_links: links.slice(0, 20),
+        frameworks,
+        systems,
         discovered_services,
         overall_confidence: Math.min(100, overall),
       };
+
 
       await context.supabase
         .from("discovery_jobs")
