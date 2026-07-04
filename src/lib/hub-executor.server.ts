@@ -30,7 +30,7 @@ export function corsHeaders() {
   return {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Authorization, Content-Type",
+    "Access-Control-Allow-Headers": "Authorization, Content-Type, X-Hn-Gateway, X-Hn-Requester-Site",
     "Access-Control-Max-Age": "86400",
   } as const;
 }
