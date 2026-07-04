@@ -82,12 +82,12 @@ export const updatePlatformSetting = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: row, error } = await supabaseAdmin
       .from("platform_settings")
-      .update({ value: data.value, updated_by: context.userId })
+      .update({ value: data.value as any, updated_by: context.userId })
       .eq("key", data.key)
       .select()
       .single();
     if (error) throw new Error(error.message);
-    await logAction(context, "update_setting", data.key, data.value, row);
+    await logAction(context, "update_setting", data.key, data.value, row as any);
     return row;
   });
 
