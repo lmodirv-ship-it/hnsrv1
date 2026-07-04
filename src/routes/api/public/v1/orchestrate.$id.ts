@@ -14,12 +14,17 @@ export const Route = createFileRoute("/api/public/v1/orchestrate/$id")({
         if ("error" in auth) return jsonResponse(401, { ok: false, error: auth.error });
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        // IDOR guard: scope the read to the authenticated caller.
+        const ownerCol =
+          auth.key.auth_mode === "internal" ? "internal_connector_id" : "api_key_id";
         const { data: plan, error } = await supabaseAdmin
           .from("hub_plans")
           .select("*")
           .eq("id", params.id)
+          .eq(ownerCol, auth.key.id)
           .maybeSingle();
         if (error) return jsonResponse(500, { ok: false, error: error.message });
+        // Return 404 (not 403) to avoid leaking existence of other callers' plans.
         if (!plan) return jsonResponse(404, { ok: false, error: "Plan not found" });
 
         const { data: subtasks } = await supabaseAdmin

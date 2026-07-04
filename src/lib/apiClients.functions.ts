@@ -151,8 +151,10 @@ export const provisionMeshKeys = createServerFn({ method: "POST" })
       });
       if (kErr) throw new Error(kErr.message);
 
+      // SECURITY: never persist the plaintext key in DB — prefix only.
+      // The full key is returned once in the response below.
       await context.supabase.from("sites").update({
-        metadata: { ...meta, hn_hub_key_prefix: prefix, hn_hub_key: full, hn_hub_provisioned_at: new Date().toISOString() },
+        metadata: { ...meta, hn_hub_key_prefix: prefix, hn_hub_provisioned_at: new Date().toISOString() },
       }).eq("id", site.id);
 
       issued++;
