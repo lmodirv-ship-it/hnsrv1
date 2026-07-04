@@ -31,8 +31,8 @@ async function logAction(
     actor_id: ctx.userId,
     action,
     target,
-    payload,
-    result,
+    payload: payload as any,
+    result: result as any,
     status,
   });
 }
