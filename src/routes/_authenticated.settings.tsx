@@ -3,6 +3,8 @@ import { useLanguage } from "@/i18n/LanguageProvider";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Settings, Languages, Plug, CheckCircle2, XCircle, Loader2, AlertCircle } from "lucide-react";
+import { GenerateButton } from "@/components/generate-button";
+
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { listIntegrations, testIntegration } from "@/lib/integrations.functions";
