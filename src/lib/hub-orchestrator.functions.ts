@@ -21,19 +21,30 @@ export const runOrchestration = createServerFn({ method: "POST" })
     if (!isAdmin && !isDev) throw new Error("Forbidden");
 
     const { orchestrate } = await import("@/lib/hub-orchestrator.server");
-    // Run as an internal "hub console" caller — no rate limit, no external key.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    // Resolve the built-in "Hub Console" internal connector so the caller
+    // identity satisfies hub_plans/service_requests foreign keys.
+    const { data: consoleConn } = await supabaseAdmin
+      .from("internal_connectors")
+      .select("id, site_id, name, trust_level, allowed_internal_services, sites!inner(slug, name)")
+      .eq("id", "00000000-0000-0000-0000-0000000c0002")
+      .maybeSingle();
+
+    if (!consoleConn) throw new Error("Hub Console connector not provisioned");
+
     const result = await orchestrate(
       {
-        id: context.userId,
+        id: consoleConn.id,
         client_id: null,
         auth_mode: "internal",
         client: null,
         connector: {
-          site_id: context.userId,
-          site_slug: "hub-console",
-          site_name: "Hub Console",
-          trust_level: "trusted",
-          allowed_internal_services: [],
+          site_id: consoleConn.site_id,
+          site_slug: (consoleConn as any).sites?.slug ?? "hub-console",
+          site_name: (consoleConn as any).sites?.name ?? "Hub Console",
+          trust_level: consoleConn.trust_level,
+          allowed_internal_services: (consoleConn.allowed_internal_services as any) ?? [],
         },
       } as any,
       { prompt: data.prompt, requester_site: data.requester_site ?? "hub-console" },
