@@ -273,6 +273,45 @@ export type Database = {
           },
         ]
       }
+      hub_engines: {
+        Row: {
+          config: Json
+          created_at: string
+          description: string | null
+          id: string
+          is_enabled: boolean
+          last_activated_at: string | null
+          name: string
+          slug: string
+          stage_order: number
+          updated_at: string
+        }
+        Insert: {
+          config?: Json
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_enabled?: boolean
+          last_activated_at?: string | null
+          name: string
+          slug: string
+          stage_order?: number
+          updated_at?: string
+        }
+        Update: {
+          config?: Json
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_enabled?: boolean
+          last_activated_at?: string | null
+          name?: string
+          slug?: string
+          stage_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       hub_integrations: {
         Row: {
           base_url: string | null
