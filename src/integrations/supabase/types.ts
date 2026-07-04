@@ -387,6 +387,7 @@ export type Database = {
           id: string
           input_payload: Json | null
           intent: string
+          internal_connector_id: string | null
           journey_path: Json
           latency_ms: number | null
           owner_id: string | null
@@ -410,6 +411,7 @@ export type Database = {
           id?: string
           input_payload?: Json | null
           intent: string
+          internal_connector_id?: string | null
           journey_path?: Json
           latency_ms?: number | null
           owner_id?: string | null
@@ -433,6 +435,7 @@ export type Database = {
           id?: string
           input_payload?: Json | null
           intent?: string
+          internal_connector_id?: string | null
           journey_path?: Json
           latency_ms?: number | null
           owner_id?: string | null
@@ -457,6 +460,13 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "api_clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pipelines_internal_connector_id_fkey"
+            columns: ["internal_connector_id"]
+            isOneToOne: false
+            referencedRelation: "internal_connectors"
             referencedColumns: ["id"]
           },
         ]
@@ -596,6 +606,7 @@ export type Database = {
           fallback_used: boolean
           gateway_site: string | null
           id: string
+          internal_connector_id: string | null
           journey_path: Json
           latency_ms: number | null
           method: string | null
@@ -619,6 +630,7 @@ export type Database = {
           fallback_used?: boolean
           gateway_site?: string | null
           id?: string
+          internal_connector_id?: string | null
           journey_path?: Json
           latency_ms?: number | null
           method?: string | null
@@ -642,6 +654,7 @@ export type Database = {
           fallback_used?: boolean
           gateway_site?: string | null
           id?: string
+          internal_connector_id?: string | null
           journey_path?: Json
           latency_ms?: number | null
           method?: string | null
@@ -667,6 +680,13 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "api_clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_requests_internal_connector_id_fkey"
+            columns: ["internal_connector_id"]
+            isOneToOne: false
+            referencedRelation: "internal_connectors"
             referencedColumns: ["id"]
           },
           {
