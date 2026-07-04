@@ -21,6 +21,7 @@ import {
   runOrchestration,
   listPlans,
 } from "@/lib/hub-orchestrator.functions";
+import { EnginesPanel } from "@/components/engines-panel";
 
 export const Route = createFileRoute("/_authenticated/orchestration")({
   component: OrchestrationPage,
@@ -81,6 +82,8 @@ function OrchestrationPage() {
           <b>Task Dispatcher</b> → <b>Result Collector</b> → <b>Response Builder</b>.
         </p>
       </div>
+
+      <EnginesPanel />
 
       <Card className="p-5 space-y-3">
         <label className="text-sm font-medium flex items-center gap-2">
