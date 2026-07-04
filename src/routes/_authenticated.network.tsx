@@ -169,11 +169,21 @@ function NetworkPage() {
             {totals.sites} sites · {totals.services} services · {totals.deps} dependencies
           </p>
         </div>
-        <div className="relative w-64">
-          <Search className="h-4 w-4 absolute top-2.5 start-3 text-muted-foreground" />
-          <Input className="ps-9" placeholder={t("search")} value={q} onChange={(e) => setQ(e.target.value)} />
+        <div className="flex items-center gap-2">
+          <div className="relative w-64">
+            <Search className="h-4 w-4 absolute top-2.5 start-3 text-muted-foreground" />
+            <Input className="ps-9" placeholder={t("search")} value={q} onChange={(e) => setQ(e.target.value)} />
+          </div>
+          <GenerateButton
+            label="توليد: أعد بناء الشبكة"
+            pendingLabel="جاري التحليل…"
+            onGenerate={() => analyzeAll()}
+            onDone={() => qc.invalidateQueries({ queryKey: ["service-network"] })}
+            successMessage={(r: any) => `تم تحليل ${r.analyzed}/${r.total} • خدمات: ${r.servicesCreated}`}
+          />
         </div>
       </div>
+
 
       <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
         <div className="space-y-3">
