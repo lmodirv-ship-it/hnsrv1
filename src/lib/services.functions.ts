@@ -90,6 +90,23 @@ export const rejectService = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+export const approveAllPending = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    // Admin/developer only — anyone signed-in shouldn't be able to bulk-approve.
+    const { data: isAdmin } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
+    const { data: isDev } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "developer" });
+    if (!isAdmin && !isDev) throw new Error("Forbidden");
+
+    const { data, error } = await context.supabase
+      .from("services")
+      .update({ approval_status: "approved", is_active: true })
+      .eq("approval_status", "pending")
+      .select("id");
+    if (error) throw new Error(error.message);
+    return { ok: true, approved: (data ?? []).length };
+  });
+
 export const updateService = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: { id: string; patch: Partial<{ name: string; category: string | null; description: string | null; endpoint_path: string | null; method: string; api_required: boolean; is_active: boolean }> }) => d)
