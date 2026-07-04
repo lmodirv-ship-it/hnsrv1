@@ -143,6 +143,8 @@ export type RunPipelineArgs = {
   owner_id?: string | null;
   api_key_id?: string | null;
   client_id?: string | null;
+  internal_connector_id?: string | null;
+  auth_mode?: "internal" | "external" | null;
   input_payload?: Record<string, unknown>;
 };
 
@@ -161,6 +163,8 @@ export async function runPipeline(args: RunPipelineArgs) {
       owner_id: args.owner_id ?? null,
       api_key_id: args.api_key_id ?? null,
       client_id: args.client_id ?? null,
+      internal_connector_id: args.internal_connector_id ?? null,
+      auth_mode: args.auth_mode ?? null,
       requester_site: requesterSite,
       gateway_site: gatewaySite,
       intent: args.intent,
@@ -170,7 +174,7 @@ export async function runPipeline(args: RunPipelineArgs) {
       subtasks_total: plan.length,
       started_at: startedAt.toISOString(),
       journey_path: [
-        { step: "received_from", site: requesterSite, via: gatewaySite ?? "tvcc" },
+        { step: "received_from", site: requesterSite, via: gatewaySite ?? "tvcc", auth_mode: args.auth_mode ?? null },
         { step: "hub_planned_subtasks", count: plan.length },
       ] as any,
     })

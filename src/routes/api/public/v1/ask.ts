@@ -12,13 +12,13 @@ export const Route = createFileRoute("/api/public/v1/ask")({
       },
       POST: async ({ request }) => {
         const {
-          authenticateKey,
+          authenticate,
           checkRateLimit,
           executeAgainstService,
           jsonResponse,
         } = await import("@/lib/hub-executor.server");
 
-        const auth = await authenticateKey(request);
+        const auth = await authenticate(request);
         if ("error" in auth) return jsonResponse(401, { ok: false, error: auth.error });
 
         const rl = await checkRateLimit(auth.key);

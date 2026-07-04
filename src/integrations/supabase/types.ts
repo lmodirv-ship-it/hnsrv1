@@ -211,6 +211,59 @@ export type Database = {
         }
         Relationships: []
       }
+      internal_connectors: {
+        Row: {
+          allowed_internal_services: Json
+          connector_status: string
+          created_at: string
+          created_by: string | null
+          id: string
+          last_used_at: string | null
+          name: string
+          site_id: string
+          token_hash: string
+          token_prefix: string
+          trust_level: string
+          updated_at: string
+        }
+        Insert: {
+          allowed_internal_services?: Json
+          connector_status?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          last_used_at?: string | null
+          name: string
+          site_id: string
+          token_hash: string
+          token_prefix: string
+          trust_level?: string
+          updated_at?: string
+        }
+        Update: {
+          allowed_internal_services?: Json
+          connector_status?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          last_used_at?: string | null
+          name?: string
+          site_id?: string
+          token_hash?: string
+          token_prefix?: string
+          trust_level?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "internal_connectors_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       knowledge_entries: {
         Row: {
           content: Json
@@ -324,6 +377,7 @@ export type Database = {
       pipelines: {
         Row: {
           api_key_id: string | null
+          auth_mode: string | null
           client_id: string | null
           created_at: string
           error: string | null
@@ -333,6 +387,7 @@ export type Database = {
           id: string
           input_payload: Json | null
           intent: string
+          internal_connector_id: string | null
           journey_path: Json
           latency_ms: number | null
           owner_id: string | null
@@ -346,6 +401,7 @@ export type Database = {
         }
         Insert: {
           api_key_id?: string | null
+          auth_mode?: string | null
           client_id?: string | null
           created_at?: string
           error?: string | null
@@ -355,6 +411,7 @@ export type Database = {
           id?: string
           input_payload?: Json | null
           intent: string
+          internal_connector_id?: string | null
           journey_path?: Json
           latency_ms?: number | null
           owner_id?: string | null
@@ -368,6 +425,7 @@ export type Database = {
         }
         Update: {
           api_key_id?: string | null
+          auth_mode?: string | null
           client_id?: string | null
           created_at?: string
           error?: string | null
@@ -377,6 +435,7 @@ export type Database = {
           id?: string
           input_payload?: Json | null
           intent?: string
+          internal_connector_id?: string | null
           journey_path?: Json
           latency_ms?: number | null
           owner_id?: string | null
@@ -401,6 +460,13 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "api_clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pipelines_internal_connector_id_fkey"
+            columns: ["internal_connector_id"]
+            isOneToOne: false
+            referencedRelation: "internal_connectors"
             referencedColumns: ["id"]
           },
         ]
@@ -532,6 +598,7 @@ export type Database = {
         Row: {
           api_key_id: string | null
           attempts: number
+          auth_mode: string | null
           client_id: string | null
           created_at: string
           error: string | null
@@ -539,6 +606,7 @@ export type Database = {
           fallback_used: boolean
           gateway_site: string | null
           id: string
+          internal_connector_id: string | null
           journey_path: Json
           latency_ms: number | null
           method: string | null
@@ -554,6 +622,7 @@ export type Database = {
         Insert: {
           api_key_id?: string | null
           attempts?: number
+          auth_mode?: string | null
           client_id?: string | null
           created_at?: string
           error?: string | null
@@ -561,6 +630,7 @@ export type Database = {
           fallback_used?: boolean
           gateway_site?: string | null
           id?: string
+          internal_connector_id?: string | null
           journey_path?: Json
           latency_ms?: number | null
           method?: string | null
@@ -576,6 +646,7 @@ export type Database = {
         Update: {
           api_key_id?: string | null
           attempts?: number
+          auth_mode?: string | null
           client_id?: string | null
           created_at?: string
           error?: string | null
@@ -583,6 +654,7 @@ export type Database = {
           fallback_used?: boolean
           gateway_site?: string | null
           id?: string
+          internal_connector_id?: string | null
           journey_path?: Json
           latency_ms?: number | null
           method?: string | null
@@ -608,6 +680,13 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "api_clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_requests_internal_connector_id_fkey"
+            columns: ["internal_connector_id"]
+            isOneToOne: false
+            referencedRelation: "internal_connectors"
             referencedColumns: ["id"]
           },
           {
@@ -638,6 +717,7 @@ export type Database = {
           last_tested_at: string | null
           method: string
           name: string
+          network_type: Database["public"]["Enums"]["network_type"]
           output_schema: Json | null
           rate_limit_per_min: number
           routing_mode: string
@@ -665,6 +745,7 @@ export type Database = {
           last_tested_at?: string | null
           method?: string
           name: string
+          network_type?: Database["public"]["Enums"]["network_type"]
           output_schema?: Json | null
           rate_limit_per_min?: number
           routing_mode?: string
@@ -692,6 +773,7 @@ export type Database = {
           last_tested_at?: string | null
           method?: string
           name?: string
+          network_type?: Database["public"]["Enums"]["network_type"]
           output_schema?: Json | null
           rate_limit_per_min?: number
           routing_mode?: string
@@ -726,6 +808,7 @@ export type Database = {
           logo_url: string | null
           metadata: Json
           name: string
+          network_type: Database["public"]["Enums"]["network_type"]
           owner_id: string | null
           role: string | null
           slug: string
@@ -747,6 +830,7 @@ export type Database = {
           logo_url?: string | null
           metadata?: Json
           name: string
+          network_type?: Database["public"]["Enums"]["network_type"]
           owner_id?: string | null
           role?: string | null
           slug: string
@@ -768,6 +852,7 @@ export type Database = {
           logo_url?: string | null
           metadata?: Json
           name?: string
+          network_type?: Database["public"]["Enums"]["network_type"]
           owner_id?: string | null
           role?: string | null
           slug?: string
@@ -813,6 +898,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "developer" | "viewer"
+      network_type: "internal" | "external"
       site_layer:
         | "gateway"
         | "orchestrator"
@@ -948,6 +1034,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "developer", "viewer"],
+      network_type: ["internal", "external"],
       site_layer: [
         "gateway",
         "orchestrator",

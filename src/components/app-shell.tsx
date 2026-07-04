@@ -123,6 +123,7 @@ const groups: NavGroup[] = [
     icon: KeyRound,
     url: "/api-console",
     items: [
+      { key: "navInternalConnectors", url: "/internal-connectors" },
       { key: "navClients", url: "/api-console#clients" },
       { key: "apiKeys", url: "/api-console#keys" },
       { key: "navApiLogs", url: "/api-console#logs" },

@@ -18,11 +18,21 @@ export type ExecRequest = {
 
 export type AuthedKey = {
   id: string;
-  client_id: string;
+  client_id: string | null;
+  auth_mode: "internal" | "external";
+  // External API client (developer / external site)
   client?: {
     name?: string | null;
     rate_limit_per_min: number | null;
     allowed_services: string[] | null;
+  } | null;
+  // Internal HN site connector (trusted network)
+  connector?: {
+    site_id: string;
+    site_slug?: string | null;
+    site_name?: string | null;
+    trust_level: string;
+    allowed_internal_services: string[]; // ids or slugs; empty = all
   } | null;
 };
 
@@ -30,7 +40,8 @@ export function corsHeaders() {
   return {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Authorization, Content-Type, X-Hn-Gateway, X-Hn-Requester-Site",
+    "Access-Control-Allow-Headers":
+      "Authorization, Content-Type, X-Hn-Gateway, X-Hn-Requester-Site, X-Hn-Site-Id, X-Hn-Internal-Token",
     "Access-Control-Max-Age": "86400",
   } as const;
 }
@@ -51,6 +62,7 @@ export function jsonResponse(status: number, body: unknown) {
   });
 }
 
+// External developer / third-party API key auth (Authorization: Bearer <prefix>.<secret>)
 export async function authenticateKey(request: Request) {
   const auth = request.headers.get("authorization") ?? "";
   const token = auth.replace(/^Bearer\s+/i, "").trim();
@@ -74,7 +86,9 @@ export async function authenticateKey(request: Request) {
         key: {
           id: k.id,
           client_id: k.client_id,
+          auth_mode: "external",
           client: (k as any).api_clients ?? null,
+          connector: null,
         } as AuthedKey,
       };
     }
@@ -82,7 +96,70 @@ export async function authenticateKey(request: Request) {
   return { error: "Invalid API key" as const };
 }
 
+// Internal HN network auth. Trust-based: TVCC + HN Core have registered the
+// site's connector. Headers:
+//   X-Hn-Site-Id: <site slug or id>
+//   X-Hn-Internal-Token: <prefix>.<secret>   (issued by Hub for that site)
+export async function authenticateInternal(request: Request) {
+  const siteRef = (request.headers.get("x-hn-site-id") ?? "").trim();
+  const token = (request.headers.get("x-hn-internal-token") ?? "").trim();
+  if (!siteRef || !token || !token.includes(".")) {
+    return { error: "Missing internal credentials" as const };
+  }
+  const [prefix, secret] = token.split(".");
+  if (!prefix || !secret) return { error: "Malformed internal token" as const };
+
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data: conns, error } = await supabaseAdmin
+    .from("internal_connectors")
+    .select("id, site_id, token_hash, trust_level, connector_status, allowed_internal_services, sites(slug, name, network_type)")
+    .eq("token_prefix", prefix)
+    .limit(5);
+  if (error) return { error: error.message };
+
+  for (const c of conns ?? []) {
+    if ((c as any).connector_status !== "active") continue;
+    const site = (c as any).sites;
+    if (!site || site.network_type !== "internal") continue;
+    // Allow matching by slug OR uuid
+    if (siteRef !== site.slug && siteRef !== (c as any).site_id) continue;
+    if (await bcrypt.compare(secret, (c as any).token_hash)) {
+      return {
+        key: {
+          id: c.id,
+          client_id: null,
+          auth_mode: "internal",
+          client: null,
+          connector: {
+            site_id: (c as any).site_id,
+            site_slug: site.slug,
+            site_name: site.name,
+            trust_level: (c as any).trust_level,
+            allowed_internal_services: Array.isArray((c as any).allowed_internal_services)
+              ? (c as any).allowed_internal_services as string[]
+              : [],
+          },
+        } as AuthedKey,
+      };
+    }
+  }
+  return { error: "Invalid internal token" as const };
+}
+
+// Unified entry: prefers internal (trusted network) headers, falls back to
+// external Bearer API key. Returns the same shape as authenticateKey.
+export async function authenticate(request: Request) {
+  if (request.headers.get("x-hn-internal-token")) {
+    const r = await authenticateInternal(request);
+    if ("key" in r) return r;
+    return r;
+  }
+  return authenticateKey(request);
+}
+
 export async function checkRateLimit(key: AuthedKey) {
+  // Internal HN sites are trusted — no rate limit applied at Hub level.
+  if (key.auth_mode === "internal") return { ok: true as const, limit: Infinity };
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const oneMinAgo = new Date(Date.now() - 60_000).toISOString();
   const { count } = await supabaseAdmin
@@ -222,7 +299,12 @@ export async function executeAgainstService(
   const requestId = crypto.randomUUID();
   const startedAt = Date.now();
   const gatewaySite = ctx.gateway_site;
-  const requesterSite = ctx.requester_site ?? req.requester_site ?? key.client?.name ?? null;
+  const isInternal = key.auth_mode === "internal";
+  const requesterSite =
+    ctx.requester_site ??
+    req.requester_site ??
+    (isInternal ? key.connector?.site_slug ?? null : key.client?.name ?? null);
+  const authMode = key.auth_mode;
 
   // 1) Resolve candidates
   let candidates: any[] = [];
@@ -242,10 +324,15 @@ export async function executeAgainstService(
     candidates = ranked.map((r) => r.service);
   }
 
+  const authIds = () =>
+    isInternal
+      ? { api_key_id: null as any, client_id: null as any, internal_connector_id: key.id as any }
+      : { api_key_id: key.id as any, client_id: key.client_id as any, internal_connector_id: null as any };
+
   if (!candidates.length) {
     await supabaseAdmin.from("service_requests").insert({
-      api_key_id: key.id,
-      client_id: key.client_id,
+      ...authIds(),
+      auth_mode: authMode,
       requester_site: requesterSite,
       gateway_site: gatewaySite,
       service_intent: req.intent ?? null,
@@ -254,9 +341,9 @@ export async function executeAgainstService(
       status_code: 404,
       latency_ms: Date.now() - startedAt,
       error: "No matching service",
-      routing_decision: { candidates: matchScores, reason: "no_match" },
+      routing_decision: { candidates: matchScores, reason: "no_match", auth_mode: authMode } as any,
       journey_path: [
-        { step: "received_from", site: requesterSite, via: gatewaySite },
+        { step: "received_from", site: requesterSite, via: gatewaySite, auth_mode: authMode },
         { step: "hub_no_match", intent: req.intent ?? null },
       ] as any,
     });
@@ -269,22 +356,50 @@ export async function executeAgainstService(
     });
   }
 
-  // 2) Enforce scope (allowed_services) on the *first* candidate; skip disallowed.
-  const allowed = key.client?.allowed_services ?? null;
-  if (Array.isArray(allowed) && allowed.length > 0) {
-    candidates = candidates.filter((s) => allowed.includes(s.id));
-    if (!candidates.length) {
-      await supabaseAdmin.from("service_requests").insert({
-        api_key_id: key.id, client_id: key.client_id,
-        requester_site: requesterSite,
-        gateway_site: gatewaySite,
-        service_intent: req.intent ?? null,
-        execution_status: "forbidden",
-        status_code: 403, latency_ms: Date.now() - startedAt,
-        error: "No allowed service matches",
-      });
-      return jsonResponse(403, { ok: false, error: "No service in your allowed scope matches" });
+  // 2) Enforce scope. Internal connectors: allowed_internal_services (ids or slugs).
+  //    External clients: allowed_services (ids).
+  const internalAllow = isInternal ? key.connector?.allowed_internal_services ?? [] : [];
+  const externalAllow = !isInternal ? key.client?.allowed_services ?? null : null;
+
+  const passesAllow = (svc: any) => {
+    if (isInternal) {
+      if (!internalAllow.length) return true; // empty = all internal services
+      return internalAllow.includes(svc.id) || internalAllow.includes(svc.slug);
     }
+    if (Array.isArray(externalAllow) && externalAllow.length > 0) {
+      return externalAllow.includes(svc.id);
+    }
+    return true;
+  };
+
+  // External calls are ONLY allowed against external-network services.
+  // Internal calls may reach both, but internal is the primary path.
+  const beforeFilter = candidates.length;
+  candidates = candidates.filter((s) => {
+    if (!passesAllow(s)) return false;
+    if (!isInternal && s.network_type === "internal") return false;
+    return true;
+  });
+
+  if (!candidates.length) {
+    await supabaseAdmin.from("service_requests").insert({
+      ...authIds(),
+      auth_mode: authMode,
+      requester_site: requesterSite,
+      gateway_site: gatewaySite,
+      service_intent: req.intent ?? null,
+      execution_status: "forbidden",
+      status_code: 403, latency_ms: Date.now() - startedAt,
+      error: beforeFilter
+        ? (isInternal ? "No allowed internal service matches" : "External key cannot reach an internal-only service")
+        : "No matching service",
+    });
+    return jsonResponse(403, {
+      ok: false,
+      error: isInternal
+        ? "No service in your internal scope matches"
+        : "External API key cannot reach the requested internal service",
+    });
   }
 
   // 3) Add configured fallbacks after the primary
@@ -329,7 +444,7 @@ export async function executeAgainstService(
   };
 
   const journeyPath = [
-    { step: "received_from", site: requesterSite, via: gatewaySite ?? "tvcc" },
+    { step: "received_from", site: requesterSite, via: gatewaySite ?? "tvcc", auth_mode: authMode },
     { step: "hub_routed_to", service: chosen?.name ?? null, site: chosen?.sites?.slug ?? null },
     ...(attempt > 1 ? [{ step: "used_fallback", attempts: attempt } as any] : []),
     { step: "returned_to_hub", status: lastResult.status },
@@ -337,12 +452,18 @@ export async function executeAgainstService(
     { step: "delivered_to", site: requesterSite },
   ];
 
-  await supabaseAdmin.from("api_keys")
-    .update({ last_used_at: new Date().toISOString() })
-    .eq("id", key.id);
+  if (isInternal) {
+    await supabaseAdmin.from("internal_connectors")
+      .update({ last_used_at: new Date().toISOString() })
+      .eq("id", key.id);
+  } else {
+    await supabaseAdmin.from("api_keys")
+      .update({ last_used_at: new Date().toISOString() })
+      .eq("id", key.id);
+  }
   await supabaseAdmin.from("service_requests").insert({
-    api_key_id: key.id,
-    client_id: key.client_id,
+    ...authIds(),
+    auth_mode: authMode,
     service_id: chosen?.id ?? null,
     method: (req.method ?? chosen?.method ?? "POST").toUpperCase(),
     status_code: lastResult.status,
@@ -357,13 +478,14 @@ export async function executeAgainstService(
     execution_status: executionStatus,
     fallback_used: attempt > 1,
     attempts: attempt,
-    routing_decision: routingDecision,
+    routing_decision: { ...routingDecision, auth_mode: authMode } as any,
     journey_path: journeyPath as any,
   });
 
   return jsonResponse(200, {
     ok,
     request_id: requestId,
+    auth_mode: authMode,
     execution_status: executionStatus,
     fallback_used: attempt > 1,
     attempts: attempt,
