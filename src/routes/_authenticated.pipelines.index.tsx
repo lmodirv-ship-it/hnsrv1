@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { GitBranch, PlayCircle, CheckCircle2, XCircle, Clock, ExternalLink } from "lucide-react";
 import { useState } from "react";
 
-export const Route = createFileRoute("/_authenticated/pipelines")({
+export const Route = createFileRoute("/_authenticated/pipelines/")({
   component: PipelinesPage,
 });
 

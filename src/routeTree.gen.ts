@@ -12,10 +12,12 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedSubtasksRouteImport } from './routes/_authenticated.subtasks'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated.settings'
 import { Route as AuthenticatedServicesRouteImport } from './routes/_authenticated.services'
 import { Route as AuthenticatedRoutingDecisionsRouteImport } from './routes/_authenticated.routing-decisions'
 import { Route as AuthenticatedRequestsEngineRouteImport } from './routes/_authenticated.requests-engine'
+import { Route as AuthenticatedProvidersRouteImport } from './routes/_authenticated.providers'
 import { Route as AuthenticatedOrchestratorRouteImport } from './routes/_authenticated.orchestrator'
 import { Route as AuthenticatedNetworkRouteImport } from './routes/_authenticated.network'
 import { Route as AuthenticatedMonitoringRouteImport } from './routes/_authenticated.monitoring'
@@ -25,7 +27,9 @@ import { Route as AuthenticatedDiscoveryRouteImport } from './routes/_authentica
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated.dashboard'
 import { Route as AuthenticatedApiConsoleRouteImport } from './routes/_authenticated.api-console'
 import { Route as AuthenticatedSitesIndexRouteImport } from './routes/_authenticated.sites.index'
+import { Route as AuthenticatedPipelinesIndexRouteImport } from './routes/_authenticated.pipelines.index'
 import { Route as AuthenticatedSitesSlugRouteImport } from './routes/_authenticated.sites.$slug'
+import { Route as AuthenticatedPipelinesIdRouteImport } from './routes/_authenticated.pipelines.$id'
 import { Route as ApiPublicV1PipelineRouteImport } from './routes/api/public/v1/pipeline'
 import { Route as ApiPublicV1OrchestrateRouteImport } from './routes/api/public/v1/orchestrate'
 import { Route as ApiPublicV1ExecuteRouteImport } from './routes/api/public/v1/execute'
@@ -44,6 +48,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedSubtasksRoute = AuthenticatedSubtasksRouteImport.update({
+  id: '/subtasks',
+  path: '/subtasks',
+  getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
   id: '/settings',
@@ -67,6 +76,11 @@ const AuthenticatedRequestsEngineRoute =
     path: '/requests-engine',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedProvidersRoute = AuthenticatedProvidersRouteImport.update({
+  id: '/providers',
+  path: '/providers',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedOrchestratorRoute =
   AuthenticatedOrchestratorRouteImport.update({
     id: '/orchestrator',
@@ -114,11 +128,23 @@ const AuthenticatedSitesIndexRoute = AuthenticatedSitesIndexRouteImport.update({
   path: '/sites/',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedPipelinesIndexRoute =
+  AuthenticatedPipelinesIndexRouteImport.update({
+    id: '/pipelines/',
+    path: '/pipelines/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedSitesSlugRoute = AuthenticatedSitesSlugRouteImport.update({
   id: '/sites/$slug',
   path: '/sites/$slug',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedPipelinesIdRoute =
+  AuthenticatedPipelinesIdRouteImport.update({
+    id: '/pipelines/$id',
+    path: '/pipelines/$id',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const ApiPublicV1PipelineRoute = ApiPublicV1PipelineRouteImport.update({
   id: '/api/public/v1/pipeline',
   path: '/api/public/v1/pipeline',
@@ -151,11 +177,15 @@ export interface FileRoutesByFullPath {
   '/monitoring': typeof AuthenticatedMonitoringRoute
   '/network': typeof AuthenticatedNetworkRoute
   '/orchestrator': typeof AuthenticatedOrchestratorRoute
+  '/providers': typeof AuthenticatedProvidersRoute
   '/requests-engine': typeof AuthenticatedRequestsEngineRoute
   '/routing-decisions': typeof AuthenticatedRoutingDecisionsRoute
   '/services': typeof AuthenticatedServicesRoute
   '/settings': typeof AuthenticatedSettingsRoute
+  '/subtasks': typeof AuthenticatedSubtasksRoute
+  '/pipelines/$id': typeof AuthenticatedPipelinesIdRoute
   '/sites/$slug': typeof AuthenticatedSitesSlugRoute
+  '/pipelines/': typeof AuthenticatedPipelinesIndexRoute
   '/sites/': typeof AuthenticatedSitesIndexRoute
   '/api/public/v1/ask': typeof ApiPublicV1AskRoute
   '/api/public/v1/execute': typeof ApiPublicV1ExecuteRoute
@@ -173,11 +203,15 @@ export interface FileRoutesByTo {
   '/monitoring': typeof AuthenticatedMonitoringRoute
   '/network': typeof AuthenticatedNetworkRoute
   '/orchestrator': typeof AuthenticatedOrchestratorRoute
+  '/providers': typeof AuthenticatedProvidersRoute
   '/requests-engine': typeof AuthenticatedRequestsEngineRoute
   '/routing-decisions': typeof AuthenticatedRoutingDecisionsRoute
   '/services': typeof AuthenticatedServicesRoute
   '/settings': typeof AuthenticatedSettingsRoute
+  '/subtasks': typeof AuthenticatedSubtasksRoute
+  '/pipelines/$id': typeof AuthenticatedPipelinesIdRoute
   '/sites/$slug': typeof AuthenticatedSitesSlugRoute
+  '/pipelines': typeof AuthenticatedPipelinesIndexRoute
   '/sites': typeof AuthenticatedSitesIndexRoute
   '/api/public/v1/ask': typeof ApiPublicV1AskRoute
   '/api/public/v1/execute': typeof ApiPublicV1ExecuteRoute
@@ -197,11 +231,15 @@ export interface FileRoutesById {
   '/_authenticated/monitoring': typeof AuthenticatedMonitoringRoute
   '/_authenticated/network': typeof AuthenticatedNetworkRoute
   '/_authenticated/orchestrator': typeof AuthenticatedOrchestratorRoute
+  '/_authenticated/providers': typeof AuthenticatedProvidersRoute
   '/_authenticated/requests-engine': typeof AuthenticatedRequestsEngineRoute
   '/_authenticated/routing-decisions': typeof AuthenticatedRoutingDecisionsRoute
   '/_authenticated/services': typeof AuthenticatedServicesRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
+  '/_authenticated/subtasks': typeof AuthenticatedSubtasksRoute
+  '/_authenticated/pipelines/$id': typeof AuthenticatedPipelinesIdRoute
   '/_authenticated/sites/$slug': typeof AuthenticatedSitesSlugRoute
+  '/_authenticated/pipelines/': typeof AuthenticatedPipelinesIndexRoute
   '/_authenticated/sites/': typeof AuthenticatedSitesIndexRoute
   '/api/public/v1/ask': typeof ApiPublicV1AskRoute
   '/api/public/v1/execute': typeof ApiPublicV1ExecuteRoute
@@ -221,11 +259,15 @@ export interface FileRouteTypes {
     | '/monitoring'
     | '/network'
     | '/orchestrator'
+    | '/providers'
     | '/requests-engine'
     | '/routing-decisions'
     | '/services'
     | '/settings'
+    | '/subtasks'
+    | '/pipelines/$id'
     | '/sites/$slug'
+    | '/pipelines/'
     | '/sites/'
     | '/api/public/v1/ask'
     | '/api/public/v1/execute'
@@ -243,11 +285,15 @@ export interface FileRouteTypes {
     | '/monitoring'
     | '/network'
     | '/orchestrator'
+    | '/providers'
     | '/requests-engine'
     | '/routing-decisions'
     | '/services'
     | '/settings'
+    | '/subtasks'
+    | '/pipelines/$id'
     | '/sites/$slug'
+    | '/pipelines'
     | '/sites'
     | '/api/public/v1/ask'
     | '/api/public/v1/execute'
@@ -266,11 +312,15 @@ export interface FileRouteTypes {
     | '/_authenticated/monitoring'
     | '/_authenticated/network'
     | '/_authenticated/orchestrator'
+    | '/_authenticated/providers'
     | '/_authenticated/requests-engine'
     | '/_authenticated/routing-decisions'
     | '/_authenticated/services'
     | '/_authenticated/settings'
+    | '/_authenticated/subtasks'
+    | '/_authenticated/pipelines/$id'
     | '/_authenticated/sites/$slug'
+    | '/_authenticated/pipelines/'
     | '/_authenticated/sites/'
     | '/api/public/v1/ask'
     | '/api/public/v1/execute'
@@ -311,6 +361,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/subtasks': {
+      id: '/_authenticated/subtasks'
+      path: '/subtasks'
+      fullPath: '/subtasks'
+      preLoaderRoute: typeof AuthenticatedSubtasksRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/settings': {
       id: '/_authenticated/settings'
       path: '/settings'
@@ -337,6 +394,13 @@ declare module '@tanstack/react-router' {
       path: '/requests-engine'
       fullPath: '/requests-engine'
       preLoaderRoute: typeof AuthenticatedRequestsEngineRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/providers': {
+      id: '/_authenticated/providers'
+      path: '/providers'
+      fullPath: '/providers'
+      preLoaderRoute: typeof AuthenticatedProvidersRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/orchestrator': {
@@ -402,11 +466,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSitesIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/pipelines/': {
+      id: '/_authenticated/pipelines/'
+      path: '/pipelines'
+      fullPath: '/pipelines/'
+      preLoaderRoute: typeof AuthenticatedPipelinesIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/sites/$slug': {
       id: '/_authenticated/sites/$slug'
       path: '/sites/$slug'
       fullPath: '/sites/$slug'
       preLoaderRoute: typeof AuthenticatedSitesSlugRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/pipelines/$id': {
+      id: '/_authenticated/pipelines/$id'
+      path: '/pipelines/$id'
+      fullPath: '/pipelines/$id'
+      preLoaderRoute: typeof AuthenticatedPipelinesIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/api/public/v1/pipeline': {
@@ -449,11 +527,15 @@ interface AuthenticatedRouteChildren {
   AuthenticatedMonitoringRoute: typeof AuthenticatedMonitoringRoute
   AuthenticatedNetworkRoute: typeof AuthenticatedNetworkRoute
   AuthenticatedOrchestratorRoute: typeof AuthenticatedOrchestratorRoute
+  AuthenticatedProvidersRoute: typeof AuthenticatedProvidersRoute
   AuthenticatedRequestsEngineRoute: typeof AuthenticatedRequestsEngineRoute
   AuthenticatedRoutingDecisionsRoute: typeof AuthenticatedRoutingDecisionsRoute
   AuthenticatedServicesRoute: typeof AuthenticatedServicesRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
+  AuthenticatedSubtasksRoute: typeof AuthenticatedSubtasksRoute
+  AuthenticatedPipelinesIdRoute: typeof AuthenticatedPipelinesIdRoute
   AuthenticatedSitesSlugRoute: typeof AuthenticatedSitesSlugRoute
+  AuthenticatedPipelinesIndexRoute: typeof AuthenticatedPipelinesIndexRoute
   AuthenticatedSitesIndexRoute: typeof AuthenticatedSitesIndexRoute
 }
 
@@ -466,11 +548,15 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedMonitoringRoute: AuthenticatedMonitoringRoute,
   AuthenticatedNetworkRoute: AuthenticatedNetworkRoute,
   AuthenticatedOrchestratorRoute: AuthenticatedOrchestratorRoute,
+  AuthenticatedProvidersRoute: AuthenticatedProvidersRoute,
   AuthenticatedRequestsEngineRoute: AuthenticatedRequestsEngineRoute,
   AuthenticatedRoutingDecisionsRoute: AuthenticatedRoutingDecisionsRoute,
   AuthenticatedServicesRoute: AuthenticatedServicesRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
+  AuthenticatedSubtasksRoute: AuthenticatedSubtasksRoute,
+  AuthenticatedPipelinesIdRoute: AuthenticatedPipelinesIdRoute,
   AuthenticatedSitesSlugRoute: AuthenticatedSitesSlugRoute,
+  AuthenticatedPipelinesIndexRoute: AuthenticatedPipelinesIndexRoute,
   AuthenticatedSitesIndexRoute: AuthenticatedSitesIndexRoute,
 }
 
