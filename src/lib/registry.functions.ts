@@ -99,6 +99,7 @@ export const seedRegistryFromServices = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
 
     const infer = (s: any): string => {
+      const cat = String(s.category ?? "").toLowerCase();
       const hay = [s.name, s.category, s.description, ...(Array.isArray(s.tags) ? s.tags : [])]
         .filter(Boolean).join(" ").toLowerCase();
       const has = (...w: string[]) => w.some((k) => hay.includes(k));
@@ -107,11 +108,11 @@ export const seedRegistryFromServices = createServerFn({ method: "POST" })
       if (has("image", "picture", "photo", "صور")) return "image_generation";
       if (has("video", "فيديو")) return "video_generation";
       if (has("audio", "voice", "tts", "speech", "صوت")) return "audio_generation";
-      if (has("chat", "conversation", "assistant", "دردش", "محادث")) return "chat";
+      if (cat === "chat" || has("chat", "conversation", "assistant", "دردش", "محادث")) return "chat";
       if (has("deploy", "publish", "نشر")) return "deployment";
       if (has("build", "website", "site builder", "بناء", "موقع")) return "website_building";
-      if (has("database", "db ", "sql", "postgres", "supabase", "قاعدة")) return "database_creation";
-      if (has("text", "write", "copy", "blog", "article", "gpt", "نص", "مقال")) return "text_generation";
+      if (cat === "database" || has("database", " db ", "sql", "postgres", "supabase", "قاعدة")) return "database_creation";
+      if (cat === "ai" || has("text", "write", "copy", "blog", "article", "gpt", "llm", "نص", "مقال")) return "text_generation";
       return "generic";
     };
 
