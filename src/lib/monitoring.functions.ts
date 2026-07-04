@@ -6,7 +6,7 @@ export const ecosystemMap = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data: sites } = await context.supabase
       .from("sites")
-      .select("id, slug, name, category, base_url, updated_at, last_health_status")
+      .select("id, slug, name, category, base_url, updated_at, status")
       .not("category", "is", null);
     const { data: healths } = await context.supabase
       .from("service_health")
