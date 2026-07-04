@@ -45,7 +45,7 @@ export const ecosystemMap = createServerFn({ method: "GET" })
       };
       cur.sites += 1;
       if (!cur.representative) cur.representative = { slug: s.slug!, name: s.name! };
-      if ((s as any).last_health_status === "online") cur.online += 1;
+      if ((s as any).status === "active") cur.online += 1;
       const upd = (s as any).updated_at;
       if (upd && (!cur.last_activity || upd > cur.last_activity)) cur.last_activity = upd;
       byCat.set(cat, cur);
