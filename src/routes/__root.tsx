@@ -88,6 +88,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content:
           "Central brain for the HN ecosystem: discover sites, register services, manage API keys, and orchestrate requests.",
       },
+      { name: "description", content: "Central brain for the HN ecosystem: discover sites, register services, manage API keys, orchestrate requests, and monitor everything from one place." },
+      { property: "og:description", content: "Central brain for the HN ecosystem: discover sites, register services, manage API keys, orchestrate requests, and monitor everything from one place." },
+      { name: "twitter:description", content: "Central brain for the HN ecosystem: discover sites, register services, manage API keys, orchestrate requests, and monitor everything from one place." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/34fd46f6-ae30-4392-b91c-005c8a0b528f/id-preview-18d785c2--2f7ab377-27cb-4da9-a1e0-2f669d85d939.lovable.app-1783192902278.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/34fd46f6-ae30-4392-b91c-005c8a0b528f/id-preview-18d785c2--2f7ab377-27cb-4da9-a1e0-2f669d85d939.lovable.app-1783192902278.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
