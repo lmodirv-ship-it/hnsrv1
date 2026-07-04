@@ -4,11 +4,12 @@
 
 import type { AuthedKey } from "./hub-executor.server";
 import { analyzeRequest } from "./hub-engines/request-analyzer.server";
-import {
-  listAvailableCapabilities,
-  dispatchPlan,
-} from "./hub-engines/task-dispatcher.server";
+import { dispatchPlan } from "./hub-engines/task-dispatcher.server";
 import { planTasks } from "./hub-engines/task-planner.server";
+import { collectResults } from "./hub-engines/result-collector.server";
+import { buildResponse } from "./hub-engines/response-builder.server";
+import { listAvailableTaskTypes } from "./hub-engines/capability-registry.server";
+import type { OrchestrateContext } from "./hub-engines/types";
 import { collectResults } from "./hub-engines/result-collector.server";
 import { buildResponse } from "./hub-engines/response-builder.server";
 import type { OrchestrateContext } from "./hub-engines/types";
