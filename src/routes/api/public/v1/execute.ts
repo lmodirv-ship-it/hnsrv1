@@ -15,7 +15,7 @@ export const Route = createFileRoute("/api/public/v1/execute")({
           authenticate, checkRateLimit, executeAgainstService, extractGatewayContext, jsonResponse,
         } = await import("@/lib/hub-executor.server");
 
-        const auth = await authenticateKey(request);
+        const auth = await authenticate(request);
         if ("error" in auth) return jsonResponse(401, { ok: false, error: auth.error });
 
         const rl = await checkRateLimit(auth.key);
