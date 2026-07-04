@@ -1,8 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { supabase } from "@/integrations/supabase/client";
+import { activateAllTasks } from "@/lib/activate-tasks.functions";
 import {
   User,
   Globe,
@@ -12,6 +16,8 @@ import {
   Boxes,
   ArrowDown,
   ArrowUp,
+  Zap,
+  Loader2,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/system-flow")({
