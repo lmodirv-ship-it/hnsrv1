@@ -186,6 +186,8 @@ function SitesPage() {
   const create = useServerFn(createSite);
   const del = useServerFn(deleteSite);
   const syncAll = useServerFn(syncSitesFromAllHubs);
+  const analyzeAll = useServerFn(analyzeAllSites);
+
 
   const { data: sites = [] } = useQuery<Row[]>({
     queryKey: ["sites-rich"],
