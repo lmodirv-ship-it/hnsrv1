@@ -192,12 +192,19 @@ export const syncSitesFromTvcc = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const r = await fetchSitesFromHub("tvcc");
-    if (!r.ok)
-      throw new Error(
-        r.reason === "not_configured" ? "TVCC_API_URL not configured" : "TVCC did not return a sites list",
-      );
+    if (!r.ok) {
+      return {
+        ok: false,
+        fallback: true,
+        error: r.reason === "not_configured" ? "TVCC_API_URL not configured" : "TVCC did not return a sites list",
+        source: "",
+        count: 0,
+        inserted: 0,
+        updated: 0,
+      };
+    }
     const { inserted, updated } = await upsertSites(context, "tvcc", r.list);
-    return { source: r.path, count: r.list.length, inserted, updated };
+    return { ok: true, source: r.path, count: r.list.length, inserted, updated };
   });
 
 // Pull sites from every configured hub and upsert them locally.
