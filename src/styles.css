@@ -8,6 +8,9 @@
 @import "@fontsource/inter/600.css";
 @import "@fontsource/inter/700.css";
 
+/* Safelist neon color utilities used dynamically in the dashboard */
+@source inline("{bg-,text-,border-}{cyan,purple,blue,emerald,amber,rose,fuchsia,sky,indigo,teal,lime,pink}-400{,/10,/20,/30,/50}");
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
