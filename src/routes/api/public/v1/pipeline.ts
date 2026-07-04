@@ -32,14 +32,20 @@ export const Route = createFileRoute("/api/public/v1/pipeline")({
         }
 
         const ctx = extractGatewayContext(request);
+        const isInternal = auth.key.auth_mode === "internal";
         try {
           const result = await runPipeline({
             intent: body.intent,
             prompt: body.prompt,
-            requester_site: ctx.requester_site ?? body.requester_site ?? auth.key.client?.name ?? null,
+            requester_site:
+              ctx.requester_site ??
+              body.requester_site ??
+              (isInternal ? auth.key.connector?.site_slug ?? null : auth.key.client?.name ?? null),
             gateway_site: ctx.gateway_site,
-            api_key_id: auth.key.id,
-            client_id: auth.key.client_id,
+            api_key_id: isInternal ? null : auth.key.id,
+            client_id: isInternal ? null : auth.key.client_id,
+            internal_connector_id: isInternal ? auth.key.id : null,
+            auth_mode: auth.key.auth_mode,
             input_payload: body.payload ?? null,
           });
           return jsonResponse(200, result);
