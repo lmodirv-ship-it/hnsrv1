@@ -26,6 +26,7 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedApiConsoleRouteImport } from './routes/_authenticated.api-console'
 import { Route as AuthenticatedSitesIndexRouteImport } from './routes/_authenticated.sites.index'
 import { Route as AuthenticatedSitesSlugRouteImport } from './routes/_authenticated.sites.$slug'
+import { Route as ApiPublicV1PipelineRouteImport } from './routes/api/public/v1/pipeline'
 import { Route as ApiPublicV1OrchestrateRouteImport } from './routes/api/public/v1/orchestrate'
 import { Route as ApiPublicV1ExecuteRouteImport } from './routes/api/public/v1/execute'
 import { Route as ApiPublicV1AskRouteImport } from './routes/api/public/v1/ask'
@@ -118,6 +119,11 @@ const AuthenticatedSitesSlugRoute = AuthenticatedSitesSlugRouteImport.update({
   path: '/sites/$slug',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const ApiPublicV1PipelineRoute = ApiPublicV1PipelineRouteImport.update({
+  id: '/api/public/v1/pipeline',
+  path: '/api/public/v1/pipeline',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicV1OrchestrateRoute = ApiPublicV1OrchestrateRouteImport.update({
   id: '/api/public/v1/orchestrate',
   path: '/api/public/v1/orchestrate',
@@ -154,6 +160,7 @@ export interface FileRoutesByFullPath {
   '/api/public/v1/ask': typeof ApiPublicV1AskRoute
   '/api/public/v1/execute': typeof ApiPublicV1ExecuteRoute
   '/api/public/v1/orchestrate': typeof ApiPublicV1OrchestrateRoute
+  '/api/public/v1/pipeline': typeof ApiPublicV1PipelineRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -175,6 +182,7 @@ export interface FileRoutesByTo {
   '/api/public/v1/ask': typeof ApiPublicV1AskRoute
   '/api/public/v1/execute': typeof ApiPublicV1ExecuteRoute
   '/api/public/v1/orchestrate': typeof ApiPublicV1OrchestrateRoute
+  '/api/public/v1/pipeline': typeof ApiPublicV1PipelineRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -198,6 +206,7 @@ export interface FileRoutesById {
   '/api/public/v1/ask': typeof ApiPublicV1AskRoute
   '/api/public/v1/execute': typeof ApiPublicV1ExecuteRoute
   '/api/public/v1/orchestrate': typeof ApiPublicV1OrchestrateRoute
+  '/api/public/v1/pipeline': typeof ApiPublicV1PipelineRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -221,6 +230,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/ask'
     | '/api/public/v1/execute'
     | '/api/public/v1/orchestrate'
+    | '/api/public/v1/pipeline'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -242,6 +252,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/ask'
     | '/api/public/v1/execute'
     | '/api/public/v1/orchestrate'
+    | '/api/public/v1/pipeline'
   id:
     | '__root__'
     | '/'
@@ -264,6 +275,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/ask'
     | '/api/public/v1/execute'
     | '/api/public/v1/orchestrate'
+    | '/api/public/v1/pipeline'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -273,6 +285,7 @@ export interface RootRouteChildren {
   ApiPublicV1AskRoute: typeof ApiPublicV1AskRoute
   ApiPublicV1ExecuteRoute: typeof ApiPublicV1ExecuteRoute
   ApiPublicV1OrchestrateRoute: typeof ApiPublicV1OrchestrateRoute
+  ApiPublicV1PipelineRoute: typeof ApiPublicV1PipelineRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -396,6 +409,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSitesSlugRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/api/public/v1/pipeline': {
+      id: '/api/public/v1/pipeline'
+      path: '/api/public/v1/pipeline'
+      fullPath: '/api/public/v1/pipeline'
+      preLoaderRoute: typeof ApiPublicV1PipelineRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/v1/orchestrate': {
       id: '/api/public/v1/orchestrate'
       path: '/api/public/v1/orchestrate'
@@ -465,6 +485,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicV1AskRoute: ApiPublicV1AskRoute,
   ApiPublicV1ExecuteRoute: ApiPublicV1ExecuteRoute,
   ApiPublicV1OrchestrateRoute: ApiPublicV1OrchestrateRoute,
+  ApiPublicV1PipelineRoute: ApiPublicV1PipelineRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
