@@ -6,6 +6,7 @@ import {
   approveService,
   rejectService,
   deleteService,
+  approveAllPending,
 } from "@/lib/services.functions";
 import { analyzeAllSites, importHnCatalog, linkConsumerSite } from "@/lib/discovery.functions";
 import { checkServiceHealth } from "@/lib/monitoring.functions";
