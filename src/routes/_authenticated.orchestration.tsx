@@ -83,6 +83,8 @@ function OrchestrationPage() {
         </p>
       </div>
 
+      <EnginesPanel />
+
       <Card className="p-5 space-y-3">
         <label className="text-sm font-medium flex items-center gap-2">
           <Sparkles className="h-4 w-4" /> Prompt
