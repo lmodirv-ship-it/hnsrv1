@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 // POST /api/public/v1/execute — the hidden brain of the HN mesh.
 // Header: Authorization: Bearer <api_key>  (format: hn_xxxx.<secret>)
-// Body: { intent?, service_id?, method?, path?, query?, payload?, timeout_ms? }
+// Body: { requester_site?, intent?, service_id?, payload?, method?, path?, query?, timeout_ms? }
 export const Route = createFileRoute("/api/public/v1/execute")({
   server: {
     handlers: {
@@ -12,10 +12,7 @@ export const Route = createFileRoute("/api/public/v1/execute")({
       },
       POST: async ({ request }) => {
         const {
-          authenticateKey,
-          checkRateLimit,
-          executeAgainstService,
-          jsonResponse,
+          authenticateKey, checkRateLimit, executeAgainstService, jsonResponse,
         } = await import("@/lib/hub-executor.server");
 
         const auth = await authenticateKey(request);
@@ -32,7 +29,16 @@ export const Route = createFileRoute("/api/public/v1/execute")({
           return jsonResponse(400, { ok: false, error: "Provide `intent` or `service_id`" });
         }
 
-        return executeAgainstService(auth.key, body);
+        return executeAgainstService(auth.key, {
+          requester_site: body.requester_site,
+          intent: body.intent,
+          service_id: body.service_id,
+          method: body.method,
+          path: body.path,
+          query: body.query,
+          payload: body.payload,
+          timeout_ms: body.timeout_ms,
+        });
       },
     },
   },
