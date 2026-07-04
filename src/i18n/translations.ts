@@ -110,6 +110,7 @@ export const translations = {
     navRescan: "إعادة الفحص",
     navDiscoveryResults: "نتائج الاكتشاف",
     navOrchestratorEngine: "محرك التنسيق",
+    navHubOrchestration: "المخطط الذكي (5 محركات)",
     navServiceOrchestration: "تنسيق الخدمات",
     navExecutionFlows: "مسارات التنفيذ",
     navExecutionLog: "سجل التنفيذ",
