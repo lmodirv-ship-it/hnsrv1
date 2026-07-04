@@ -99,10 +99,20 @@ function DiscoveryPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <Compass className="h-6 w-6 text-primary" />
-        <h1 className="text-2xl font-bold">{t("discovery")}</h1>
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div className="flex items-center gap-3">
+          <Compass className="h-6 w-6 text-primary" />
+          <h1 className="text-2xl font-bold">{t("discovery")}</h1>
+        </div>
+        <GenerateButton
+          label="توليد: حلّل جميع المواقع"
+          pendingLabel="جاري التحليل…"
+          onGenerate={() => analyzeAll()}
+          onDone={() => refetch()}
+          successMessage={(r: any) => `تم تحليل ${r.analyzed}/${r.total} • خدمات: ${r.servicesCreated}`}
+        />
       </div>
+
 
       <Card className="p-5 bg-card/60 backdrop-blur border-border/60 space-y-3">
         <div className="flex gap-2">
