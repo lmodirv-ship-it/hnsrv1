@@ -188,6 +188,15 @@ function ServicesPage() {
     onError: (e: any) => toast.error(e.message ?? t("somethingWentWrong")),
   });
 
+  const mApproveAll = useMutation({
+    mutationFn: () => approveAll(),
+    onSuccess: (r: any) => {
+      toast.success(`تم اعتماد ${r.approved} خدمة وتفعيلها`);
+      invalidate();
+    },
+    onError: (e: any) => toast.error(e.message ?? t("somethingWentWrong")),
+  });
+
   const rows = data as unknown as Row[];
 
 
