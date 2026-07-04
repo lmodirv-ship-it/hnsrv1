@@ -18,11 +18,21 @@ export type ExecRequest = {
 
 export type AuthedKey = {
   id: string;
-  client_id: string;
+  client_id: string | null;
+  auth_mode: "internal" | "external";
+  // External API client (developer / external site)
   client?: {
     name?: string | null;
     rate_limit_per_min: number | null;
     allowed_services: string[] | null;
+  } | null;
+  // Internal HN site connector (trusted network)
+  connector?: {
+    site_id: string;
+    site_slug?: string | null;
+    site_name?: string | null;
+    trust_level: string;
+    allowed_internal_services: string[]; // ids or slugs; empty = all
   } | null;
 };
 
@@ -30,7 +40,8 @@ export function corsHeaders() {
   return {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Authorization, Content-Type, X-Hn-Gateway, X-Hn-Requester-Site",
+    "Access-Control-Allow-Headers":
+      "Authorization, Content-Type, X-Hn-Gateway, X-Hn-Requester-Site, X-Hn-Site-Id, X-Hn-Internal-Token",
     "Access-Control-Max-Age": "86400",
   } as const;
 }
