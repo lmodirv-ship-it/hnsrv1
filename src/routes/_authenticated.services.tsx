@@ -166,6 +166,15 @@ function ServicesPage() {
     onError: (e: any) => toast.error(e.message ?? t("somethingWentWrong")),
   });
 
+  const mImportCatalog = useMutation({
+    mutationFn: () => importCatalog(),
+    onSuccess: (r: any) => {
+      toast.success(`استيراد كتالوج HN: ${r.sites} موقع • ${r.services} خدمة`);
+      invalidate();
+    },
+    onError: (e: any) => toast.error(e.message ?? t("somethingWentWrong")),
+  });
+
   const rows = data as unknown as Row[];
 
   const filtered = useMemo(() => {
