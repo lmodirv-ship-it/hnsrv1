@@ -125,6 +125,7 @@ function ServicesPage() {
   const health = useServerFn(checkServiceHealth);
   const analyzeAll = useServerFn(analyzeAllSites);
   const importCatalog = useServerFn(importHnCatalog);
+  const linkConsumer = useServerFn(linkConsumerSite);
 
   const { data = [] } = useQuery({ queryKey: ["services"], queryFn: () => fn() });
   const [q, setQ] = useState("");
@@ -132,7 +133,9 @@ function ServicesPage() {
   const [sortKey, setSortKey] = useState<SortKey>("name");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
   const [page, setPage] = useState(1);
+  const [consumerUrl, setConsumerUrl] = useState("https://prompt-build-magic-37.lovable.app");
   const perPage = 25;
+
 
   const invalidate = () => qc.invalidateQueries({ queryKey: ["services"] });
 
