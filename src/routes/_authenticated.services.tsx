@@ -45,6 +45,8 @@ import {
   Trash2,
   Shield,
   ShieldOff,
+  Sparkles,
+  Loader2,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
