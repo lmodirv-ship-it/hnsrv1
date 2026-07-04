@@ -2,17 +2,85 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Settings, Languages, Plug, CheckCircle2, XCircle, Loader2, AlertCircle } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Settings, Languages, Plug, CheckCircle2, XCircle, Loader2, AlertCircle, Building2 } from "lucide-react";
 import { GenerateButton } from "@/components/generate-button";
+import { useEffect, useState } from "react";
 
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { listIntegrations, testIntegration } from "@/lib/integrations.functions";
+import { getMyOrganization, upsertMyOrganization } from "@/lib/organization.functions";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/settings")({
   component: SettingsPage,
 });
+
+function OrganizationSettings() {
+  const getOrg = useServerFn(getMyOrganization);
+  const upsert = useServerFn(upsertMyOrganization);
+  const { data: org, refetch } = useQuery({ queryKey: ["my-organization"], queryFn: () => getOrg() });
+
+  const [name, setName] = useState("");
+  const [slug, setSlug] = useState("");
+  const [logoUrl, setLogoUrl] = useState("");
+
+  useEffect(() => {
+    if (org) {
+      setName(org.name ?? "");
+      setSlug(org.slug ?? "");
+      setLogoUrl(org.logo_url ?? "");
+    }
+  }, [org]);
+
+  const saveMut = useMutation({
+    mutationFn: () => upsert({ data: { name, slug, logo_url: logoUrl || undefined } }),
+    onSuccess: () => {
+      toast.success("تم حفظ إعدادات المنظمة");
+      refetch();
+    },
+    onError: (e: any) => toast.error(e?.message ?? "فشل الحفظ"),
+  });
+
+  return (
+    <Card className="p-5 bg-card/60 backdrop-blur border-border/60">
+      <div className="flex items-center gap-3 mb-1">
+        <Building2 className="h-5 w-5 text-primary" />
+        <h2 className="font-semibold">Organization Settings</h2>
+      </div>
+      <p className="text-xs text-muted-foreground mb-4">اسم المنظمة والمعرّف (slug)</p>
+
+      <div className="grid gap-4">
+        <div className="grid gap-1.5">
+          <Label htmlFor="org-name">اسم المنظمة</Label>
+          <Input id="org-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="مثلاً: HN" />
+        </div>
+        <div className="grid gap-1.5">
+          <Label htmlFor="org-slug">Slug (معرّف URL)</Label>
+          <Input
+            id="org-slug"
+            value={slug}
+            onChange={(e) => setSlug(e.target.value.toLowerCase())}
+            placeholder="hn-team"
+            dir="ltr"
+          />
+          <p className="text-xs text-muted-foreground">أحرف صغيرة وأرقام وشرطات فقط.</p>
+        </div>
+        <div className="grid gap-1.5">
+          <Label htmlFor="org-logo">Logo URL (اختياري)</Label>
+          <Input id="org-logo" value={logoUrl} onChange={(e) => setLogoUrl(e.target.value)} placeholder="https://…" dir="ltr" />
+        </div>
+        <div>
+          <Button onClick={() => saveMut.mutate()} disabled={saveMut.isPending || !name || !slug}>
+            {saveMut.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "حفظ"}
+          </Button>
+        </div>
+      </div>
+    </Card>
+  );
+}
 
 const HUB_LABELS: Record<string, { name: string; role: string }> = {
   tvcc: { name: "TVCC", role: "Sites gateway" },
@@ -77,7 +145,10 @@ function SettingsPage() {
         </div>
       </Card>
 
+      <OrganizationSettings />
+
       <div>
+
         <div className="flex items-center gap-3 mb-3">
           <Plug className="h-5 w-5 text-primary" />
           <h2 className="text-lg font-semibold">Integrations</h2>
