@@ -410,6 +410,197 @@ export type Database = {
           },
         ]
       }
+      hn_payment_customers: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          metadata: Json
+          provider: string
+          provider_customer_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          metadata?: Json
+          provider?: string
+          provider_customer_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          metadata?: Json
+          provider?: string
+          provider_customer_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      hn_payment_products: {
+        Row: {
+          active: boolean
+          created_at: string
+          currency: string
+          description: string | null
+          id: string
+          interval: string | null
+          metadata: Json
+          name: string
+          price_cents: number
+          provider: string
+          provider_price_id: string | null
+          provider_product_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          interval?: string | null
+          metadata?: Json
+          name: string
+          price_cents?: number
+          provider?: string
+          provider_price_id?: string | null
+          provider_product_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          interval?: string | null
+          metadata?: Json
+          name?: string
+          price_cents?: number
+          provider?: string
+          provider_price_id?: string | null
+          provider_product_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      hn_payment_subscriptions: {
+        Row: {
+          cancel_at: string | null
+          created_at: string
+          current_period_end: string | null
+          id: string
+          metadata: Json
+          product_id: string | null
+          provider: string
+          provider_subscription_id: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cancel_at?: string | null
+          created_at?: string
+          current_period_end?: string | null
+          id?: string
+          metadata?: Json
+          product_id?: string | null
+          provider?: string
+          provider_subscription_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cancel_at?: string | null
+          created_at?: string
+          current_period_end?: string | null
+          id?: string
+          metadata?: Json
+          product_id?: string | null
+          provider?: string
+          provider_subscription_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hn_payment_subscriptions_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "hn_payment_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hn_payment_transactions: {
+        Row: {
+          amount_cents: number
+          created_at: string
+          currency: string
+          id: string
+          product_id: string | null
+          provider: string
+          provider_transaction_id: string | null
+          raw: Json
+          status: string
+          subscription_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount_cents?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          product_id?: string | null
+          provider?: string
+          provider_transaction_id?: string | null
+          raw?: Json
+          status?: string
+          subscription_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount_cents?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          product_id?: string | null
+          provider?: string
+          provider_transaction_id?: string | null
+          raw?: Json
+          status?: string
+          subscription_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hn_payment_transactions_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "hn_payment_products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hn_payment_transactions_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "hn_payment_subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hub_engines: {
         Row: {
           config: Json
