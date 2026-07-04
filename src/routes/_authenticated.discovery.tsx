@@ -46,6 +46,8 @@ function DiscoveryPage() {
   const run = useServerFn(discoverSite);
   const save = useServerFn(saveDiscoveredServices);
   const tvccSync = useServerFn(syncSitesFromTvcc);
+  const analyzeAll = useServerFn(analyzeAllSites);
+
   const { data: jobs = [], refetch } = useQuery({ queryKey: ["discovery-jobs"], queryFn: () => list() });
   const [url, setUrl] = useState("");
   const [result, setResult] = useState<DiscoveryResult | null>(null);
