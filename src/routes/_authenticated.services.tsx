@@ -7,6 +7,7 @@ import {
   rejectService,
   deleteService,
 } from "@/lib/services.functions";
+import { analyzeAllSites } from "@/lib/discovery.functions";
 import { checkServiceHealth } from "@/lib/monitoring.functions";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { Card } from "@/components/ui/card";
