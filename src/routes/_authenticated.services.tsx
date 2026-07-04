@@ -7,7 +7,7 @@ import {
   rejectService,
   deleteService,
 } from "@/lib/services.functions";
-import { analyzeAllSites } from "@/lib/discovery.functions";
+import { analyzeAllSites, importHnCatalog } from "@/lib/discovery.functions";
 import { checkServiceHealth } from "@/lib/monitoring.functions";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { Card } from "@/components/ui/card";
@@ -124,6 +124,7 @@ function ServicesPage() {
   const del = useServerFn(deleteService);
   const health = useServerFn(checkServiceHealth);
   const analyzeAll = useServerFn(analyzeAllSites);
+  const importCatalog = useServerFn(importHnCatalog);
 
   const { data = [] } = useQuery({ queryKey: ["services"], queryFn: () => fn() });
   const [q, setQ] = useState("");
@@ -160,6 +161,15 @@ function ServicesPage() {
     mutationFn: () => analyzeAll(),
     onSuccess: (r: any) => {
       toast.success(`تم تحليل ${r.analyzed}/${r.total} • خدمات جديدة: ${r.servicesCreated}${r.failed ? ` • فشل: ${r.failed}` : ""}`);
+      invalidate();
+    },
+    onError: (e: any) => toast.error(e.message ?? t("somethingWentWrong")),
+  });
+
+  const mImportCatalog = useMutation({
+    mutationFn: () => importCatalog(),
+    onSuccess: (r: any) => {
+      toast.success(`استيراد كتالوج HN: ${r.sites} موقع • ${r.services} خدمة`);
       invalidate();
     },
     onError: (e: any) => toast.error(e.message ?? t("somethingWentWrong")),
@@ -230,18 +240,25 @@ function ServicesPage() {
             {stats.total} • <span className="text-amber-400">{stats.pending} pending</span> • <span className="text-emerald-400">{stats.approved} approved</span> • <span className="text-red-400">{stats.rejected} rejected</span>
           </p>
         </div>
-        <Button
-          onClick={() => mAnalyzeAll.mutate()}
-          disabled={mAnalyzeAll.isPending}
-          className="gap-2"
-        >
-          {mAnalyzeAll.isPending ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <Sparkles className="h-4 w-4" />
-          )}
-          {mAnalyzeAll.isPending ? "جاري التحليل…" : "توليد: حلّل جميع المواقع"}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            onClick={() => mImportCatalog.mutate()}
+            disabled={mImportCatalog.isPending}
+            className="gap-2"
+          >
+            {mImportCatalog.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+            {mImportCatalog.isPending ? "جاري الاستيراد…" : "استيراد كتالوج HN (152 موقع)"}
+          </Button>
+          <Button
+            onClick={() => mAnalyzeAll.mutate()}
+            disabled={mAnalyzeAll.isPending}
+            className="gap-2"
+          >
+            {mAnalyzeAll.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+            {mAnalyzeAll.isPending ? "جاري التحليل…" : "توليد: حلّل جميع المواقع"}
+          </Button>
+        </div>
       </div>
 
       <Card className="p-3 bg-card/60 backdrop-blur border-border/60">

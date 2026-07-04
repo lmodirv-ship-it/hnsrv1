@@ -1,6 +1,27 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
+import hnCatalog from "@/data/hn-catalog.json";
+
+type HnCatalogSite = {
+  url: string;
+  host: string;
+  categoryKey?: string;
+  categoryAr?: string;
+  categoryEn?: string;
+  categoryEmoji?: string;
+  projectId?: string;
+  serviceNameAr?: string;
+  serviceNameEn?: string;
+  capabilityIds?: string[];
+  capabilityLabel?: string;
+  urlEnv?: string;
+  keyEnv?: string;
+  keyFallbackEnv?: string;
+  defaultUrl?: string;
+  generationEngine?: string;
+  aiEngine?: string;
+};
 
 const urlInput = z.object({ url: z.string().trim().url().max(500) });
 
@@ -554,5 +575,108 @@ export const analyzeAllSites = createServerFn({ method: "POST" })
 
     return { total: sites?.length ?? 0, analyzed, failed, servicesCreated, errors: errors.slice(0, 10) };
   });
+
+// One-shot: import the bundled HN ecosystem catalog (152 sites + capabilities as services).
+export const importHnCatalog = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const catalog = hnCatalog as unknown as { sites: HnCatalogSite[] };
+    const list = catalog.sites ?? [];
+    if (!list.length) return { sites: 0, services: 0, skipped: 0 };
+
+    // 1) Build unique site rows keyed by slug (dedupe URL variants like www.*)
+    const seen = new Set<string>();
+    const siteRows: any[] = [];
+    const slugByIndex: string[] = [];
+    for (const s of list) {
+      const host = (s.host || s.url.replace(/^https?:\/\//, "").split("/")[0]).toLowerCase();
+      let slug = host.replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 80) || "site";
+      let n = 2;
+      const base = slug;
+      while (seen.has(slug)) slug = `${base}-${n++}`;
+      seen.add(slug);
+      slugByIndex.push(slug);
+      siteRows.push({
+        name: s.serviceNameAr || s.serviceNameEn || host,
+        slug,
+        base_url: s.url || s.defaultUrl || `https://${host}`,
+        category: s.categoryKey ?? null,
+        status: "active",
+        owner_id: context.userId,
+        discovered_at: new Date().toISOString(),
+        metadata: {
+          projectId: s.projectId,
+          categoryEmoji: s.categoryEmoji,
+          categoryAr: s.categoryAr,
+          categoryEn: s.categoryEn,
+          nameEn: s.serviceNameEn,
+          urlEnv: s.urlEnv,
+          keyEnv: s.keyEnv,
+          keyFallbackEnv: s.keyFallbackEnv,
+          defaultUrl: s.defaultUrl,
+          generationEngine: s.generationEngine,
+          aiEngine: s.aiEngine,
+          capabilityIds: s.capabilityIds ?? [],
+          source: "hn-catalog-import",
+        },
+      });
+    }
+
+    // 2) Upsert sites in chunks of 100 to avoid oversize payloads.
+    const upserted: Array<{ id: string; slug: string }> = [];
+    for (let i = 0; i < siteRows.length; i += 100) {
+      const chunk = siteRows.slice(i, i + 100);
+      const { data, error } = await context.supabase
+        .from("sites")
+        .upsert(chunk, { onConflict: "slug" })
+        .select("id, slug");
+      if (error) throw new Error(`sites upsert failed: ${error.message}`);
+      if (data) upserted.push(...data);
+    }
+    const idBySlug = new Map(upserted.map((s) => [s.slug, s.id]));
+
+    // 3) Build service rows from capabilityIds.
+    const svcRows: any[] = [];
+    for (let i = 0; i < list.length; i++) {
+      const s = list[i];
+      const siteSlug = slugByIndex[i];
+      const siteId = idBySlug.get(siteSlug);
+      if (!siteId) continue;
+      const caps = s.capabilityIds ?? [];
+      const svcSeen = new Set<string>();
+      for (const cap of caps) {
+        const svcSlug = cap.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60) || "svc";
+        if (svcSeen.has(svcSlug)) continue;
+        svcSeen.add(svcSlug);
+        svcRows.push({
+          site_id: siteId,
+          name: cap,
+          slug: svcSlug,
+          category: s.categoryKey ?? null,
+          method: "POST",
+          description: `HN capability: ${cap}`,
+          confidence_score: 100,
+          api_required: true,
+          approval_status: "approved",
+          is_active: true,
+        });
+      }
+    }
+
+    // 4) Upsert services in chunks of 200.
+    let servicesInserted = 0;
+    for (let i = 0; i < svcRows.length; i += 200) {
+      const chunk = svcRows.slice(i, i + 200);
+      const { data, error } = await context.supabase
+        .from("services")
+        .upsert(chunk, { onConflict: "site_id,slug" })
+        .select("id");
+      if (error) throw new Error(`services upsert failed: ${error.message}`);
+      servicesInserted += data?.length ?? 0;
+    }
+
+    return { sites: upserted.length, services: servicesInserted, totalInCatalog: list.length };
+  });
+
 
 
