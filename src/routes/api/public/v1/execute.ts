@@ -12,7 +12,7 @@ export const Route = createFileRoute("/api/public/v1/execute")({
       },
       POST: async ({ request }) => {
         const {
-          authenticateKey, checkRateLimit, executeAgainstService, extractGatewayContext, jsonResponse,
+          authenticate, checkRateLimit, executeAgainstService, extractGatewayContext, jsonResponse,
         } = await import("@/lib/hub-executor.server");
 
         const auth = await authenticateKey(request);
