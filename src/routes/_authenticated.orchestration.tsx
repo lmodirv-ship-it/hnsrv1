@@ -21,6 +21,7 @@ import {
   runOrchestration,
   listPlans,
 } from "@/lib/hub-orchestrator.functions";
+import { EnginesPanel } from "@/components/engines-panel";
 
 export const Route = createFileRoute("/_authenticated/orchestration")({
   component: OrchestrationPage,
