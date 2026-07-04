@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { listClients, createClient, deleteClient, issueKey, revokeKey, recentRequests } from "@/lib/apiClients.functions";
+import { listClients, createClient, deleteClient, issueKey, revokeKey, recentRequests, provisionMeshKeys } from "@/lib/apiClients.functions";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -27,6 +27,7 @@ function ApiConsolePage() {
   const issue = useServerFn(issueKey);
   const revoke = useServerFn(revokeKey);
   const logsFn = useServerFn(recentRequests);
+  const provisionMesh = useServerFn(provisionMeshKeys);
 
   const { data: clients = [] } = useQuery({ queryKey: ["api-clients"], queryFn: () => list() });
   const { data: logs = [] } = useQuery({ queryKey: ["req-logs"], queryFn: () => logsFn() });
@@ -83,6 +84,13 @@ function ApiConsolePage() {
             onDone={(r: any) => { setNewKey(r.key); qc.invalidateQueries({ queryKey: ["api-clients"] }); }}
             successMessage={() => "تم إنشاء عميل جديد ومفتاح API"}
           />
+          <GenerateButton
+            label="أصدر مفاتيح Mesh لكل المواقع"
+            pendingLabel="جاري الإصدار…"
+            onGenerate={() => provisionMesh()}
+            onDone={() => qc.invalidateQueries({ queryKey: ["api-clients"] })}
+            successMessage={(r: any) => `تم إصدار ${r.issued} مفتاح • تم تخطي ${r.skipped} (موجود مسبقاً)`}
+          />
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild><Button variant="outline"><Plus className="h-4 w-4" />{t("createClient")}</Button></DialogTrigger>
             <DialogContent>
@@ -103,6 +111,26 @@ function ApiConsolePage() {
           <div className="font-semibold text-primary flex items-center gap-2">{t("publicApi")}</div>
           <code className="text-xs block mt-2 text-muted-foreground break-all">{t("publicApiHint")}</code>
         </div>
+      </Card>
+
+      <Card className="p-4 bg-card/60 backdrop-blur border-border/60">
+        <div className="text-sm font-semibold mb-2">🧠 القلب الخفي — كيف تستدعي أي خدمة</div>
+        <p className="text-xs text-muted-foreground mb-3">
+          كل مواقع HN ترسل طلباتها هنا فقط. نحن نختار الخدمة المناسبة، ننفّذها بهوية HN، ونعيد النتيجة — دون كشف الخدمة الحقيقية للمُنادي.
+        </p>
+        <pre className="text-[11px] leading-relaxed bg-background/60 rounded p-3 overflow-x-auto font-mono">
+{`# نيّة طبيعية (يختار الهَب الخدمة تلقائياً)
+curl -X POST ${typeof window !== "undefined" ? window.location.origin : "https://<hub>"}/api/public/v1/ask \\
+  -H "Authorization: Bearer hn_xxx.yyy" \\
+  -H "Content-Type: application/json" \\
+  -d '{"prompt":"ولّد شعار متجري"}'
+
+# استدعاء خدمة محددة مع payload
+curl -X POST ${typeof window !== "undefined" ? window.location.origin : "https://<hub>"}/api/public/v1/execute \\
+  -H "Authorization: Bearer hn_xxx.yyy" \\
+  -H "Content-Type: application/json" \\
+  -d '{"service_id":"<uuid>","payload":{"text":"مرحبا"}}'`}
+        </pre>
       </Card>
 
       {newKey && (
