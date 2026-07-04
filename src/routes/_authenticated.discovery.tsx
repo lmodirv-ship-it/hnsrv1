@@ -10,6 +10,8 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Compass, Loader2, RefreshCw, ShieldCheck } from "lucide-react";
 import { useState } from "react";
+import { GenerateButton } from "@/components/generate-button";
+
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/discovery")({
