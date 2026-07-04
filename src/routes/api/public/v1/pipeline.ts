@@ -14,11 +14,11 @@ export const Route = createFileRoute("/api/public/v1/pipeline")({
         return new Response(null, { status: 204, headers: corsHeaders() });
       },
       POST: async ({ request }) => {
-        const { authenticateKey, checkRateLimit, extractGatewayContext, jsonResponse } =
+        const { authenticate, checkRateLimit, extractGatewayContext, jsonResponse } =
           await import("@/lib/hub-executor.server");
         const { runPipeline } = await import("@/lib/pipeline.server");
 
-        const auth = await authenticateKey(request);
+        const auth = await authenticate(request);
         if ("error" in auth) return jsonResponse(401, { ok: false, error: auth.error });
         const rl = await checkRateLimit(auth.key);
         if (!rl.ok) return jsonResponse(429, { ok: false, error: "Rate limit exceeded", limit: rl.limit });
