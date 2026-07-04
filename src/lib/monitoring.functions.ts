@@ -1,6 +1,96 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+export const ecosystemMap = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: sites } = await context.supabase
+      .from("sites")
+      .select("id, slug, name, category, base_url, updated_at, status")
+      .not("category", "is", null);
+    const { data: healths } = await context.supabase
+      .from("service_health")
+      .select("service_id, status, checked_at, services(site_id)")
+      .order("checked_at", { ascending: false })
+      .limit(500);
+    const { data: subs } = await context.supabase
+      .from("pipeline_subtasks")
+      .select("assigned_service_id, updated_at, services(site_id)")
+      .not("assigned_service_id", "is", null)
+      .order("updated_at", { ascending: false })
+      .limit(1000);
+
+    // group by category
+    const byCat = new Map<string, {
+      category: string;
+      sites: number;
+      representative: { slug: string; name: string } | null;
+      last_activity: string | null;
+      online: number;
+      tasks: number;
+      status: "online" | "degraded" | "offline" | "unknown";
+    }>();
+
+    for (const s of sites ?? []) {
+      const cat = (s as any).category as string;
+      if (!cat) continue;
+      const cur = byCat.get(cat) ?? {
+        category: cat,
+        sites: 0,
+        representative: null,
+        last_activity: null,
+        online: 0,
+        tasks: 0,
+        status: "unknown" as const,
+      };
+      cur.sites += 1;
+      if (!cur.representative) cur.representative = { slug: s.slug!, name: s.name! };
+      if ((s as any).status === "active") cur.online += 1;
+      const upd = (s as any).updated_at;
+      if (upd && (!cur.last_activity || upd > cur.last_activity)) cur.last_activity = upd;
+      byCat.set(cat, cur);
+    }
+
+    // Overlay latest health via services→site
+    const siteHealth = new Map<string, string>();
+    for (const h of healths ?? []) {
+      const siteId = (h as any).services?.site_id;
+      if (!siteId || siteHealth.has(siteId)) continue;
+      siteHealth.set(siteId, (h as any).status);
+    }
+    const siteById = new Map((sites ?? []).map((s: any) => [s.id, s]));
+    for (const [siteId, status] of siteHealth) {
+      const s = siteById.get(siteId);
+      if (!s) continue;
+      const cur = byCat.get((s as any).category);
+      if (!cur) continue;
+      if (status === "online" && cur.status !== "online") cur.status = "online";
+      else if (status === "degraded" && cur.status === "unknown") cur.status = "degraded";
+      else if (status === "offline" && cur.status === "unknown") cur.status = "offline";
+    }
+    // If online sites recorded, mark online
+    for (const cur of byCat.values()) {
+      if (cur.status === "unknown" && cur.online > 0) cur.status = "online";
+    }
+
+    // Task counts by category (via subtasks → service.site_id → site.category)
+    for (const st of subs ?? []) {
+      const siteId = (st as any).services?.site_id;
+      if (!siteId) continue;
+      const s: any = siteById.get(siteId);
+      if (!s) continue;
+      const cur = byCat.get(s.category);
+      if (!cur) continue;
+      cur.tasks += 1;
+      const upd = (st as any).updated_at;
+      if (upd && (!cur.last_activity || upd > cur.last_activity)) cur.last_activity = upd;
+    }
+
+    return [...byCat.values()].sort((a, b) => b.sites - a.sites);
+  });
+
+
+
 async function ping(url: string): Promise<{ status: string; latency_ms: number; error?: string }> {
   const start = Date.now();
   try {
