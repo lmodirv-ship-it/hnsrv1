@@ -35,7 +35,7 @@ export const listServices = createServerFn({ method: "GET" })
       .from("service_dependencies" as any)
       .select("service_id, depends_on_system, depends_on_service_id, consumer_site_id, relation_type")
       .in("service_id", ids);
-    const deps = (depsData ?? []) as Array<{
+    const deps = ((depsData ?? []) as unknown) as Array<{
       service_id: string;
       depends_on_system: string | null;
       depends_on_service_id: string | null;
