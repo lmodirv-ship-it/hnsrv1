@@ -231,7 +231,9 @@ function buildUpstreamUrl(service: any, req: ExecRequest): string {
 
 function injectHnCredentials(service: any, headers: Headers) {
   const meta = service.sites?.metadata ?? {};
-  const envNames: string[] = [meta.keyEnv, meta.keyFallbackEnv].filter(Boolean);
+  const envNames: string[] = [meta.keyEnv, meta.keyFallbackEnv]
+    .filter(Boolean)
+    .filter((n) => isSafeKeyEnvName(n)); // block arbitrary secret exfiltration
   for (const name of envNames) {
     const val = process.env[name];
     if (val) {
