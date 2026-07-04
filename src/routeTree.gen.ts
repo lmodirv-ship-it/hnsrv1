@@ -25,6 +25,7 @@ import { Route as AuthenticatedSitesIndexRouteImport } from './routes/_authentic
 import { Route as AuthenticatedSitesSlugRouteImport } from './routes/_authenticated.sites.$slug'
 import { Route as ApiPublicV1OrchestrateRouteImport } from './routes/api/public/v1/orchestrate'
 import { Route as ApiPublicV1ExecuteRouteImport } from './routes/api/public/v1/execute'
+import { Route as ApiPublicV1AskRouteImport } from './routes/api/public/v1/ask'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -106,6 +107,11 @@ const ApiPublicV1ExecuteRoute = ApiPublicV1ExecuteRouteImport.update({
   path: '/api/public/v1/execute',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicV1AskRoute = ApiPublicV1AskRouteImport.update({
+  id: '/api/public/v1/ask',
+  path: '/api/public/v1/ask',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -121,6 +127,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof AuthenticatedSettingsRoute
   '/sites/$slug': typeof AuthenticatedSitesSlugRoute
   '/sites/': typeof AuthenticatedSitesIndexRoute
+  '/api/public/v1/ask': typeof ApiPublicV1AskRoute
   '/api/public/v1/execute': typeof ApiPublicV1ExecuteRoute
   '/api/public/v1/orchestrate': typeof ApiPublicV1OrchestrateRoute
 }
@@ -138,6 +145,7 @@ export interface FileRoutesByTo {
   '/settings': typeof AuthenticatedSettingsRoute
   '/sites/$slug': typeof AuthenticatedSitesSlugRoute
   '/sites': typeof AuthenticatedSitesIndexRoute
+  '/api/public/v1/ask': typeof ApiPublicV1AskRoute
   '/api/public/v1/execute': typeof ApiPublicV1ExecuteRoute
   '/api/public/v1/orchestrate': typeof ApiPublicV1OrchestrateRoute
 }
@@ -157,6 +165,7 @@ export interface FileRoutesById {
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/sites/$slug': typeof AuthenticatedSitesSlugRoute
   '/_authenticated/sites/': typeof AuthenticatedSitesIndexRoute
+  '/api/public/v1/ask': typeof ApiPublicV1AskRoute
   '/api/public/v1/execute': typeof ApiPublicV1ExecuteRoute
   '/api/public/v1/orchestrate': typeof ApiPublicV1OrchestrateRoute
 }
@@ -176,6 +185,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/sites/$slug'
     | '/sites/'
+    | '/api/public/v1/ask'
     | '/api/public/v1/execute'
     | '/api/public/v1/orchestrate'
   fileRoutesByTo: FileRoutesByTo
@@ -193,6 +203,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/sites/$slug'
     | '/sites'
+    | '/api/public/v1/ask'
     | '/api/public/v1/execute'
     | '/api/public/v1/orchestrate'
   id:
@@ -211,6 +222,7 @@ export interface FileRouteTypes {
     | '/_authenticated/settings'
     | '/_authenticated/sites/$slug'
     | '/_authenticated/sites/'
+    | '/api/public/v1/ask'
     | '/api/public/v1/execute'
     | '/api/public/v1/orchestrate'
   fileRoutesById: FileRoutesById
@@ -219,6 +231,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ApiPublicV1AskRoute: typeof ApiPublicV1AskRoute
   ApiPublicV1ExecuteRoute: typeof ApiPublicV1ExecuteRoute
   ApiPublicV1OrchestrateRoute: typeof ApiPublicV1OrchestrateRoute
 }
@@ -337,6 +350,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicV1ExecuteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/v1/ask': {
+      id: '/api/public/v1/ask'
+      path: '/api/public/v1/ask'
+      fullPath: '/api/public/v1/ask'
+      preLoaderRoute: typeof ApiPublicV1AskRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -376,6 +396,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   AuthRoute: AuthRoute,
+  ApiPublicV1AskRoute: ApiPublicV1AskRoute,
   ApiPublicV1ExecuteRoute: ApiPublicV1ExecuteRoute,
   ApiPublicV1OrchestrateRoute: ApiPublicV1OrchestrateRoute,
 }

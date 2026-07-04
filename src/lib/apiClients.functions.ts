@@ -101,3 +101,64 @@ export const recentRequests = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
     return data ?? [];
   });
+
+// Issue one API client + key per HN site in the mesh so each site can call
+// the hub. The raw key is returned only once and stored in sites.metadata.hn_hub_key
+// (prefix only kept afterwards on subsequent runs).
+export const provisionMeshKeys = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: sites, error: sErr } = await context.supabase
+      .from("sites")
+      .select("id, name, slug, metadata")
+      .or("tvcc_id.not.is.null,hn_db_id.not.is.null,hn_cloud_id.not.is.null,base_url.ilike.%hn-%,base_url.ilike.%hn.%,slug.ilike.hn-%,category.eq.consumer,category.eq.coordinator");
+    if (sErr) throw new Error(sErr.message);
+
+    let issued = 0;
+    let skipped = 0;
+    const results: Array<{ slug: string; key?: string; prefix?: string; skipped?: boolean }> = [];
+
+    for (const site of sites ?? []) {
+      const meta = (site.metadata ?? {}) as any;
+      if (meta.hn_hub_key_prefix) {
+        skipped++;
+        results.push({ slug: site.slug, prefix: meta.hn_hub_key_prefix, skipped: true });
+        continue;
+      }
+      const clientName = `mesh:${site.slug}`;
+      let clientId: string;
+      const { data: existingClient } = await context.supabase
+        .from("api_clients").select("id").eq("name", clientName).eq("owner_id", context.userId).maybeSingle();
+      if (existingClient) {
+        clientId = existingClient.id;
+      } else {
+        const { data: newClient, error: cErr } = await context.supabase
+          .from("api_clients").insert({
+            name: clientName,
+            description: `Auto-issued for HN mesh site ${site.name}`,
+            rate_limit_per_min: 120,
+            allowed_services: [],
+            owner_id: context.userId,
+          }).select("id").single();
+        if (cErr) throw new Error(cErr.message);
+        clientId = newClient.id;
+      }
+
+      const { prefix, secret, full } = generateKeyMaterial();
+      const key_hash = await bcrypt.hash(secret, 10);
+      const { error: kErr } = await context.supabase.from("api_keys").insert({
+        client_id: clientId, key_prefix: prefix, key_hash, scopes: [],
+      });
+      if (kErr) throw new Error(kErr.message);
+
+      await context.supabase.from("sites").update({
+        metadata: { ...meta, hn_hub_key_prefix: prefix, hn_hub_key: full, hn_hub_provisioned_at: new Date().toISOString() },
+      }).eq("id", site.id);
+
+      issued++;
+      results.push({ slug: site.slug, key: full, prefix });
+    }
+
+    return { issued, skipped, total: sites?.length ?? 0, results: results.slice(0, 20) };
+  });
+
