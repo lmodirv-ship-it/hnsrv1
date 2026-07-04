@@ -317,7 +317,8 @@ export async function executeAgainstService(
 
   const routingDecision = {
     intent: req.intent ?? null,
-    requester_site: req.requester_site ?? null,
+    requester_site: requesterSite,
+    gateway_site: gatewaySite,
     candidates: matchScores,
     chain: chain.map((c) => ({ id: c.id, name: c.name, site: c.sites?.slug })),
     attempts: attemptsLog,
@@ -326,6 +327,15 @@ export async function executeAgainstService(
       ? "explicit_service_id"
       : (attempt > 1 ? "primary_failed_used_fallback" : "best_intent_match"),
   };
+
+  const journeyPath = [
+    { step: "received_from", site: requesterSite, via: gatewaySite ?? "tvcc" },
+    { step: "hub_routed_to", service: chosen?.name ?? null, site: chosen?.sites?.slug ?? null },
+    ...(attempt > 1 ? [{ step: "used_fallback", attempts: attempt } as any] : []),
+    { step: "returned_to_hub", status: lastResult.status },
+    { step: "returned_via_gateway", via: gatewaySite ?? "tvcc" },
+    { step: "delivered_to", site: requesterSite },
+  ];
 
   await supabaseAdmin.from("api_keys")
     .update({ last_used_at: new Date().toISOString() })
@@ -338,7 +348,8 @@ export async function executeAgainstService(
     status_code: lastResult.status,
     latency_ms: Date.now() - startedAt,
     error: lastResult.error,
-    requester_site: req.requester_site ?? key.client?.name ?? null,
+    requester_site: requesterSite,
+    gateway_site: gatewaySite,
     provider_site: chosen?.sites?.slug ?? null,
     service_intent: req.intent ?? null,
     request_payload: (req.payload ?? null) as any,
@@ -347,6 +358,7 @@ export async function executeAgainstService(
     fallback_used: attempt > 1,
     attempts: attempt,
     routing_decision: routingDecision,
+    journey_path: journeyPath as any,
   });
 
   return jsonResponse(200, {
@@ -360,5 +372,9 @@ export async function executeAgainstService(
     latency_ms: Date.now() - startedAt,
     data: ok ? lastResult.data : null,
     error: ok ? null : (lastResult.error ?? "Upstream failed"),
+    return_via: gatewaySite ?? "tvcc",
+    deliver_to: requesterSite,
+    journey_path: journeyPath,
   });
 }
+
