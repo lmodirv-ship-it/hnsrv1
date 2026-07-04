@@ -148,6 +148,7 @@ export const translations = {
     navServiceNetwork: "شبكة الخدمات",
     navInternalConnectors: "الاتصالات الداخلية",
     navSystemFlow: "مخطط النظام",
+    navAgents: "وكلاء HN",
     systemFlowTitle: "مخطط تدفق منظومة HN",
     systemFlowSubtitle: "كل طلب: المستخدم → موقع HN → TVCC → HN Service Hub → المزود → عودة عبر Hub ثم TVCC إلى الموقع الطالب",
     layerGateway: "البوابة",
