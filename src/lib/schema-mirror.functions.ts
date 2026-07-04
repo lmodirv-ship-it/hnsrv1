@@ -143,7 +143,16 @@ export const syncSchemaMirror = createServerFn({ method: "POST" })
       ? createHmac("sha256", secret).update(bodyStr).digest("hex")
       : null;
 
-    const url = `${mirror.target_url.replace(/\/$/, "")}${HN_DB_MIRROR_PATH}`;
+    // Allow env override per target so secrets can supply the real URL
+    // without exposing it in DB rows.
+    const envOverride =
+      mirror.target_name === "hn-db"
+        ? process.env.HN_DB_API_URL
+        : mirror.target_name === "hn-cloud"
+        ? process.env.HN_CLOUD_API_URL
+        : null;
+    const baseUrl = (envOverride || mirror.target_url).replace(/\/$/, "");
+    const url = `${baseUrl}${HN_DB_MIRROR_PATH}`;
     const attemptedAt = new Date().toISOString();
 
     let status = "success";
