@@ -30,7 +30,7 @@ export const Route = createFileRoute("/_authenticated/registry")({
 
 type SiteRow = {
   id: string; name: string; slug: string | null; base_url: string | null;
-  manifest_path: string; network_type: string; is_active: boolean;
+  manifest_path: string; network_type: string; 
 };
 
 type CapRow = {

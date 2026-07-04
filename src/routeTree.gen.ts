@@ -18,6 +18,7 @@ import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedServicesRouteImport } from './routes/_authenticated.services'
 import { Route as AuthenticatedRoutingDecisionsRouteImport } from './routes/_authenticated.routing-decisions'
 import { Route as AuthenticatedRequestsEngineRouteImport } from './routes/_authenticated.requests-engine'
+import { Route as AuthenticatedRegistryRouteImport } from './routes/_authenticated.registry'
 import { Route as AuthenticatedProvidersRouteImport } from './routes/_authenticated.providers'
 import { Route as AuthenticatedOrchestratorRouteImport } from './routes/_authenticated.orchestrator'
 import { Route as AuthenticatedOrchestrationRouteImport } from './routes/_authenticated.orchestration'
@@ -38,6 +39,7 @@ import { Route as ApiPublicV1OrchestrateRouteImport } from './routes/api/public/
 import { Route as ApiPublicV1ExecuteRouteImport } from './routes/api/public/v1/execute'
 import { Route as ApiPublicV1AskRouteImport } from './routes/api/public/v1/ask'
 import { Route as ApiPublicV1OrchestrateIdRouteImport } from './routes/api/public/v1/orchestrate.$id'
+import { Route as ApiPublicV1DiscoveryRefreshRouteImport } from './routes/api/public/v1/discovery.refresh'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -85,6 +87,11 @@ const AuthenticatedRequestsEngineRoute =
     path: '/requests-engine',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedRegistryRoute = AuthenticatedRegistryRouteImport.update({
+  id: '/registry',
+  path: '/registry',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedProvidersRoute = AuthenticatedProvidersRouteImport.update({
   id: '/providers',
   path: '/providers',
@@ -192,6 +199,12 @@ const ApiPublicV1OrchestrateIdRoute =
     path: '/$id',
     getParentRoute: () => ApiPublicV1OrchestrateRoute,
   } as any)
+const ApiPublicV1DiscoveryRefreshRoute =
+  ApiPublicV1DiscoveryRefreshRouteImport.update({
+    id: '/api/public/v1/discovery/refresh',
+    path: '/api/public/v1/discovery/refresh',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -207,6 +220,7 @@ export interface FileRoutesByFullPath {
   '/orchestration': typeof AuthenticatedOrchestrationRoute
   '/orchestrator': typeof AuthenticatedOrchestratorRoute
   '/providers': typeof AuthenticatedProvidersRoute
+  '/registry': typeof AuthenticatedRegistryRoute
   '/requests-engine': typeof AuthenticatedRequestsEngineRoute
   '/routing-decisions': typeof AuthenticatedRoutingDecisionsRoute
   '/services': typeof AuthenticatedServicesRoute
@@ -221,6 +235,7 @@ export interface FileRoutesByFullPath {
   '/api/public/v1/execute': typeof ApiPublicV1ExecuteRoute
   '/api/public/v1/orchestrate': typeof ApiPublicV1OrchestrateRouteWithChildren
   '/api/public/v1/pipeline': typeof ApiPublicV1PipelineRoute
+  '/api/public/v1/discovery/refresh': typeof ApiPublicV1DiscoveryRefreshRoute
   '/api/public/v1/orchestrate/$id': typeof ApiPublicV1OrchestrateIdRoute
 }
 export interface FileRoutesByTo {
@@ -237,6 +252,7 @@ export interface FileRoutesByTo {
   '/orchestration': typeof AuthenticatedOrchestrationRoute
   '/orchestrator': typeof AuthenticatedOrchestratorRoute
   '/providers': typeof AuthenticatedProvidersRoute
+  '/registry': typeof AuthenticatedRegistryRoute
   '/requests-engine': typeof AuthenticatedRequestsEngineRoute
   '/routing-decisions': typeof AuthenticatedRoutingDecisionsRoute
   '/services': typeof AuthenticatedServicesRoute
@@ -251,6 +267,7 @@ export interface FileRoutesByTo {
   '/api/public/v1/execute': typeof ApiPublicV1ExecuteRoute
   '/api/public/v1/orchestrate': typeof ApiPublicV1OrchestrateRouteWithChildren
   '/api/public/v1/pipeline': typeof ApiPublicV1PipelineRoute
+  '/api/public/v1/discovery/refresh': typeof ApiPublicV1DiscoveryRefreshRoute
   '/api/public/v1/orchestrate/$id': typeof ApiPublicV1OrchestrateIdRoute
 }
 export interface FileRoutesById {
@@ -269,6 +286,7 @@ export interface FileRoutesById {
   '/_authenticated/orchestration': typeof AuthenticatedOrchestrationRoute
   '/_authenticated/orchestrator': typeof AuthenticatedOrchestratorRoute
   '/_authenticated/providers': typeof AuthenticatedProvidersRoute
+  '/_authenticated/registry': typeof AuthenticatedRegistryRoute
   '/_authenticated/requests-engine': typeof AuthenticatedRequestsEngineRoute
   '/_authenticated/routing-decisions': typeof AuthenticatedRoutingDecisionsRoute
   '/_authenticated/services': typeof AuthenticatedServicesRoute
@@ -283,6 +301,7 @@ export interface FileRoutesById {
   '/api/public/v1/execute': typeof ApiPublicV1ExecuteRoute
   '/api/public/v1/orchestrate': typeof ApiPublicV1OrchestrateRouteWithChildren
   '/api/public/v1/pipeline': typeof ApiPublicV1PipelineRoute
+  '/api/public/v1/discovery/refresh': typeof ApiPublicV1DiscoveryRefreshRoute
   '/api/public/v1/orchestrate/$id': typeof ApiPublicV1OrchestrateIdRoute
 }
 export interface FileRouteTypes {
@@ -301,6 +320,7 @@ export interface FileRouteTypes {
     | '/orchestration'
     | '/orchestrator'
     | '/providers'
+    | '/registry'
     | '/requests-engine'
     | '/routing-decisions'
     | '/services'
@@ -315,6 +335,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/execute'
     | '/api/public/v1/orchestrate'
     | '/api/public/v1/pipeline'
+    | '/api/public/v1/discovery/refresh'
     | '/api/public/v1/orchestrate/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -331,6 +352,7 @@ export interface FileRouteTypes {
     | '/orchestration'
     | '/orchestrator'
     | '/providers'
+    | '/registry'
     | '/requests-engine'
     | '/routing-decisions'
     | '/services'
@@ -345,6 +367,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/execute'
     | '/api/public/v1/orchestrate'
     | '/api/public/v1/pipeline'
+    | '/api/public/v1/discovery/refresh'
     | '/api/public/v1/orchestrate/$id'
   id:
     | '__root__'
@@ -362,6 +385,7 @@ export interface FileRouteTypes {
     | '/_authenticated/orchestration'
     | '/_authenticated/orchestrator'
     | '/_authenticated/providers'
+    | '/_authenticated/registry'
     | '/_authenticated/requests-engine'
     | '/_authenticated/routing-decisions'
     | '/_authenticated/services'
@@ -376,6 +400,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/execute'
     | '/api/public/v1/orchestrate'
     | '/api/public/v1/pipeline'
+    | '/api/public/v1/discovery/refresh'
     | '/api/public/v1/orchestrate/$id'
   fileRoutesById: FileRoutesById
 }
@@ -387,6 +412,7 @@ export interface RootRouteChildren {
   ApiPublicV1ExecuteRoute: typeof ApiPublicV1ExecuteRoute
   ApiPublicV1OrchestrateRoute: typeof ApiPublicV1OrchestrateRouteWithChildren
   ApiPublicV1PipelineRoute: typeof ApiPublicV1PipelineRoute
+  ApiPublicV1DiscoveryRefreshRoute: typeof ApiPublicV1DiscoveryRefreshRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -452,6 +478,13 @@ declare module '@tanstack/react-router' {
       path: '/requests-engine'
       fullPath: '/requests-engine'
       preLoaderRoute: typeof AuthenticatedRequestsEngineRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/registry': {
+      id: '/_authenticated/registry'
+      path: '/registry'
+      fullPath: '/registry'
+      preLoaderRoute: typeof AuthenticatedRegistryRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/providers': {
@@ -594,6 +627,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicV1OrchestrateIdRouteImport
       parentRoute: typeof ApiPublicV1OrchestrateRoute
     }
+    '/api/public/v1/discovery/refresh': {
+      id: '/api/public/v1/discovery/refresh'
+      path: '/api/public/v1/discovery/refresh'
+      fullPath: '/api/public/v1/discovery/refresh'
+      preLoaderRoute: typeof ApiPublicV1DiscoveryRefreshRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -609,6 +649,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedOrchestrationRoute: typeof AuthenticatedOrchestrationRoute
   AuthenticatedOrchestratorRoute: typeof AuthenticatedOrchestratorRoute
   AuthenticatedProvidersRoute: typeof AuthenticatedProvidersRoute
+  AuthenticatedRegistryRoute: typeof AuthenticatedRegistryRoute
   AuthenticatedRequestsEngineRoute: typeof AuthenticatedRequestsEngineRoute
   AuthenticatedRoutingDecisionsRoute: typeof AuthenticatedRoutingDecisionsRoute
   AuthenticatedServicesRoute: typeof AuthenticatedServicesRoute
@@ -633,6 +674,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedOrchestrationRoute: AuthenticatedOrchestrationRoute,
   AuthenticatedOrchestratorRoute: AuthenticatedOrchestratorRoute,
   AuthenticatedProvidersRoute: AuthenticatedProvidersRoute,
+  AuthenticatedRegistryRoute: AuthenticatedRegistryRoute,
   AuthenticatedRequestsEngineRoute: AuthenticatedRequestsEngineRoute,
   AuthenticatedRoutingDecisionsRoute: AuthenticatedRoutingDecisionsRoute,
   AuthenticatedServicesRoute: AuthenticatedServicesRoute,
@@ -671,6 +713,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicV1ExecuteRoute: ApiPublicV1ExecuteRoute,
   ApiPublicV1OrchestrateRoute: ApiPublicV1OrchestrateRouteWithChildren,
   ApiPublicV1PipelineRoute: ApiPublicV1PipelineRoute,
+  ApiPublicV1DiscoveryRefreshRoute: ApiPublicV1DiscoveryRefreshRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

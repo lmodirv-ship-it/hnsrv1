@@ -18,7 +18,7 @@ export const listRegistrySites = createServerFn({ method: "GET" })
     await assertAdminOrDeveloper(context);
     const { data, error } = await context.supabase
       .from("sites")
-      .select("id, name, slug, base_url, manifest_path, network_type, is_active")
+      .select("id, name, slug, base_url, manifest_path, network_type")
       .eq("network_type", "internal")
       .order("name", { ascending: true });
     if (error) throw new Error(error.message);
@@ -70,7 +70,7 @@ export const previewSiteManifest = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdminOrDeveloper(context);
     const { previewSiteManifest: preview } = await import("@/lib/hub-engines/service-discovery.server");
-    return preview(data.site_id);
+    return (await preview(data.site_id)) as any;
   });
 
 export const listAvailableTaskTypesFn = createServerFn({ method: "GET" })
@@ -78,5 +78,5 @@ export const listAvailableTaskTypesFn = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     await assertAdminOrDeveloper(context);
     const { listAvailableTaskTypes } = await import("@/lib/hub-engines/capability-registry.server");
-    return listAvailableTaskTypes();
+    return (await listAvailableTaskTypes()) as any;
   });
