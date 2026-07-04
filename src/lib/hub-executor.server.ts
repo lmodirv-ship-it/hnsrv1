@@ -35,6 +35,15 @@ export function corsHeaders() {
   } as const;
 }
 
+// Extracts the HN journey context from request headers.
+// `x-hn-gateway` = which gateway forwarded the request (typically "tvcc").
+// `x-hn-requester-site` = the HN site the end user originated from.
+export function extractGatewayContext(request: Request) {
+  const gateway = (request.headers.get("x-hn-gateway") ?? "").trim().toLowerCase() || null;
+  const requester = (request.headers.get("x-hn-requester-site") ?? "").trim() || null;
+  return { gateway_site: gateway, requester_site: requester };
+}
+
 export function jsonResponse(status: number, body: unknown) {
   return new Response(JSON.stringify(body), {
     status,
