@@ -20,6 +20,7 @@ import { Route as AuthenticatedRoutingDecisionsRouteImport } from './routes/_aut
 import { Route as AuthenticatedRequestsEngineRouteImport } from './routes/_authenticated.requests-engine'
 import { Route as AuthenticatedProvidersRouteImport } from './routes/_authenticated.providers'
 import { Route as AuthenticatedOrchestratorRouteImport } from './routes/_authenticated.orchestrator'
+import { Route as AuthenticatedOrchestrationRouteImport } from './routes/_authenticated.orchestration'
 import { Route as AuthenticatedNetworkRouteImport } from './routes/_authenticated.network'
 import { Route as AuthenticatedMonitoringRouteImport } from './routes/_authenticated.monitoring'
 import { Route as AuthenticatedKnowledgeRouteImport } from './routes/_authenticated.knowledge'
@@ -36,6 +37,7 @@ import { Route as ApiPublicV1PipelineRouteImport } from './routes/api/public/v1/
 import { Route as ApiPublicV1OrchestrateRouteImport } from './routes/api/public/v1/orchestrate'
 import { Route as ApiPublicV1ExecuteRouteImport } from './routes/api/public/v1/execute'
 import { Route as ApiPublicV1AskRouteImport } from './routes/api/public/v1/ask'
+import { Route as ApiPublicV1OrchestrateIdRouteImport } from './routes/api/public/v1/orchestrate.$id'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -92,6 +94,12 @@ const AuthenticatedOrchestratorRoute =
   AuthenticatedOrchestratorRouteImport.update({
     id: '/orchestrator',
     path: '/orchestrator',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedOrchestrationRoute =
+  AuthenticatedOrchestrationRouteImport.update({
+    id: '/orchestration',
+    path: '/orchestration',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedNetworkRoute = AuthenticatedNetworkRouteImport.update({
@@ -178,6 +186,12 @@ const ApiPublicV1AskRoute = ApiPublicV1AskRouteImport.update({
   path: '/api/public/v1/ask',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicV1OrchestrateIdRoute =
+  ApiPublicV1OrchestrateIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => ApiPublicV1OrchestrateRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -190,6 +204,7 @@ export interface FileRoutesByFullPath {
   '/knowledge': typeof AuthenticatedKnowledgeRoute
   '/monitoring': typeof AuthenticatedMonitoringRoute
   '/network': typeof AuthenticatedNetworkRoute
+  '/orchestration': typeof AuthenticatedOrchestrationRoute
   '/orchestrator': typeof AuthenticatedOrchestratorRoute
   '/providers': typeof AuthenticatedProvidersRoute
   '/requests-engine': typeof AuthenticatedRequestsEngineRoute
@@ -204,8 +219,9 @@ export interface FileRoutesByFullPath {
   '/sites/': typeof AuthenticatedSitesIndexRoute
   '/api/public/v1/ask': typeof ApiPublicV1AskRoute
   '/api/public/v1/execute': typeof ApiPublicV1ExecuteRoute
-  '/api/public/v1/orchestrate': typeof ApiPublicV1OrchestrateRoute
+  '/api/public/v1/orchestrate': typeof ApiPublicV1OrchestrateRouteWithChildren
   '/api/public/v1/pipeline': typeof ApiPublicV1PipelineRoute
+  '/api/public/v1/orchestrate/$id': typeof ApiPublicV1OrchestrateIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -218,6 +234,7 @@ export interface FileRoutesByTo {
   '/knowledge': typeof AuthenticatedKnowledgeRoute
   '/monitoring': typeof AuthenticatedMonitoringRoute
   '/network': typeof AuthenticatedNetworkRoute
+  '/orchestration': typeof AuthenticatedOrchestrationRoute
   '/orchestrator': typeof AuthenticatedOrchestratorRoute
   '/providers': typeof AuthenticatedProvidersRoute
   '/requests-engine': typeof AuthenticatedRequestsEngineRoute
@@ -232,8 +249,9 @@ export interface FileRoutesByTo {
   '/sites': typeof AuthenticatedSitesIndexRoute
   '/api/public/v1/ask': typeof ApiPublicV1AskRoute
   '/api/public/v1/execute': typeof ApiPublicV1ExecuteRoute
-  '/api/public/v1/orchestrate': typeof ApiPublicV1OrchestrateRoute
+  '/api/public/v1/orchestrate': typeof ApiPublicV1OrchestrateRouteWithChildren
   '/api/public/v1/pipeline': typeof ApiPublicV1PipelineRoute
+  '/api/public/v1/orchestrate/$id': typeof ApiPublicV1OrchestrateIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -248,6 +266,7 @@ export interface FileRoutesById {
   '/_authenticated/knowledge': typeof AuthenticatedKnowledgeRoute
   '/_authenticated/monitoring': typeof AuthenticatedMonitoringRoute
   '/_authenticated/network': typeof AuthenticatedNetworkRoute
+  '/_authenticated/orchestration': typeof AuthenticatedOrchestrationRoute
   '/_authenticated/orchestrator': typeof AuthenticatedOrchestratorRoute
   '/_authenticated/providers': typeof AuthenticatedProvidersRoute
   '/_authenticated/requests-engine': typeof AuthenticatedRequestsEngineRoute
@@ -262,8 +281,9 @@ export interface FileRoutesById {
   '/_authenticated/sites/': typeof AuthenticatedSitesIndexRoute
   '/api/public/v1/ask': typeof ApiPublicV1AskRoute
   '/api/public/v1/execute': typeof ApiPublicV1ExecuteRoute
-  '/api/public/v1/orchestrate': typeof ApiPublicV1OrchestrateRoute
+  '/api/public/v1/orchestrate': typeof ApiPublicV1OrchestrateRouteWithChildren
   '/api/public/v1/pipeline': typeof ApiPublicV1PipelineRoute
+  '/api/public/v1/orchestrate/$id': typeof ApiPublicV1OrchestrateIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -278,6 +298,7 @@ export interface FileRouteTypes {
     | '/knowledge'
     | '/monitoring'
     | '/network'
+    | '/orchestration'
     | '/orchestrator'
     | '/providers'
     | '/requests-engine'
@@ -294,6 +315,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/execute'
     | '/api/public/v1/orchestrate'
     | '/api/public/v1/pipeline'
+    | '/api/public/v1/orchestrate/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -306,6 +328,7 @@ export interface FileRouteTypes {
     | '/knowledge'
     | '/monitoring'
     | '/network'
+    | '/orchestration'
     | '/orchestrator'
     | '/providers'
     | '/requests-engine'
@@ -322,6 +345,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/execute'
     | '/api/public/v1/orchestrate'
     | '/api/public/v1/pipeline'
+    | '/api/public/v1/orchestrate/$id'
   id:
     | '__root__'
     | '/'
@@ -335,6 +359,7 @@ export interface FileRouteTypes {
     | '/_authenticated/knowledge'
     | '/_authenticated/monitoring'
     | '/_authenticated/network'
+    | '/_authenticated/orchestration'
     | '/_authenticated/orchestrator'
     | '/_authenticated/providers'
     | '/_authenticated/requests-engine'
@@ -351,6 +376,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/execute'
     | '/api/public/v1/orchestrate'
     | '/api/public/v1/pipeline'
+    | '/api/public/v1/orchestrate/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -359,7 +385,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   ApiPublicV1AskRoute: typeof ApiPublicV1AskRoute
   ApiPublicV1ExecuteRoute: typeof ApiPublicV1ExecuteRoute
-  ApiPublicV1OrchestrateRoute: typeof ApiPublicV1OrchestrateRoute
+  ApiPublicV1OrchestrateRoute: typeof ApiPublicV1OrchestrateRouteWithChildren
   ApiPublicV1PipelineRoute: typeof ApiPublicV1PipelineRoute
 }
 
@@ -440,6 +466,13 @@ declare module '@tanstack/react-router' {
       path: '/orchestrator'
       fullPath: '/orchestrator'
       preLoaderRoute: typeof AuthenticatedOrchestratorRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/orchestration': {
+      id: '/_authenticated/orchestration'
+      path: '/orchestration'
+      fullPath: '/orchestration'
+      preLoaderRoute: typeof AuthenticatedOrchestrationRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/network': {
@@ -554,6 +587,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicV1AskRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/v1/orchestrate/$id': {
+      id: '/api/public/v1/orchestrate/$id'
+      path: '/$id'
+      fullPath: '/api/public/v1/orchestrate/$id'
+      preLoaderRoute: typeof ApiPublicV1OrchestrateIdRouteImport
+      parentRoute: typeof ApiPublicV1OrchestrateRoute
+    }
   }
 }
 
@@ -566,6 +606,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedKnowledgeRoute: typeof AuthenticatedKnowledgeRoute
   AuthenticatedMonitoringRoute: typeof AuthenticatedMonitoringRoute
   AuthenticatedNetworkRoute: typeof AuthenticatedNetworkRoute
+  AuthenticatedOrchestrationRoute: typeof AuthenticatedOrchestrationRoute
   AuthenticatedOrchestratorRoute: typeof AuthenticatedOrchestratorRoute
   AuthenticatedProvidersRoute: typeof AuthenticatedProvidersRoute
   AuthenticatedRequestsEngineRoute: typeof AuthenticatedRequestsEngineRoute
@@ -589,6 +630,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedKnowledgeRoute: AuthenticatedKnowledgeRoute,
   AuthenticatedMonitoringRoute: AuthenticatedMonitoringRoute,
   AuthenticatedNetworkRoute: AuthenticatedNetworkRoute,
+  AuthenticatedOrchestrationRoute: AuthenticatedOrchestrationRoute,
   AuthenticatedOrchestratorRoute: AuthenticatedOrchestratorRoute,
   AuthenticatedProvidersRoute: AuthenticatedProvidersRoute,
   AuthenticatedRequestsEngineRoute: AuthenticatedRequestsEngineRoute,
@@ -607,13 +649,27 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
   AuthenticatedRouteChildren,
 )
 
+interface ApiPublicV1OrchestrateRouteChildren {
+  ApiPublicV1OrchestrateIdRoute: typeof ApiPublicV1OrchestrateIdRoute
+}
+
+const ApiPublicV1OrchestrateRouteChildren: ApiPublicV1OrchestrateRouteChildren =
+  {
+    ApiPublicV1OrchestrateIdRoute: ApiPublicV1OrchestrateIdRoute,
+  }
+
+const ApiPublicV1OrchestrateRouteWithChildren =
+  ApiPublicV1OrchestrateRoute._addFileChildren(
+    ApiPublicV1OrchestrateRouteChildren,
+  )
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   AuthRoute: AuthRoute,
   ApiPublicV1AskRoute: ApiPublicV1AskRoute,
   ApiPublicV1ExecuteRoute: ApiPublicV1ExecuteRoute,
-  ApiPublicV1OrchestrateRoute: ApiPublicV1OrchestrateRoute,
+  ApiPublicV1OrchestrateRoute: ApiPublicV1OrchestrateRouteWithChildren,
   ApiPublicV1PipelineRoute: ApiPublicV1PipelineRoute,
 }
 export const routeTree = rootRouteImport
