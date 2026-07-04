@@ -26,10 +26,33 @@ function OrchestratorPage() {
 
   return (
     <div className="space-y-6 max-w-3xl">
-      <div className="flex items-center gap-3">
-        <GitBranch className="h-6 w-6 text-primary" />
-        <h1 className="text-2xl font-bold">{t("orchestrator")}</h1>
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div className="flex items-center gap-3">
+          <GitBranch className="h-6 w-6 text-primary" />
+          <h1 className="text-2xl font-bold">{t("orchestrator")}</h1>
+        </div>
+        <Button
+          variant="outline"
+          className="gap-2"
+          onClick={() => {
+            const samples = [
+              "أريد توليد شعار لمتجري الجديد",
+              "ابنِ لي تطبيق APK",
+              "أنشئ موقعًا لشركتي",
+              "حوّل نصًا إلى صوت عربي",
+              "ترجم مستندًا من الإنجليزية للعربية",
+            ];
+            const pick = samples[Math.floor(Math.random() * samples.length)];
+            setIntent(pick);
+            setTimeout(() => mut.mutate(), 50);
+          }}
+          disabled={mut.isPending}
+        >
+          <Loader2 className={`h-4 w-4 ${mut.isPending ? "animate-spin" : "hidden"}`} />
+          توليد: مثال + بحث
+        </Button>
       </div>
+
 
       <Card className="p-5 bg-card/60 backdrop-blur border-border/60 space-y-3">
         <label className="text-sm font-medium">{t("orchestrateIntent")}</label>
