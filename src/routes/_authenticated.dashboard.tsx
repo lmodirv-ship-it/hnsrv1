@@ -112,76 +112,95 @@ function StatCard({
   );
 }
 
-// ---------- Ecosystem map (SVG hexagon core + orbiting cards) ----------
+// ---------- Ecosystem map (SVG hexagon core + orbiting cards, DB-driven) ----------
 
-const ECOSYSTEM_NODES: Array<{
-  key: string;
-  label: string;
-  icon: LucideIcon;
-  color: string;
-  slug: string;
-}> = [
-  { key: "tvcc", label: "TVCC", icon: Radio, color: "cyan-400", slug: "tvcc" },
-  { key: "build", label: "HN Build", icon: Sparkles, color: "purple-400", slug: "hn-build" },
-  { key: "video", label: "HN Video AI", icon: Video, color: "rose-400", slug: "hn-video" },
-  { key: "audio", label: "HN Audio AI", icon: AudioLines, color: "amber-400", slug: "hn-audio" },
-  { key: "translate", label: "HN Translation", icon: Languages, color: "emerald-400", slug: "hn-translation" },
-  { key: "image", label: "HN Image AI", icon: ImageIcon, color: "fuchsia-400", slug: "hn-image" },
-  { key: "db", label: "HN Database", icon: Database, color: "blue-400", slug: "hn-db" },
-  { key: "cloud", label: "HN Cloud", icon: Cloud, color: "sky-400", slug: "hn-cloud" },
-  { key: "academy", label: "HN Academy", icon: GraduationCap, color: "indigo-400", slug: "hn-academy" },
-  { key: "cards", label: "HN Cards", icon: CreditCard, color: "teal-400", slug: "hn-cards" },
-  { key: "store", label: "HN Store", icon: Store, color: "lime-400", slug: "hn-store" },
-  { key: "chat", label: "HN Chat", icon: MessageSquare, color: "pink-400", slug: "hn-chat" },
-];
+type EcoNode = {
+  category: string;
+  sites: number;
+  representative: { slug: string; name: string } | null;
+  last_activity: string | null;
+  online: number;
+  tasks: number;
+  status: "online" | "degraded" | "offline" | "unknown";
+};
 
-function EcosystemMap({ sitesList }: { sitesList: Array<{ slug: string | null; name: string | null }> }) {
-  const known = new Set((sitesList ?? []).map((s) => (s.slug ?? "").toLowerCase()));
+const CATEGORY_META: Record<string, { label: string; labelAr: string; icon: LucideIcon; color: string }> = {
+  groupe: { label: "HN Groupe", labelAr: "منظومة HN", icon: Sparkles, color: "purple-400" },
+  createur_media: { label: "HN Créateur", labelAr: "HN كريتور", icon: Video, color: "rose-400" },
+  driver: { label: "HN Driver", labelAr: "HN درايفر", icon: Radio, color: "amber-400" },
+  database: { label: "HN Database", labelAr: "قواعد البيانات", icon: Database, color: "blue-400" },
+  carwash_print: { label: "CarWash Print", labelAr: "غسيل وطباعة", icon: Store, color: "cyan-400" },
+  ai: { label: "HN AI", labelAr: "الذكاء الاصطناعي", icon: Brain, color: "fuchsia-400" },
+  finance: { label: "HN Finance", labelAr: "المالية", icon: CreditCard, color: "emerald-400" },
+  chat: { label: "HN Chat", labelAr: "المحادثة", icon: MessageSquare, color: "pink-400" },
+  immo: { label: "HN Immo", labelAr: "العقارات", icon: Store, color: "teal-400" },
+  adkhar: { label: "HN Adkhar", labelAr: "الأذكار", icon: GraduationCap, color: "indigo-400" },
+  clinic: { label: "HN Clinic", labelAr: "العيادات", icon: ShieldCheck, color: "lime-400" },
+};
+
+function metaFor(cat: string) {
   return (
-    <div className="relative h-[420px] w-full overflow-hidden rounded-xl border border-white/10 bg-[radial-gradient(ellipse_at_center,rgba(56,189,248,0.12),transparent_60%)]">
-      {/* animated grid */}
+    CATEGORY_META[cat] ?? {
+      label: cat,
+      labelAr: cat,
+      icon: Boxes,
+      color: "sky-400",
+    }
+  );
+}
+
+function statusDot(status: EcoNode["status"]) {
+  if (status === "online") return "bg-emerald-400 animate-pulse";
+  if (status === "degraded") return "bg-amber-400 animate-pulse";
+  if (status === "offline") return "bg-rose-400";
+  return "bg-white/20";
+}
+
+function timeAgo(iso: string | null, lang: "ar" | "en") {
+  if (!iso) return lang === "ar" ? "—" : "—";
+  const diff = Date.now() - new Date(iso).getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return lang === "ar" ? "الآن" : "just now";
+  if (m < 60) return lang === "ar" ? `منذ ${m} د` : `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return lang === "ar" ? `منذ ${h} س` : `${h}h ago`;
+  const d = Math.floor(h / 24);
+  return lang === "ar" ? `منذ ${d} يوم` : `${d}d ago`;
+}
+
+function EcosystemMap({ nodes, lang }: { nodes: EcoNode[]; lang: "ar" | "en" }) {
+  const list = nodes.slice(0, 12);
+  const count = Math.max(list.length, 1);
+  return (
+    <div className="relative h-[440px] w-full overflow-hidden rounded-xl border border-white/10 bg-[radial-gradient(ellipse_at_center,rgba(56,189,248,0.12),transparent_60%)]">
       <svg className="absolute inset-0 h-full w-full opacity-30" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
             <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(148,163,184,0.15)" strokeWidth="1" />
           </pattern>
-          <radialGradient id="core" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="rgba(168,85,247,0.9)" />
-            <stop offset="60%" stopColor="rgba(59,130,246,0.6)" />
-            <stop offset="100%" stopColor="rgba(34,211,238,0)" />
-          </radialGradient>
         </defs>
         <rect width="100%" height="100%" fill="url(#grid)" />
       </svg>
 
-      {/* connecting neon lines */}
-      <svg className="absolute inset-0 h-full w-full pointer-events-none" viewBox="0 0 800 420" preserveAspectRatio="none">
-        {ECOSYSTEM_NODES.map((_, i) => {
-          const cx = 400, cy = 210;
-          const angle = (i / ECOSYSTEM_NODES.length) * Math.PI * 2 - Math.PI / 2;
-          const r = 170;
-          const x = cx + Math.cos(angle) * r;
-          const y = cy + Math.sin(angle) * r;
-          return (
-            <line
-              key={i}
-              x1={cx}
-              y1={cy}
-              x2={x}
-              y2={y}
-              stroke="url(#coreLine)"
-              strokeWidth="1"
-              strokeDasharray="3 4"
-              className="opacity-60"
-            />
-          );
-        })}
+      {/* neon lines from core to nodes */}
+      <svg className="absolute inset-0 h-full w-full pointer-events-none" viewBox="0 0 800 440" preserveAspectRatio="none">
         <defs>
           <linearGradient id="coreLine" x1="0" x2="1">
             <stop offset="0%" stopColor="rgba(168,85,247,0.8)" />
             <stop offset="100%" stopColor="rgba(34,211,238,0.15)" />
           </linearGradient>
         </defs>
+        {list.map((_, i) => {
+          const cx = 400, cy = 220;
+          const angle = (i / count) * Math.PI * 2 - Math.PI / 2;
+          const r = 180;
+          const x = cx + Math.cos(angle) * r;
+          const y = cy + Math.sin(angle) * r * 0.85;
+          return (
+            <line key={i} x1={cx} y1={cy} x2={x} y2={y}
+              stroke="url(#coreLine)" strokeWidth="1" strokeDasharray="3 4" className="opacity-60" />
+          );
+        })}
       </svg>
 
       {/* Hex core */}
@@ -208,30 +227,43 @@ function EcosystemMap({ sitesList }: { sitesList: Array<{ slug: string | null; n
       </div>
 
       {/* Orbiting nodes */}
-      {ECOSYSTEM_NODES.map((n, i) => {
-        const angle = (i / ECOSYSTEM_NODES.length) * Math.PI * 2 - Math.PI / 2;
-        const r = 42; // percentage
+      {list.map((n, i) => {
+        const meta = metaFor(n.category);
+        const angle = (i / count) * Math.PI * 2 - Math.PI / 2;
+        const r = 42;
         const x = 50 + Math.cos(angle) * r;
         const y = 50 + Math.sin(angle) * r * 0.85;
-        const active = known.has(n.slug);
+        const target = n.representative?.slug
+          ? { to: "/sites/$slug", params: { slug: n.representative.slug } }
+          : { to: "/sites" as const };
+        const label = lang === "ar" ? meta.labelAr : meta.label;
         return (
           <Link
-            key={n.key}
-            to="/sites"
+            key={n.category}
+            {...(target as any)}
             className="absolute -translate-x-1/2 -translate-y-1/2 group"
             style={{ left: `${x}%`, top: `${y}%` }}
+            title={`${label} • ${n.sites} ${lang === "ar" ? "موقع" : "sites"} • ${n.tasks} ${lang === "ar" ? "مهمة" : "tasks"}`}
           >
             <div
-              className={`flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 backdrop-blur-md transition-all group-hover:scale-110 ${
-                active
-                  ? `border-${n.color}/50 bg-${n.color}/10 text-white`
-                  : "border-white/10 bg-white/5 text-white/50"
-              }`}
-              style={active ? { boxShadow: `0 0 20px -5px currentColor` } : undefined}
+              className={`min-w-[130px] rounded-xl border px-2.5 py-2 backdrop-blur-md transition-all group-hover:scale-105 group-hover:border-white/40 border-${meta.color}/40 bg-${meta.color}/5`}
+              style={{ boxShadow: "0 0 22px -6px currentColor" }}
             >
-              <n.icon className={`h-3.5 w-3.5 text-${n.color}`} />
-              <span className="text-[11px] font-medium whitespace-nowrap">{n.label}</span>
-              <span className={`h-1.5 w-1.5 rounded-full ${active ? "bg-emerald-400 animate-pulse" : "bg-white/20"}`} />
+              <div className="flex items-center gap-1.5 mb-1">
+                <div className={`h-6 w-6 rounded-md flex items-center justify-center bg-${meta.color}/15 text-${meta.color}`}>
+                  <meta.icon className="h-3.5 w-3.5" />
+                </div>
+                <span className="text-[11px] font-semibold text-white truncate flex-1">{label}</span>
+                <span className={`h-1.5 w-1.5 rounded-full ${statusDot(n.status)}`} />
+              </div>
+              <div className="flex items-center justify-between text-[9.5px] text-white/60">
+                <span>{n.sites} {lang === "ar" ? "موقع" : "sites"}</span>
+                <span className="text-white/40">•</span>
+                <span>{n.tasks} {lang === "ar" ? "مهمة" : "tasks"}</span>
+              </div>
+              <div className="text-[9px] text-white/40 mt-0.5 truncate">
+                {timeAgo(n.last_activity, lang)}
+              </div>
             </div>
           </Link>
         );
@@ -239,6 +271,24 @@ function EcosystemMap({ sitesList }: { sitesList: Array<{ slug: string | null; n
     </div>
   );
 }
+
+// Static services strip (fallback labels for Quick Services)
+const QUICK_SERVICES: Array<{ key: string; label: string; icon: LucideIcon; color: string }> = [
+  { key: "tvcc", label: "TVCC", icon: Radio, color: "cyan-400" },
+  { key: "build", label: "HN Build", icon: Sparkles, color: "purple-400" },
+  { key: "video", label: "HN Video AI", icon: Video, color: "rose-400" },
+  { key: "audio", label: "HN Audio AI", icon: AudioLines, color: "amber-400" },
+  { key: "translate", label: "HN Translation", icon: Languages, color: "emerald-400" },
+  { key: "image", label: "HN Image AI", icon: ImageIcon, color: "fuchsia-400" },
+  { key: "db", label: "HN Database", icon: Database, color: "blue-400" },
+  { key: "cloud", label: "HN Cloud", icon: Cloud, color: "sky-400" },
+  { key: "academy", label: "HN Academy", icon: GraduationCap, color: "indigo-400" },
+  { key: "cards", label: "HN Cards", icon: CreditCard, color: "teal-400" },
+  { key: "store", label: "HN Store", icon: Store, color: "lime-400" },
+  { key: "chat", label: "HN Chat", icon: MessageSquare, color: "pink-400" },
+];
+
+
 
 // ---------- Engine status ----------
 
