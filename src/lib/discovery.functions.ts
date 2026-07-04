@@ -96,6 +96,42 @@ type DiscoveredService = {
   source: string;
 };
 
+// Framework/library fingerprints
+const FRAMEWORK_PATTERNS: Array<{ re: RegExp; name: string }> = [
+  { re: /_next\/static|__NEXT_DATA__/i, name: "Next.js" },
+  { re: /nuxt|__nuxt/i, name: "Nuxt" },
+  { re: /vite\/|@vite\/client/i, name: "Vite" },
+  { re: /react(?:-dom)?[/@]/i, name: "React" },
+  { re: /\bvue(?:\.runtime)?\b|__VUE__/i, name: "Vue" },
+  { re: /svelte/i, name: "Svelte" },
+  { re: /angular|ng-version/i, name: "Angular" },
+  { re: /wp-content|wordpress/i, name: "WordPress" },
+  { re: /shopify|cdn\.shopify/i, name: "Shopify" },
+  { re: /supabase/i, name: "Supabase" },
+  { re: /firebase/i, name: "Firebase" },
+];
+
+function detectFrameworks(html: string): string[] {
+  const found = new Set<string>();
+  for (const p of FRAMEWORK_PATTERNS) if (p.re.test(html)) found.add(p.name);
+  return Array.from(found);
+}
+
+// HN ecosystem / external system dependencies
+const SYSTEM_PATTERNS: Array<{ re: RegExp; system: string }> = [
+  { re: /hn[-_ ]?db\b|hn-db\.fun|hn-dbpro|hn_db_api/i, system: "hn-db" },
+  { re: /hn[-_ ]?cloud|hn_cloud_api/i, system: "hn-cloud" },
+  { re: /\btvcc\b|tvcc[-_ ]api|tvcc-hub/i, system: "tvcc" },
+  { re: /hn[-_ ]?core/i, system: "hn-core" },
+  { re: /hn[-_ ]?ai|openai\.com|api\.openai|gpt-[34]|anthropic|claude|gemini|lovable[-_ ]?ai/i, system: "hn-ai" },
+];
+
+function detectSystems(hay: string): string[] {
+  const found = new Set<string>();
+  for (const p of SYSTEM_PATTERNS) if (p.re.test(hay)) found.add(p.system);
+  return Array.from(found);
+}
+
 function inferServices(params: {
   meta: { title: string | null; description: string | null; keywords: string[] };
   headings: string[];
