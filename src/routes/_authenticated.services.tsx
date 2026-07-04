@@ -123,6 +123,7 @@ function ServicesPage() {
   const reject = useServerFn(rejectService);
   const del = useServerFn(deleteService);
   const health = useServerFn(checkServiceHealth);
+  const analyzeAll = useServerFn(analyzeAllSites);
 
   const { data = [] } = useQuery({ queryKey: ["services"], queryFn: () => fn() });
   const [q, setQ] = useState("");
