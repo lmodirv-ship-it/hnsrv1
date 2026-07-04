@@ -246,7 +246,8 @@ export async function executeAgainstService(
     await supabaseAdmin.from("service_requests").insert({
       api_key_id: key.id,
       client_id: key.client_id,
-      requester_site: req.requester_site ?? key.client?.name ?? null,
+      requester_site: requesterSite,
+      gateway_site: gatewaySite,
       service_intent: req.intent ?? null,
       request_payload: (req.payload ?? null) as any,
       execution_status: "no_service",
@@ -254,11 +255,17 @@ export async function executeAgainstService(
       latency_ms: Date.now() - startedAt,
       error: "No matching service",
       routing_decision: { candidates: matchScores, reason: "no_match" },
+      journey_path: [
+        { step: "received_from", site: requesterSite, via: gatewaySite },
+        { step: "hub_no_match", intent: req.intent ?? null },
+      ] as any,
     });
     return jsonResponse(404, {
       ok: false, request_id: requestId,
       error: "No matching service. Consider registering one that handles: " + (req.intent ?? "this intent"),
       suggestion: "create_service",
+      return_via: gatewaySite ?? "tvcc",
+      deliver_to: requesterSite,
     });
   }
 
@@ -269,7 +276,8 @@ export async function executeAgainstService(
     if (!candidates.length) {
       await supabaseAdmin.from("service_requests").insert({
         api_key_id: key.id, client_id: key.client_id,
-        requester_site: req.requester_site ?? null,
+        requester_site: requesterSite,
+        gateway_site: gatewaySite,
         service_intent: req.intent ?? null,
         execution_status: "forbidden",
         status_code: 403, latency_ms: Date.now() - startedAt,
