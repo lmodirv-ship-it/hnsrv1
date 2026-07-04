@@ -1,7 +1,7 @@
 {
   "appName": "HN-Mind-Hub",
   "appId": "pro.hn-ai.mindhub",
-  "version": "1.0.0",
+  "version": "04072026",
   "domains": {
     "primary": "https://api.hn-ai.pro",
     "fallback": "https://hn-mind-hub.lovable.app"
