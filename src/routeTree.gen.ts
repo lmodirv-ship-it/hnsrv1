@@ -30,6 +30,7 @@ import { Route as AuthenticatedInternalConnectorsRouteImport } from './routes/_a
 import { Route as AuthenticatedFallbackRulesRouteImport } from './routes/_authenticated.fallback-rules'
 import { Route as AuthenticatedDiscoveryRouteImport } from './routes/_authenticated.discovery'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated.dashboard'
+import { Route as AuthenticatedBillingRouteImport } from './routes/_authenticated.billing'
 import { Route as AuthenticatedApiConsoleRouteImport } from './routes/_authenticated.api-console'
 import { Route as AuthenticatedAgentsRouteImport } from './routes/_authenticated.agents'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated.admin-users'
@@ -155,6 +156,11 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedBillingRoute = AuthenticatedBillingRouteImport.update({
+  id: '/billing',
+  path: '/billing',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedApiConsoleRoute = AuthenticatedApiConsoleRouteImport.update({
   id: '/api-console',
   path: '/api-console',
@@ -231,6 +237,7 @@ export interface FileRoutesByFullPath {
   '/admin-users': typeof AuthenticatedAdminUsersRoute
   '/agents': typeof AuthenticatedAgentsRoute
   '/api-console': typeof AuthenticatedApiConsoleRoute
+  '/billing': typeof AuthenticatedBillingRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/discovery': typeof AuthenticatedDiscoveryRoute
   '/fallback-rules': typeof AuthenticatedFallbackRulesRoute
@@ -266,6 +273,7 @@ export interface FileRoutesByTo {
   '/admin-users': typeof AuthenticatedAdminUsersRoute
   '/agents': typeof AuthenticatedAgentsRoute
   '/api-console': typeof AuthenticatedApiConsoleRoute
+  '/billing': typeof AuthenticatedBillingRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/discovery': typeof AuthenticatedDiscoveryRoute
   '/fallback-rules': typeof AuthenticatedFallbackRulesRoute
@@ -303,6 +311,7 @@ export interface FileRoutesById {
   '/_authenticated/admin-users': typeof AuthenticatedAdminUsersRoute
   '/_authenticated/agents': typeof AuthenticatedAgentsRoute
   '/_authenticated/api-console': typeof AuthenticatedApiConsoleRoute
+  '/_authenticated/billing': typeof AuthenticatedBillingRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/discovery': typeof AuthenticatedDiscoveryRoute
   '/_authenticated/fallback-rules': typeof AuthenticatedFallbackRulesRoute
@@ -340,6 +349,7 @@ export interface FileRouteTypes {
     | '/admin-users'
     | '/agents'
     | '/api-console'
+    | '/billing'
     | '/dashboard'
     | '/discovery'
     | '/fallback-rules'
@@ -375,6 +385,7 @@ export interface FileRouteTypes {
     | '/admin-users'
     | '/agents'
     | '/api-console'
+    | '/billing'
     | '/dashboard'
     | '/discovery'
     | '/fallback-rules'
@@ -411,6 +422,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin-users'
     | '/_authenticated/agents'
     | '/_authenticated/api-console'
+    | '/_authenticated/billing'
     | '/_authenticated/dashboard'
     | '/_authenticated/discovery'
     | '/_authenticated/fallback-rules'
@@ -601,6 +613,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/billing': {
+      id: '/_authenticated/billing'
+      path: '/billing'
+      fullPath: '/billing'
+      preLoaderRoute: typeof AuthenticatedBillingRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/api-console': {
       id: '/_authenticated/api-console'
       path: '/api-console'
@@ -699,6 +718,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
   AuthenticatedAgentsRoute: typeof AuthenticatedAgentsRoute
   AuthenticatedApiConsoleRoute: typeof AuthenticatedApiConsoleRoute
+  AuthenticatedBillingRoute: typeof AuthenticatedBillingRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedDiscoveryRoute: typeof AuthenticatedDiscoveryRoute
   AuthenticatedFallbackRulesRoute: typeof AuthenticatedFallbackRulesRoute
@@ -727,6 +747,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
   AuthenticatedAgentsRoute: AuthenticatedAgentsRoute,
   AuthenticatedApiConsoleRoute: AuthenticatedApiConsoleRoute,
+  AuthenticatedBillingRoute: AuthenticatedBillingRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedDiscoveryRoute: AuthenticatedDiscoveryRoute,
   AuthenticatedFallbackRulesRoute: AuthenticatedFallbackRulesRoute,
