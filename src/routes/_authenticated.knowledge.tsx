@@ -1,10 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { listSites } from "@/lib/sites.functions";
 import { listServices } from "@/lib/services.functions";
+import { analyzeAllSites } from "@/lib/discovery.functions";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { Card } from "@/components/ui/card";
+import { GenerateButton } from "@/components/generate-button";
 import { BookOpen } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/knowledge")({
@@ -15,14 +17,28 @@ function KnowledgePage() {
   const { t } = useLanguage();
   const s = useServerFn(listSites);
   const sv = useServerFn(listServices);
+  const analyzeAll = useServerFn(analyzeAllSites);
+  const qc = useQueryClient();
   const { data: sites = [] } = useQuery({ queryKey: ["sites"], queryFn: () => s() });
   const { data: services = [] } = useQuery({ queryKey: ["services"], queryFn: () => sv() });
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <BookOpen className="h-6 w-6 text-primary" />
-        <h1 className="text-2xl font-bold">{t("knowledgeBase")}</h1>
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div className="flex items-center gap-3">
+          <BookOpen className="h-6 w-6 text-primary" />
+          <h1 className="text-2xl font-bold">{t("knowledgeBase")}</h1>
+        </div>
+        <GenerateButton
+          label="توليد: بناء قاعدة المعرفة"
+          pendingLabel="جاري التحليل…"
+          onGenerate={() => analyzeAll()}
+          onDone={() => {
+            qc.invalidateQueries({ queryKey: ["sites"] });
+            qc.invalidateQueries({ queryKey: ["services"] });
+          }}
+          successMessage={(r: any) => `تم تحليل ${r.analyzed}/${r.total} • خدمات: ${r.servicesCreated}`}
+        />
       </div>
 
       <div className="space-y-3">
