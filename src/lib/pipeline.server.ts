@@ -143,6 +143,8 @@ export type RunPipelineArgs = {
   owner_id?: string | null;
   api_key_id?: string | null;
   client_id?: string | null;
+  internal_connector_id?: string | null;
+  auth_mode?: "internal" | "external" | null;
   input_payload?: Record<string, unknown>;
 };
 
