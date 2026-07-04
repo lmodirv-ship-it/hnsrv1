@@ -1,9 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getServiceNetwork } from "@/lib/network.functions";
+import { analyzeAllSites } from "@/lib/discovery.functions";
 import type { NetworkService, NetworkSite } from "@/lib/network.functions";
 import { useLanguage } from "@/i18n/LanguageProvider";
+import { GenerateButton } from "@/components/generate-button";
+
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
