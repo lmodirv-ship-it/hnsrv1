@@ -84,7 +84,10 @@ function DiscoveryPage() {
 
   const syncMut = useMutation({
     mutationFn: () => tvccSync(),
-    onSuccess: (r) => toast.success(`TVCC: +${r.inserted} / ~${r.updated} of ${r.count}`),
+    onSuccess: (r: any) => {
+      if (r?.ok === false) toast.error(r.error ?? t("somethingWentWrong"));
+      else toast.success(`TVCC: +${r.inserted} / ~${r.updated} of ${r.count}`);
+    },
     onError: (e: any) => toast.error(e.message ?? t("somethingWentWrong")),
   });
 
