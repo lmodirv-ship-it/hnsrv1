@@ -115,9 +115,14 @@ function RegistryPage() {
             Site Inventory → Service Discovery → Capability Registry. The Task Planner and Dispatcher read from here.
           </p>
         </div>
-        <Button onClick={() => runMut.mutate(null)} disabled={runMut.isPending}>
+        <Button
+          onClick={() => runMut.mutate(null)}
+          disabled={runMut.isPending}
+          size="lg"
+          className="bg-gradient-to-r from-primary to-primary/70 shadow-lg"
+        >
           <RefreshCw className={"h-4 w-4 mr-2 " + (runMut.isPending ? "animate-spin" : "")} />
-          Refresh all
+          {runMut.isPending ? "Discovering…" : `Discover All Sites (${sites.length})`}
         </Button>
       </div>
 
