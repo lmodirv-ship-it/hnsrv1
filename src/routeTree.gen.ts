@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated.settings'
 import { Route as AuthenticatedServicesRouteImport } from './routes/_authenticated.services'
+import { Route as AuthenticatedRoutingDecisionsRouteImport } from './routes/_authenticated.routing-decisions'
 import { Route as AuthenticatedRequestsEngineRouteImport } from './routes/_authenticated.requests-engine'
 import { Route as AuthenticatedOrchestratorRouteImport } from './routes/_authenticated.orchestrator'
 import { Route as AuthenticatedNetworkRouteImport } from './routes/_authenticated.network'
@@ -52,6 +53,12 @@ const AuthenticatedServicesRoute = AuthenticatedServicesRouteImport.update({
   path: '/services',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedRoutingDecisionsRoute =
+  AuthenticatedRoutingDecisionsRouteImport.update({
+    id: '/routing-decisions',
+    path: '/routing-decisions',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedRequestsEngineRoute =
   AuthenticatedRequestsEngineRouteImport.update({
     id: '/requests-engine',
@@ -131,6 +138,7 @@ export interface FileRoutesByFullPath {
   '/network': typeof AuthenticatedNetworkRoute
   '/orchestrator': typeof AuthenticatedOrchestratorRoute
   '/requests-engine': typeof AuthenticatedRequestsEngineRoute
+  '/routing-decisions': typeof AuthenticatedRoutingDecisionsRoute
   '/services': typeof AuthenticatedServicesRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/sites/$slug': typeof AuthenticatedSitesSlugRoute
@@ -150,6 +158,7 @@ export interface FileRoutesByTo {
   '/network': typeof AuthenticatedNetworkRoute
   '/orchestrator': typeof AuthenticatedOrchestratorRoute
   '/requests-engine': typeof AuthenticatedRequestsEngineRoute
+  '/routing-decisions': typeof AuthenticatedRoutingDecisionsRoute
   '/services': typeof AuthenticatedServicesRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/sites/$slug': typeof AuthenticatedSitesSlugRoute
@@ -171,6 +180,7 @@ export interface FileRoutesById {
   '/_authenticated/network': typeof AuthenticatedNetworkRoute
   '/_authenticated/orchestrator': typeof AuthenticatedOrchestratorRoute
   '/_authenticated/requests-engine': typeof AuthenticatedRequestsEngineRoute
+  '/_authenticated/routing-decisions': typeof AuthenticatedRoutingDecisionsRoute
   '/_authenticated/services': typeof AuthenticatedServicesRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/sites/$slug': typeof AuthenticatedSitesSlugRoute
@@ -192,6 +202,7 @@ export interface FileRouteTypes {
     | '/network'
     | '/orchestrator'
     | '/requests-engine'
+    | '/routing-decisions'
     | '/services'
     | '/settings'
     | '/sites/$slug'
@@ -211,6 +222,7 @@ export interface FileRouteTypes {
     | '/network'
     | '/orchestrator'
     | '/requests-engine'
+    | '/routing-decisions'
     | '/services'
     | '/settings'
     | '/sites/$slug'
@@ -231,6 +243,7 @@ export interface FileRouteTypes {
     | '/_authenticated/network'
     | '/_authenticated/orchestrator'
     | '/_authenticated/requests-engine'
+    | '/_authenticated/routing-decisions'
     | '/_authenticated/services'
     | '/_authenticated/settings'
     | '/_authenticated/sites/$slug'
@@ -284,6 +297,13 @@ declare module '@tanstack/react-router' {
       path: '/services'
       fullPath: '/services'
       preLoaderRoute: typeof AuthenticatedServicesRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/routing-decisions': {
+      id: '/_authenticated/routing-decisions'
+      path: '/routing-decisions'
+      fullPath: '/routing-decisions'
+      preLoaderRoute: typeof AuthenticatedRoutingDecisionsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/requests-engine': {
@@ -389,6 +409,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedNetworkRoute: typeof AuthenticatedNetworkRoute
   AuthenticatedOrchestratorRoute: typeof AuthenticatedOrchestratorRoute
   AuthenticatedRequestsEngineRoute: typeof AuthenticatedRequestsEngineRoute
+  AuthenticatedRoutingDecisionsRoute: typeof AuthenticatedRoutingDecisionsRoute
   AuthenticatedServicesRoute: typeof AuthenticatedServicesRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedSitesSlugRoute: typeof AuthenticatedSitesSlugRoute
@@ -404,6 +425,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedNetworkRoute: AuthenticatedNetworkRoute,
   AuthenticatedOrchestratorRoute: AuthenticatedOrchestratorRoute,
   AuthenticatedRequestsEngineRoute: AuthenticatedRequestsEngineRoute,
+  AuthenticatedRoutingDecisionsRoute: AuthenticatedRoutingDecisionsRoute,
   AuthenticatedServicesRoute: AuthenticatedServicesRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedSitesSlugRoute: AuthenticatedSitesSlugRoute,
