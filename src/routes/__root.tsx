@@ -35,29 +35,21 @@ function NotFoundComponent() {
 }
 
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
-  console.error(error);
+  // Quiet dev mode: log to console only, auto-retry, no visible error UI.
+  console.warn("[dev] suppressed route error:", error?.message);
   const router = useRouter();
   useEffect(() => {
     reportLovableError(error, { boundary: "tanstack_root_error_component" });
-  }, [error]);
+    const t = setTimeout(() => {
+      router.invalidate();
+      reset();
+    }, 300);
+    return () => clearTimeout(t);
+  }, [error, reset, router]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="max-w-md text-center">
-        <h1 className="text-xl font-semibold">Something went wrong</h1>
-        <p className="mt-2 text-sm text-muted-foreground">{error.message}</p>
-        <div className="mt-6 flex flex-wrap justify-center gap-2">
-          <button
-            onClick={() => {
-              router.invalidate();
-              reset();
-            }}
-            className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-          >
-            Try again
-          </button>
-        </div>
-      </div>
+    <div className="flex min-h-screen items-center justify-center bg-background">
+      <div className="h-6 w-6 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
     </div>
   );
 }
