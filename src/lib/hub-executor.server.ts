@@ -324,10 +324,15 @@ export async function executeAgainstService(
     candidates = ranked.map((r) => r.service);
   }
 
+  const authIds = () =>
+    isInternal
+      ? { api_key_id: null as any, client_id: null as any, internal_connector_id: key.id as any }
+      : { api_key_id: key.id as any, client_id: key.client_id as any, internal_connector_id: null as any };
+
   if (!candidates.length) {
     await supabaseAdmin.from("service_requests").insert({
-      api_key_id: key.id,
-      client_id: key.client_id,
+      ...authIds(),
+      auth_mode: authMode,
       requester_site: requesterSite,
       gateway_site: gatewaySite,
       service_intent: req.intent ?? null,
@@ -336,9 +341,9 @@ export async function executeAgainstService(
       status_code: 404,
       latency_ms: Date.now() - startedAt,
       error: "No matching service",
-      routing_decision: { candidates: matchScores, reason: "no_match" },
+      routing_decision: { candidates: matchScores, reason: "no_match", auth_mode: authMode } as any,
       journey_path: [
-        { step: "received_from", site: requesterSite, via: gatewaySite },
+        { step: "received_from", site: requesterSite, via: gatewaySite, auth_mode: authMode },
         { step: "hub_no_match", intent: req.intent ?? null },
       ] as any,
     });
