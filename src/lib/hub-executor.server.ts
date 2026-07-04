@@ -30,9 +30,18 @@ export function corsHeaders() {
   return {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Authorization, Content-Type",
+    "Access-Control-Allow-Headers": "Authorization, Content-Type, X-Hn-Gateway, X-Hn-Requester-Site",
     "Access-Control-Max-Age": "86400",
   } as const;
+}
+
+// Extracts the HN journey context from request headers.
+// `x-hn-gateway` = which gateway forwarded the request (typically "tvcc").
+// `x-hn-requester-site` = the HN site the end user originated from.
+export function extractGatewayContext(request: Request) {
+  const gateway = (request.headers.get("x-hn-gateway") ?? "").trim().toLowerCase() || null;
+  const requester = (request.headers.get("x-hn-requester-site") ?? "").trim() || null;
+  return { gateway_site: gateway, requester_site: requester };
 }
 
 export function jsonResponse(status: number, body: unknown) {
@@ -201,11 +210,19 @@ async function callService(service: any, req: ExecRequest, requestId: string) {
   }
 }
 
+export type GatewayContext = { gateway_site: string | null; requester_site: string | null };
+
 // Core: pick service(s), execute with fallback, log everything.
-export async function executeAgainstService(key: AuthedKey, req: ExecRequest): Promise<Response> {
+export async function executeAgainstService(
+  key: AuthedKey,
+  req: ExecRequest,
+  ctx: GatewayContext = { gateway_site: null, requester_site: null },
+): Promise<Response> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const requestId = crypto.randomUUID();
   const startedAt = Date.now();
+  const gatewaySite = ctx.gateway_site;
+  const requesterSite = ctx.requester_site ?? req.requester_site ?? key.client?.name ?? null;
 
   // 1) Resolve candidates
   let candidates: any[] = [];
@@ -229,7 +246,8 @@ export async function executeAgainstService(key: AuthedKey, req: ExecRequest): P
     await supabaseAdmin.from("service_requests").insert({
       api_key_id: key.id,
       client_id: key.client_id,
-      requester_site: req.requester_site ?? key.client?.name ?? null,
+      requester_site: requesterSite,
+      gateway_site: gatewaySite,
       service_intent: req.intent ?? null,
       request_payload: (req.payload ?? null) as any,
       execution_status: "no_service",
@@ -237,11 +255,17 @@ export async function executeAgainstService(key: AuthedKey, req: ExecRequest): P
       latency_ms: Date.now() - startedAt,
       error: "No matching service",
       routing_decision: { candidates: matchScores, reason: "no_match" },
+      journey_path: [
+        { step: "received_from", site: requesterSite, via: gatewaySite },
+        { step: "hub_no_match", intent: req.intent ?? null },
+      ] as any,
     });
     return jsonResponse(404, {
       ok: false, request_id: requestId,
       error: "No matching service. Consider registering one that handles: " + (req.intent ?? "this intent"),
       suggestion: "create_service",
+      return_via: gatewaySite ?? "tvcc",
+      deliver_to: requesterSite,
     });
   }
 
@@ -252,7 +276,8 @@ export async function executeAgainstService(key: AuthedKey, req: ExecRequest): P
     if (!candidates.length) {
       await supabaseAdmin.from("service_requests").insert({
         api_key_id: key.id, client_id: key.client_id,
-        requester_site: req.requester_site ?? null,
+        requester_site: requesterSite,
+        gateway_site: gatewaySite,
         service_intent: req.intent ?? null,
         execution_status: "forbidden",
         status_code: 403, latency_ms: Date.now() - startedAt,
@@ -292,7 +317,8 @@ export async function executeAgainstService(key: AuthedKey, req: ExecRequest): P
 
   const routingDecision = {
     intent: req.intent ?? null,
-    requester_site: req.requester_site ?? null,
+    requester_site: requesterSite,
+    gateway_site: gatewaySite,
     candidates: matchScores,
     chain: chain.map((c) => ({ id: c.id, name: c.name, site: c.sites?.slug })),
     attempts: attemptsLog,
@@ -301,6 +327,15 @@ export async function executeAgainstService(key: AuthedKey, req: ExecRequest): P
       ? "explicit_service_id"
       : (attempt > 1 ? "primary_failed_used_fallback" : "best_intent_match"),
   };
+
+  const journeyPath = [
+    { step: "received_from", site: requesterSite, via: gatewaySite ?? "tvcc" },
+    { step: "hub_routed_to", service: chosen?.name ?? null, site: chosen?.sites?.slug ?? null },
+    ...(attempt > 1 ? [{ step: "used_fallback", attempts: attempt } as any] : []),
+    { step: "returned_to_hub", status: lastResult.status },
+    { step: "returned_via_gateway", via: gatewaySite ?? "tvcc" },
+    { step: "delivered_to", site: requesterSite },
+  ];
 
   await supabaseAdmin.from("api_keys")
     .update({ last_used_at: new Date().toISOString() })
@@ -313,7 +348,8 @@ export async function executeAgainstService(key: AuthedKey, req: ExecRequest): P
     status_code: lastResult.status,
     latency_ms: Date.now() - startedAt,
     error: lastResult.error,
-    requester_site: req.requester_site ?? key.client?.name ?? null,
+    requester_site: requesterSite,
+    gateway_site: gatewaySite,
     provider_site: chosen?.sites?.slug ?? null,
     service_intent: req.intent ?? null,
     request_payload: (req.payload ?? null) as any,
@@ -322,6 +358,7 @@ export async function executeAgainstService(key: AuthedKey, req: ExecRequest): P
     fallback_used: attempt > 1,
     attempts: attempt,
     routing_decision: routingDecision,
+    journey_path: journeyPath as any,
   });
 
   return jsonResponse(200, {
@@ -335,5 +372,9 @@ export async function executeAgainstService(key: AuthedKey, req: ExecRequest): P
     latency_ms: Date.now() - startedAt,
     data: ok ? lastResult.data : null,
     error: ok ? null : (lastResult.error ?? "Upstream failed"),
+    return_via: gatewaySite ?? "tvcc",
+    deliver_to: requesterSite,
+    journey_path: journeyPath,
   });
 }
+

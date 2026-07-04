@@ -14,7 +14,7 @@ export const Route = createFileRoute("/api/public/v1/pipeline")({
         return new Response(null, { status: 204, headers: corsHeaders() });
       },
       POST: async ({ request }) => {
-        const { authenticateKey, checkRateLimit, jsonResponse } =
+        const { authenticateKey, checkRateLimit, extractGatewayContext, jsonResponse } =
           await import("@/lib/hub-executor.server");
         const { runPipeline } = await import("@/lib/pipeline.server");
 
@@ -31,11 +31,13 @@ export const Route = createFileRoute("/api/public/v1/pipeline")({
           return jsonResponse(400, { ok: false, error: "`intent` is required" });
         }
 
+        const ctx = extractGatewayContext(request);
         try {
           const result = await runPipeline({
             intent: body.intent,
             prompt: body.prompt,
-            requester_site: body.requester_site ?? auth.key.client?.name ?? null,
+            requester_site: ctx.requester_site ?? body.requester_site ?? auth.key.client?.name ?? null,
+            gateway_site: ctx.gateway_site,
             api_key_id: auth.key.id,
             client_id: auth.key.client_id,
             input_payload: body.payload ?? null,

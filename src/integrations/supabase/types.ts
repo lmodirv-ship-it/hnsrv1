@@ -329,9 +329,11 @@ export type Database = {
           error: string | null
           final_package: Json | null
           finished_at: string | null
+          gateway_site: string | null
           id: string
           input_payload: Json | null
           intent: string
+          journey_path: Json
           latency_ms: number | null
           owner_id: string | null
           prompt: string | null
@@ -349,9 +351,11 @@ export type Database = {
           error?: string | null
           final_package?: Json | null
           finished_at?: string | null
+          gateway_site?: string | null
           id?: string
           input_payload?: Json | null
           intent: string
+          journey_path?: Json
           latency_ms?: number | null
           owner_id?: string | null
           prompt?: string | null
@@ -369,9 +373,11 @@ export type Database = {
           error?: string | null
           final_package?: Json | null
           finished_at?: string | null
+          gateway_site?: string | null
           id?: string
           input_payload?: Json | null
           intent?: string
+          journey_path?: Json
           latency_ms?: number | null
           owner_id?: string | null
           prompt?: string | null
@@ -531,7 +537,9 @@ export type Database = {
           error: string | null
           execution_status: string | null
           fallback_used: boolean
+          gateway_site: string | null
           id: string
+          journey_path: Json
           latency_ms: number | null
           method: string | null
           provider_site: string | null
@@ -551,7 +559,9 @@ export type Database = {
           error?: string | null
           execution_status?: string | null
           fallback_used?: boolean
+          gateway_site?: string | null
           id?: string
+          journey_path?: Json
           latency_ms?: number | null
           method?: string | null
           provider_site?: string | null
@@ -571,7 +581,9 @@ export type Database = {
           error?: string | null
           execution_status?: string | null
           fallback_used?: boolean
+          gateway_site?: string | null
           id?: string
+          journey_path?: Json
           latency_ms?: number | null
           method?: string | null
           provider_site?: string | null
@@ -710,10 +722,12 @@ export type Database = {
           hn_db_id: string | null
           id: string
           integration_log: Json
+          layer: Database["public"]["Enums"]["site_layer"]
           logo_url: string | null
           metadata: Json
           name: string
           owner_id: string | null
+          role: string | null
           slug: string
           status: string
           tvcc_id: string | null
@@ -729,10 +743,12 @@ export type Database = {
           hn_db_id?: string | null
           id?: string
           integration_log?: Json
+          layer?: Database["public"]["Enums"]["site_layer"]
           logo_url?: string | null
           metadata?: Json
           name: string
           owner_id?: string | null
+          role?: string | null
           slug: string
           status?: string
           tvcc_id?: string | null
@@ -748,10 +764,12 @@ export type Database = {
           hn_db_id?: string | null
           id?: string
           integration_log?: Json
+          layer?: Database["public"]["Enums"]["site_layer"]
           logo_url?: string | null
           metadata?: Json
           name?: string
           owner_id?: string | null
+          role?: string | null
           slug?: string
           status?: string
           tvcc_id?: string | null
@@ -795,6 +813,13 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "developer" | "viewer"
+      site_layer:
+        | "gateway"
+        | "orchestrator"
+        | "app"
+        | "provider"
+        | "infrastructure"
+        | "unclassified"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -923,6 +948,14 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "developer", "viewer"],
+      site_layer: [
+        "gateway",
+        "orchestrator",
+        "app",
+        "provider",
+        "infrastructure",
+        "unclassified",
+      ],
     },
   },
 } as const
