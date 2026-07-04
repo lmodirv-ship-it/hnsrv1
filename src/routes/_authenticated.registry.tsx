@@ -66,6 +66,7 @@ function RegistryPage() {
   const discoverFn = useServerFn(runSiteDiscovery);
   const previewFn = useServerFn(previewSiteManifest);
   const typesFn = useServerFn(listAvailableTaskTypesFn);
+  const seedFn = useServerFn(seedRegistryFromServices);
 
   const { data: sites = [] } = useQuery({ queryKey: ["registry-sites"], queryFn: () => sitesFn() as Promise<SiteRow[]> });
   const { data: caps = [] } = useQuery({ queryKey: ["registry-caps"], queryFn: () => capsFn() as Promise<CapRow[]>, refetchInterval: 5000 });
