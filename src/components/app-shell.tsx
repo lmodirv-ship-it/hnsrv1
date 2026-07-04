@@ -104,8 +104,9 @@ const groups: NavGroup[] = [
     url: "/orchestrator",
     items: [
       { key: "navServiceOrchestration", url: "/orchestrator" },
-      { key: "navExecutionFlows", url: "/orchestrator#flows" },
-      { key: "navExecutionLog", url: "/orchestrator#log" },
+      { key: "navRequestsEngine", url: "/requests-engine" },
+      { key: "navRoutingDecisions", url: "/routing-decisions" },
+      { key: "navFallbackRules", url: "/fallback-rules" },
     ],
   },
   {

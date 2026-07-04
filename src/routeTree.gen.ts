@@ -14,10 +14,13 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated.settings'
 import { Route as AuthenticatedServicesRouteImport } from './routes/_authenticated.services'
+import { Route as AuthenticatedRoutingDecisionsRouteImport } from './routes/_authenticated.routing-decisions'
+import { Route as AuthenticatedRequestsEngineRouteImport } from './routes/_authenticated.requests-engine'
 import { Route as AuthenticatedOrchestratorRouteImport } from './routes/_authenticated.orchestrator'
 import { Route as AuthenticatedNetworkRouteImport } from './routes/_authenticated.network'
 import { Route as AuthenticatedMonitoringRouteImport } from './routes/_authenticated.monitoring'
 import { Route as AuthenticatedKnowledgeRouteImport } from './routes/_authenticated.knowledge'
+import { Route as AuthenticatedFallbackRulesRouteImport } from './routes/_authenticated.fallback-rules'
 import { Route as AuthenticatedDiscoveryRouteImport } from './routes/_authenticated.discovery'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated.dashboard'
 import { Route as AuthenticatedApiConsoleRouteImport } from './routes/_authenticated.api-console'
@@ -51,6 +54,18 @@ const AuthenticatedServicesRoute = AuthenticatedServicesRouteImport.update({
   path: '/services',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedRoutingDecisionsRoute =
+  AuthenticatedRoutingDecisionsRouteImport.update({
+    id: '/routing-decisions',
+    path: '/routing-decisions',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedRequestsEngineRoute =
+  AuthenticatedRequestsEngineRouteImport.update({
+    id: '/requests-engine',
+    path: '/requests-engine',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedOrchestratorRoute =
   AuthenticatedOrchestratorRouteImport.update({
     id: '/orchestrator',
@@ -72,6 +87,12 @@ const AuthenticatedKnowledgeRoute = AuthenticatedKnowledgeRouteImport.update({
   path: '/knowledge',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedFallbackRulesRoute =
+  AuthenticatedFallbackRulesRouteImport.update({
+    id: '/fallback-rules',
+    path: '/fallback-rules',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedDiscoveryRoute = AuthenticatedDiscoveryRouteImport.update({
   id: '/discovery',
   path: '/discovery',
@@ -119,10 +140,13 @@ export interface FileRoutesByFullPath {
   '/api-console': typeof AuthenticatedApiConsoleRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/discovery': typeof AuthenticatedDiscoveryRoute
+  '/fallback-rules': typeof AuthenticatedFallbackRulesRoute
   '/knowledge': typeof AuthenticatedKnowledgeRoute
   '/monitoring': typeof AuthenticatedMonitoringRoute
   '/network': typeof AuthenticatedNetworkRoute
   '/orchestrator': typeof AuthenticatedOrchestratorRoute
+  '/requests-engine': typeof AuthenticatedRequestsEngineRoute
+  '/routing-decisions': typeof AuthenticatedRoutingDecisionsRoute
   '/services': typeof AuthenticatedServicesRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/sites/$slug': typeof AuthenticatedSitesSlugRoute
@@ -137,10 +161,13 @@ export interface FileRoutesByTo {
   '/api-console': typeof AuthenticatedApiConsoleRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/discovery': typeof AuthenticatedDiscoveryRoute
+  '/fallback-rules': typeof AuthenticatedFallbackRulesRoute
   '/knowledge': typeof AuthenticatedKnowledgeRoute
   '/monitoring': typeof AuthenticatedMonitoringRoute
   '/network': typeof AuthenticatedNetworkRoute
   '/orchestrator': typeof AuthenticatedOrchestratorRoute
+  '/requests-engine': typeof AuthenticatedRequestsEngineRoute
+  '/routing-decisions': typeof AuthenticatedRoutingDecisionsRoute
   '/services': typeof AuthenticatedServicesRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/sites/$slug': typeof AuthenticatedSitesSlugRoute
@@ -157,10 +184,13 @@ export interface FileRoutesById {
   '/_authenticated/api-console': typeof AuthenticatedApiConsoleRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/discovery': typeof AuthenticatedDiscoveryRoute
+  '/_authenticated/fallback-rules': typeof AuthenticatedFallbackRulesRoute
   '/_authenticated/knowledge': typeof AuthenticatedKnowledgeRoute
   '/_authenticated/monitoring': typeof AuthenticatedMonitoringRoute
   '/_authenticated/network': typeof AuthenticatedNetworkRoute
   '/_authenticated/orchestrator': typeof AuthenticatedOrchestratorRoute
+  '/_authenticated/requests-engine': typeof AuthenticatedRequestsEngineRoute
+  '/_authenticated/routing-decisions': typeof AuthenticatedRoutingDecisionsRoute
   '/_authenticated/services': typeof AuthenticatedServicesRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/sites/$slug': typeof AuthenticatedSitesSlugRoute
@@ -177,10 +207,13 @@ export interface FileRouteTypes {
     | '/api-console'
     | '/dashboard'
     | '/discovery'
+    | '/fallback-rules'
     | '/knowledge'
     | '/monitoring'
     | '/network'
     | '/orchestrator'
+    | '/requests-engine'
+    | '/routing-decisions'
     | '/services'
     | '/settings'
     | '/sites/$slug'
@@ -195,10 +228,13 @@ export interface FileRouteTypes {
     | '/api-console'
     | '/dashboard'
     | '/discovery'
+    | '/fallback-rules'
     | '/knowledge'
     | '/monitoring'
     | '/network'
     | '/orchestrator'
+    | '/requests-engine'
+    | '/routing-decisions'
     | '/services'
     | '/settings'
     | '/sites/$slug'
@@ -214,10 +250,13 @@ export interface FileRouteTypes {
     | '/_authenticated/api-console'
     | '/_authenticated/dashboard'
     | '/_authenticated/discovery'
+    | '/_authenticated/fallback-rules'
     | '/_authenticated/knowledge'
     | '/_authenticated/monitoring'
     | '/_authenticated/network'
     | '/_authenticated/orchestrator'
+    | '/_authenticated/requests-engine'
+    | '/_authenticated/routing-decisions'
     | '/_authenticated/services'
     | '/_authenticated/settings'
     | '/_authenticated/sites/$slug'
@@ -273,6 +312,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedServicesRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/routing-decisions': {
+      id: '/_authenticated/routing-decisions'
+      path: '/routing-decisions'
+      fullPath: '/routing-decisions'
+      preLoaderRoute: typeof AuthenticatedRoutingDecisionsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/requests-engine': {
+      id: '/_authenticated/requests-engine'
+      path: '/requests-engine'
+      fullPath: '/requests-engine'
+      preLoaderRoute: typeof AuthenticatedRequestsEngineRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/orchestrator': {
       id: '/_authenticated/orchestrator'
       path: '/orchestrator'
@@ -299,6 +352,13 @@ declare module '@tanstack/react-router' {
       path: '/knowledge'
       fullPath: '/knowledge'
       preLoaderRoute: typeof AuthenticatedKnowledgeRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/fallback-rules': {
+      id: '/_authenticated/fallback-rules'
+      path: '/fallback-rules'
+      fullPath: '/fallback-rules'
+      preLoaderRoute: typeof AuthenticatedFallbackRulesRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/discovery': {
@@ -364,10 +424,13 @@ interface AuthenticatedRouteChildren {
   AuthenticatedApiConsoleRoute: typeof AuthenticatedApiConsoleRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedDiscoveryRoute: typeof AuthenticatedDiscoveryRoute
+  AuthenticatedFallbackRulesRoute: typeof AuthenticatedFallbackRulesRoute
   AuthenticatedKnowledgeRoute: typeof AuthenticatedKnowledgeRoute
   AuthenticatedMonitoringRoute: typeof AuthenticatedMonitoringRoute
   AuthenticatedNetworkRoute: typeof AuthenticatedNetworkRoute
   AuthenticatedOrchestratorRoute: typeof AuthenticatedOrchestratorRoute
+  AuthenticatedRequestsEngineRoute: typeof AuthenticatedRequestsEngineRoute
+  AuthenticatedRoutingDecisionsRoute: typeof AuthenticatedRoutingDecisionsRoute
   AuthenticatedServicesRoute: typeof AuthenticatedServicesRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedSitesSlugRoute: typeof AuthenticatedSitesSlugRoute
@@ -378,10 +441,13 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedApiConsoleRoute: AuthenticatedApiConsoleRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedDiscoveryRoute: AuthenticatedDiscoveryRoute,
+  AuthenticatedFallbackRulesRoute: AuthenticatedFallbackRulesRoute,
   AuthenticatedKnowledgeRoute: AuthenticatedKnowledgeRoute,
   AuthenticatedMonitoringRoute: AuthenticatedMonitoringRoute,
   AuthenticatedNetworkRoute: AuthenticatedNetworkRoute,
   AuthenticatedOrchestratorRoute: AuthenticatedOrchestratorRoute,
+  AuthenticatedRequestsEngineRoute: AuthenticatedRequestsEngineRoute,
+  AuthenticatedRoutingDecisionsRoute: AuthenticatedRoutingDecisionsRoute,
   AuthenticatedServicesRoute: AuthenticatedServicesRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedSitesSlugRoute: AuthenticatedSitesSlugRoute,
