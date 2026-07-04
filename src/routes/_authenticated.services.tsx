@@ -124,6 +124,7 @@ function ServicesPage() {
   const del = useServerFn(deleteService);
   const health = useServerFn(checkServiceHealth);
   const analyzeAll = useServerFn(analyzeAllSites);
+  const importCatalog = useServerFn(importHnCatalog);
 
   const { data = [] } = useQuery({ queryKey: ["services"], queryFn: () => fn() });
   const [q, setQ] = useState("");
