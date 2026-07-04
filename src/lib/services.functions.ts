@@ -31,14 +31,21 @@ export const listServices = createServerFn({ method: "GET" })
     if (!list.length) return [];
 
     const ids = list.map((s: any) => s.id);
-    const { data: deps } = await context.supabase
+    const { data: depsData } = await context.supabase
       .from("service_dependencies" as any)
       .select("service_id, depends_on_system, depends_on_service_id, consumer_site_id, relation_type")
       .in("service_id", ids);
+    const deps = (depsData ?? []) as Array<{
+      service_id: string;
+      depends_on_system: string | null;
+      depends_on_service_id: string | null;
+      consumer_site_id: string | null;
+      relation_type: string;
+    }>;
 
     const depsByService = new Map<string, Set<string>>();
     const consumersByService = new Map<string, Set<string>>();
-    for (const d of deps ?? []) {
+    for (const d of deps) {
       if (d.relation_type === "consumes" && d.consumer_site_id) {
         const s = consumersByService.get(d.service_id) ?? new Set<string>();
         s.add(d.consumer_site_id);
@@ -49,6 +56,7 @@ export const listServices = createServerFn({ method: "GET" })
         depsByService.set(d.service_id, s);
       }
     }
+
 
     return list.map((s: any) => ({
       ...s,
