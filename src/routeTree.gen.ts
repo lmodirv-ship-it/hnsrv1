@@ -16,6 +16,7 @@ import { Route as AuthenticatedSystemFlowRouteImport } from './routes/_authentic
 import { Route as AuthenticatedSubtasksRouteImport } from './routes/_authenticated.subtasks'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated.settings'
 import { Route as AuthenticatedServicesRouteImport } from './routes/_authenticated.services'
+import { Route as AuthenticatedSchemaMirrorsRouteImport } from './routes/_authenticated.schema-mirrors'
 import { Route as AuthenticatedRoutingDecisionsRouteImport } from './routes/_authenticated.routing-decisions'
 import { Route as AuthenticatedRequestsEngineRouteImport } from './routes/_authenticated.requests-engine'
 import { Route as AuthenticatedRegistryRouteImport } from './routes/_authenticated.registry'
@@ -76,6 +77,12 @@ const AuthenticatedServicesRoute = AuthenticatedServicesRouteImport.update({
   path: '/services',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedSchemaMirrorsRoute =
+  AuthenticatedSchemaMirrorsRouteImport.update({
+    id: '/schema-mirrors',
+    path: '/schema-mirrors',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedRoutingDecisionsRoute =
   AuthenticatedRoutingDecisionsRouteImport.update({
     id: '/routing-decisions',
@@ -230,6 +237,7 @@ export interface FileRoutesByFullPath {
   '/registry': typeof AuthenticatedRegistryRoute
   '/requests-engine': typeof AuthenticatedRequestsEngineRoute
   '/routing-decisions': typeof AuthenticatedRoutingDecisionsRoute
+  '/schema-mirrors': typeof AuthenticatedSchemaMirrorsRoute
   '/services': typeof AuthenticatedServicesRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/subtasks': typeof AuthenticatedSubtasksRoute
@@ -263,6 +271,7 @@ export interface FileRoutesByTo {
   '/registry': typeof AuthenticatedRegistryRoute
   '/requests-engine': typeof AuthenticatedRequestsEngineRoute
   '/routing-decisions': typeof AuthenticatedRoutingDecisionsRoute
+  '/schema-mirrors': typeof AuthenticatedSchemaMirrorsRoute
   '/services': typeof AuthenticatedServicesRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/subtasks': typeof AuthenticatedSubtasksRoute
@@ -298,6 +307,7 @@ export interface FileRoutesById {
   '/_authenticated/registry': typeof AuthenticatedRegistryRoute
   '/_authenticated/requests-engine': typeof AuthenticatedRequestsEngineRoute
   '/_authenticated/routing-decisions': typeof AuthenticatedRoutingDecisionsRoute
+  '/_authenticated/schema-mirrors': typeof AuthenticatedSchemaMirrorsRoute
   '/_authenticated/services': typeof AuthenticatedServicesRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/subtasks': typeof AuthenticatedSubtasksRoute
@@ -333,6 +343,7 @@ export interface FileRouteTypes {
     | '/registry'
     | '/requests-engine'
     | '/routing-decisions'
+    | '/schema-mirrors'
     | '/services'
     | '/settings'
     | '/subtasks'
@@ -366,6 +377,7 @@ export interface FileRouteTypes {
     | '/registry'
     | '/requests-engine'
     | '/routing-decisions'
+    | '/schema-mirrors'
     | '/services'
     | '/settings'
     | '/subtasks'
@@ -400,6 +412,7 @@ export interface FileRouteTypes {
     | '/_authenticated/registry'
     | '/_authenticated/requests-engine'
     | '/_authenticated/routing-decisions'
+    | '/_authenticated/schema-mirrors'
     | '/_authenticated/services'
     | '/_authenticated/settings'
     | '/_authenticated/subtasks'
@@ -476,6 +489,13 @@ declare module '@tanstack/react-router' {
       path: '/services'
       fullPath: '/services'
       preLoaderRoute: typeof AuthenticatedServicesRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/schema-mirrors': {
+      id: '/_authenticated/schema-mirrors'
+      path: '/schema-mirrors'
+      fullPath: '/schema-mirrors'
+      preLoaderRoute: typeof AuthenticatedSchemaMirrorsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/routing-decisions': {
@@ -672,6 +692,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedRegistryRoute: typeof AuthenticatedRegistryRoute
   AuthenticatedRequestsEngineRoute: typeof AuthenticatedRequestsEngineRoute
   AuthenticatedRoutingDecisionsRoute: typeof AuthenticatedRoutingDecisionsRoute
+  AuthenticatedSchemaMirrorsRoute: typeof AuthenticatedSchemaMirrorsRoute
   AuthenticatedServicesRoute: typeof AuthenticatedServicesRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedSubtasksRoute: typeof AuthenticatedSubtasksRoute
@@ -698,6 +719,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedRegistryRoute: AuthenticatedRegistryRoute,
   AuthenticatedRequestsEngineRoute: AuthenticatedRequestsEngineRoute,
   AuthenticatedRoutingDecisionsRoute: AuthenticatedRoutingDecisionsRoute,
+  AuthenticatedSchemaMirrorsRoute: AuthenticatedSchemaMirrorsRoute,
   AuthenticatedServicesRoute: AuthenticatedServicesRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedSubtasksRoute: AuthenticatedSubtasksRoute,
