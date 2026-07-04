@@ -62,6 +62,7 @@ export function jsonResponse(status: number, body: unknown) {
   });
 }
 
+// External developer / third-party API key auth (Authorization: Bearer <prefix>.<secret>)
 export async function authenticateKey(request: Request) {
   const auth = request.headers.get("authorization") ?? "";
   const token = auth.replace(/^Bearer\s+/i, "").trim();
@@ -85,7 +86,9 @@ export async function authenticateKey(request: Request) {
         key: {
           id: k.id,
           client_id: k.client_id,
+          auth_mode: "external",
           client: (k as any).api_clients ?? null,
+          connector: null,
         } as AuthedKey,
       };
     }
@@ -93,7 +96,70 @@ export async function authenticateKey(request: Request) {
   return { error: "Invalid API key" as const };
 }
 
+// Internal HN network auth. Trust-based: TVCC + HN Core have registered the
+// site's connector. Headers:
+//   X-Hn-Site-Id: <site slug or id>
+//   X-Hn-Internal-Token: <prefix>.<secret>   (issued by Hub for that site)
+export async function authenticateInternal(request: Request) {
+  const siteRef = (request.headers.get("x-hn-site-id") ?? "").trim();
+  const token = (request.headers.get("x-hn-internal-token") ?? "").trim();
+  if (!siteRef || !token || !token.includes(".")) {
+    return { error: "Missing internal credentials" as const };
+  }
+  const [prefix, secret] = token.split(".");
+  if (!prefix || !secret) return { error: "Malformed internal token" as const };
+
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data: conns, error } = await supabaseAdmin
+    .from("internal_connectors")
+    .select("id, site_id, token_hash, trust_level, connector_status, allowed_internal_services, sites(slug, name, network_type)")
+    .eq("token_prefix", prefix)
+    .limit(5);
+  if (error) return { error: error.message };
+
+  for (const c of conns ?? []) {
+    if ((c as any).connector_status !== "active") continue;
+    const site = (c as any).sites;
+    if (!site || site.network_type !== "internal") continue;
+    // Allow matching by slug OR uuid
+    if (siteRef !== site.slug && siteRef !== (c as any).site_id) continue;
+    if (await bcrypt.compare(secret, (c as any).token_hash)) {
+      return {
+        key: {
+          id: c.id,
+          client_id: null,
+          auth_mode: "internal",
+          client: null,
+          connector: {
+            site_id: (c as any).site_id,
+            site_slug: site.slug,
+            site_name: site.name,
+            trust_level: (c as any).trust_level,
+            allowed_internal_services: Array.isArray((c as any).allowed_internal_services)
+              ? (c as any).allowed_internal_services as string[]
+              : [],
+          },
+        } as AuthedKey,
+      };
+    }
+  }
+  return { error: "Invalid internal token" as const };
+}
+
+// Unified entry: prefers internal (trusted network) headers, falls back to
+// external Bearer API key. Returns the same shape as authenticateKey.
+export async function authenticate(request: Request) {
+  if (request.headers.get("x-hn-internal-token")) {
+    const r = await authenticateInternal(request);
+    if ("key" in r) return r;
+    return r;
+  }
+  return authenticateKey(request);
+}
+
 export async function checkRateLimit(key: AuthedKey) {
+  // Internal HN sites are trusted — no rate limit applied at Hub level.
+  if (key.auth_mode === "internal") return { ok: true as const, limit: Infinity };
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const oneMinAgo = new Date(Date.now() - 60_000).toISOString();
   const { count } = await supabaseAdmin
