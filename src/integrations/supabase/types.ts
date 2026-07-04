@@ -243,6 +243,162 @@ export type Database = {
           },
         ]
       }
+      pipeline_subtasks: {
+        Row: {
+          assigned_provider_site: string | null
+          assigned_service_id: string | null
+          attempts: number
+          created_at: string
+          error: string | null
+          finished_at: string | null
+          id: string
+          input_payload: Json | null
+          intent: string | null
+          kind: string
+          latency_ms: number | null
+          output_payload: Json | null
+          pipeline_id: string
+          started_at: string | null
+          status: string
+          status_code: number | null
+          task_order: number
+          updated_at: string
+        }
+        Insert: {
+          assigned_provider_site?: string | null
+          assigned_service_id?: string | null
+          attempts?: number
+          created_at?: string
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          input_payload?: Json | null
+          intent?: string | null
+          kind: string
+          latency_ms?: number | null
+          output_payload?: Json | null
+          pipeline_id: string
+          started_at?: string | null
+          status?: string
+          status_code?: number | null
+          task_order?: number
+          updated_at?: string
+        }
+        Update: {
+          assigned_provider_site?: string | null
+          assigned_service_id?: string | null
+          attempts?: number
+          created_at?: string
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          input_payload?: Json | null
+          intent?: string | null
+          kind?: string
+          latency_ms?: number | null
+          output_payload?: Json | null
+          pipeline_id?: string
+          started_at?: string | null
+          status?: string
+          status_code?: number | null
+          task_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pipeline_subtasks_assigned_service_id_fkey"
+            columns: ["assigned_service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pipeline_subtasks_pipeline_id_fkey"
+            columns: ["pipeline_id"]
+            isOneToOne: false
+            referencedRelation: "pipelines"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pipelines: {
+        Row: {
+          api_key_id: string | null
+          client_id: string | null
+          created_at: string
+          error: string | null
+          final_package: Json | null
+          finished_at: string | null
+          id: string
+          input_payload: Json | null
+          intent: string
+          latency_ms: number | null
+          owner_id: string | null
+          prompt: string | null
+          requester_site: string | null
+          started_at: string | null
+          status: string
+          subtasks_done: number
+          subtasks_total: number
+          updated_at: string
+        }
+        Insert: {
+          api_key_id?: string | null
+          client_id?: string | null
+          created_at?: string
+          error?: string | null
+          final_package?: Json | null
+          finished_at?: string | null
+          id?: string
+          input_payload?: Json | null
+          intent: string
+          latency_ms?: number | null
+          owner_id?: string | null
+          prompt?: string | null
+          requester_site?: string | null
+          started_at?: string | null
+          status?: string
+          subtasks_done?: number
+          subtasks_total?: number
+          updated_at?: string
+        }
+        Update: {
+          api_key_id?: string | null
+          client_id?: string | null
+          created_at?: string
+          error?: string | null
+          final_package?: Json | null
+          finished_at?: string | null
+          id?: string
+          input_payload?: Json | null
+          intent?: string
+          latency_ms?: number | null
+          owner_id?: string | null
+          prompt?: string | null
+          requester_site?: string | null
+          started_at?: string | null
+          status?: string
+          subtasks_done?: number
+          subtasks_total?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pipelines_api_key_id_fkey"
+            columns: ["api_key_id"]
+            isOneToOne: false
+            referencedRelation: "api_keys"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pipelines_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "api_clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
