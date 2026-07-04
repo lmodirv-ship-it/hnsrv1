@@ -7,10 +7,13 @@ export type EngineStage =
   | "collect"
   | "build";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Json = any;
+
 export type AnalyzerResult = {
   language: string;
   intent: string; // canonical intent slug (e.g. "build_website", "generate_logo")
-  entities: Record<string, unknown>;
+  entities: Record<string, Json>;
   domain?: string; // e.g. restaurant, ecommerce, blog
   summary: string;
 };
