@@ -70,18 +70,33 @@ function ApiConsolePage() {
           <KeyRound className="h-6 w-6 text-primary" />
           <h1 className="text-2xl font-bold">{t("apiConsole")}</h1>
         </div>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild><Button><Plus className="h-4 w-4" />{t("createClient")}</Button></DialogTrigger>
-          <DialogContent>
-            <DialogHeader><DialogTitle>{t("createClient")}</DialogTitle></DialogHeader>
-            <div className="space-y-3">
-              <div><Label>{t("name")}</Label><Input value={name} onChange={(e) => setName(e.target.value)} /></div>
-              <div><Label>{t("rateLimitPerMin")}</Label><Input type="number" value={rate} onChange={(e) => setRate(Number(e.target.value))} /></div>
-              <Button className="w-full" onClick={() => createMut.mutate()} disabled={!name || createMut.isPending}>{t("save")}</Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+        <div className="flex items-center gap-2">
+          <GenerateButton
+            label="توليد: عميل + مفتاح API"
+            pendingLabel="جاري التوليد…"
+            onGenerate={async () => {
+              const stamp = new Date().toISOString().slice(0, 19).replace("T", " ");
+              const created = await create({ data: { name: `Client ${stamp}`, description: null, rate_limit_per_min: 60, allowed_services: [] } });
+              const key = await issue({ data: { client_id: (created as any).id } });
+              return key;
+            }}
+            onDone={(r: any) => { setNewKey(r.key); qc.invalidateQueries({ queryKey: ["api-clients"] }); }}
+            successMessage={() => "تم إنشاء عميل جديد ومفتاح API"}
+          />
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild><Button variant="outline"><Plus className="h-4 w-4" />{t("createClient")}</Button></DialogTrigger>
+            <DialogContent>
+              <DialogHeader><DialogTitle>{t("createClient")}</DialogTitle></DialogHeader>
+              <div className="space-y-3">
+                <div><Label>{t("name")}</Label><Input value={name} onChange={(e) => setName(e.target.value)} /></div>
+                <div><Label>{t("rateLimitPerMin")}</Label><Input type="number" value={rate} onChange={(e) => setRate(Number(e.target.value))} /></div>
+                <Button className="w-full" onClick={() => createMut.mutate()} disabled={!name || createMut.isPending}>{t("save")}</Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
+
 
       <Card className="p-4 bg-primary/5 border-primary/30">
         <div className="text-sm">
