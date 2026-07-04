@@ -390,5 +390,27 @@ export const saveDiscoveredServices = createServerFn({ method: "POST" })
       .upsert(rows, { onConflict: "site_id,slug", ignoreDuplicates: false })
       .select();
     if (error) throw new Error(error.message);
+
+    // Auto-write service_dependencies from the job's detected systems
+    const { data: job } = await context.supabase
+      .from("discovery_jobs").select("result").eq("id", data.job_id).single();
+    const jobResult = (job?.result ?? {}) as { systems?: string[] };
+    const systems = Array.isArray(jobResult.systems) ? jobResult.systems : [];
+    if (inserted && inserted.length && systems.length) {
+      const depRows = inserted.flatMap((svc: any) =>
+        systems.map((sys) => ({
+          service_id: svc.id,
+          depends_on_system: sys,
+          relation_type: "depends_on",
+          confidence: 70,
+          source: "auto",
+        }))
+      );
+      await context.supabase
+        .from("service_dependencies" as any)
+        .upsert(depRows, { onConflict: "service_id,depends_on_service_id,depends_on_system,consumer_site_id,relation_type", ignoreDuplicates: true });
+    }
+
     return { inserted: inserted?.length ?? 0, site_id: siteId };
   });
+
