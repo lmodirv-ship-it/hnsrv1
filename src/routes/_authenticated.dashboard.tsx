@@ -550,7 +550,7 @@ function DashboardPage() {
           <Link to="/services" className="text-xs text-cyan-300 hover:text-cyan-200">{t("viewAll")}</Link>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-          {ECOSYSTEM_NODES.slice(0, 12).map((n) => (
+          {QUICK_SERVICES.map((n) => (
             <Link
               key={n.key}
               to="/sites"
