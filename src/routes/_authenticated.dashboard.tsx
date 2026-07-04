@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { dashboardStats, checkAllHealth } from "@/lib/monitoring.functions";
+import { dashboardStats, checkAllHealth, ecosystemMap } from "@/lib/monitoring.functions";
 import { analyzeAllSites } from "@/lib/discovery.functions";
 import { useLanguage } from "@/i18n/LanguageProvider";
 import { Button } from "@/components/ui/button";
