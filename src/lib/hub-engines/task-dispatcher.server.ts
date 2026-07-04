@@ -12,6 +12,7 @@ import type {
 import { topologicalOrder } from "./task-planner.server";
 import {
   listRegistry,
+  loadActiveRouterRules,
   pickBestProvider,
   type RegistryEntry,
 } from "./capability-registry.server";
