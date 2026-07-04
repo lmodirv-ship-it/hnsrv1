@@ -167,19 +167,17 @@ export const syncSchemaMirror = createServerFn({ method: "POST" })
       lastError = e instanceof Error ? e.message : String(e);
     }
 
-    const update: Record<string, unknown> = {
-      tables_count: MIRRORED_TABLES.length,
-      payload_hash: payloadHash,
-      last_attempt_at: attemptedAt,
-      status,
-      last_error: lastError,
-      tables_snapshot: payload,
-    };
-    if (status === "success") update.last_sync_at = attemptedAt;
-
     const { error: uErr } = await context.supabase
       .from("external_schema_mirrors")
-      .update(update)
+      .update({
+        tables_count: MIRRORED_TABLES.length,
+        payload_hash: payloadHash,
+        last_attempt_at: attemptedAt,
+        status,
+        last_error: lastError,
+        tables_snapshot: payload,
+        ...(status === "success" ? { last_sync_at: attemptedAt } : {}),
+      })
       .eq("id", mirror.id);
     if (uErr) throw new Error(uErr.message);
 
