@@ -146,6 +146,8 @@ function SettingsPage() {
         </div>
       </Card>
 
+      <OwnerPanel />
+
       <OrganizationSettings />
 
       <div>
