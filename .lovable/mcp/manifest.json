@@ -1,0 +1,102 @@
+{
+  "version": 1,
+  "sdk_version": "0.28.0",
+  "path": "/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://vuhqkpnzlufxncpchkvh.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "hn-srv",
+      "version": "0.1.0",
+      "title": "HN srv"
+    },
+    "tools": [
+      {
+        "name": "list_sites",
+        "title": "List sites",
+        "description": "List HN network sites visible to the signed-in user.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "limit": {
+              "default": 100,
+              "description": "Max sites to return.",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_services",
+        "title": "List services",
+        "description": "List services registered in the HN mesh, optionally filtered by site.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "site_slug": {
+              "description": "Filter services by site slug.",
+              "type": "string"
+            },
+            "limit": {
+              "default": 100,
+              "description": "Max services to return.",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_agents",
+        "title": "List agents",
+        "description": "List HN agents (one per site × service) with their status and run counts.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "active_only": {
+              "default": false,
+              "description": "Only return active agents.",
+              "type": "boolean"
+            },
+            "limit": {
+              "default": 100,
+              "description": "Max agents to return.",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500
+            }
+          }
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
