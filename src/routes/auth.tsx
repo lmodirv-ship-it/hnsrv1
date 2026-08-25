@@ -10,8 +10,16 @@ import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Brain, Loader2 } from "lucide-react";
 
+// Only same-origin relative paths are valid post-auth redirect targets.
+function safeNext(v: unknown): string | undefined {
+  return typeof v === "string" && v.startsWith("/") && !v.startsWith("//") ? v : undefined;
+}
+
 export const Route = createFileRoute("/auth")({
   ssr: false,
+  validateSearch: (s: Record<string, unknown>) => ({
+    next: safeNext(s.next),
+  }),
   head: () => ({
     meta: [
       { title: "Sign in — HN Service Hub" },
@@ -35,17 +43,25 @@ export const Route = createFileRoute("/auth")({
 function AuthPage() {
   const { t, lang, setLang } = useLanguage();
   const navigate = useNavigate();
+  const { next } = Route.useSearch();
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Consume the preserved redirect (e.g. the OAuth consent URL) after auth.
+  const goNext = () => {
+    if (next) window.location.href = next;
+    else navigate({ to: "/dashboard" });
+  };
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/dashboard" });
+      if (data.session) goNext();
     });
-  }, [navigate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [navigate, next]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,7 +72,7 @@ function AuthPage() {
           email,
           password,
           options: {
-            emailRedirectTo: window.location.origin,
+            emailRedirectTo: next ? `${window.location.origin}${next}` : window.location.origin,
             data: { display_name: name || email.split("@")[0] },
           },
         });
@@ -65,7 +81,7 @@ function AuthPage() {
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        navigate({ to: "/dashboard" });
+        goNext();
       }
     } catch (err: any) {
       const msg = err?.message ?? "";
@@ -81,11 +97,11 @@ function AuthPage() {
     setLoading(true);
     try {
       const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: window.location.origin,
+        redirect_uri: next ? `${window.location.origin}${next}` : window.location.origin,
       });
       if (result.error) throw result.error;
       if (result.redirected) return;
-      navigate({ to: "/dashboard" });
+      goNext();
     } catch (err: any) {
       toast.error(err?.message ?? t("somethingWentWrong"));
       setLoading(false);
