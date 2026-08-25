@@ -10,8 +10,16 @@ import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Brain, Loader2 } from "lucide-react";
 
+// Only same-origin relative paths are valid post-auth redirect targets.
+function safeNext(v: unknown): string | undefined {
+  return typeof v === "string" && v.startsWith("/") && !v.startsWith("//") ? v : undefined;
+}
+
 export const Route = createFileRoute("/auth")({
   ssr: false,
+  validateSearch: (s: Record<string, unknown>) => ({
+    next: safeNext(s.next),
+  }),
   head: () => ({
     meta: [
       { title: "Sign in — HN Service Hub" },
