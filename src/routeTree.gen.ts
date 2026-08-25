@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as McpRouteImport } from './routes/mcp'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
@@ -35,10 +36,14 @@ import { Route as AuthenticatedBillingRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedApiConsoleRouteImport } from './routes/_authenticated.api-console'
 import { Route as AuthenticatedAgentsRouteImport } from './routes/_authenticated.agents'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated.admin-users'
+import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
+import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as AuthenticatedSitesIndexRouteImport } from './routes/_authenticated.sites.index'
 import { Route as AuthenticatedPipelinesIndexRouteImport } from './routes/_authenticated.pipelines.index'
 import { Route as AuthenticatedSitesSlugRouteImport } from './routes/_authenticated.sites.$slug'
 import { Route as AuthenticatedPipelinesIdRouteImport } from './routes/_authenticated.pipelines.$id'
+import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
+import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as ApiPublicV1VerifyDomainRouteImport } from './routes/api/public/v1/verify-domain'
 import { Route as ApiPublicV1PipelineRouteImport } from './routes/api/public/v1/pipeline'
 import { Route as ApiPublicV1OrchestrateRouteImport } from './routes/api/public/v1/orchestrate'
@@ -47,6 +52,11 @@ import { Route as ApiPublicV1AskRouteImport } from './routes/api/public/v1/ask'
 import { Route as ApiPublicV1OrchestrateIdRouteImport } from './routes/api/public/v1/orchestrate.$id'
 import { Route as ApiPublicV1DiscoveryRefreshRouteImport } from './routes/api/public/v1/discovery.refresh'
 
+const McpRoute = McpRouteImport.update({
+  id: '/mcp',
+  path: '/mcp',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
@@ -184,6 +194,18 @@ const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
   path: '/admin-users',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const Char91DotwellKnownChar93OauthProtectedResourceRoute =
+  Char91DotwellKnownChar93OauthProtectedResourceRouteImport.update({
+    id: '/.well-known/oauth-protected-resource',
+    path: '/.well-known/oauth-protected-resource',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const Char91DotmcpChar93ListToolsRoute =
+  Char91DotmcpChar93ListToolsRouteImport.update({
+    id: '/.mcp/list-tools',
+    path: '/.mcp/list-tools',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedSitesIndexRoute = AuthenticatedSitesIndexRouteImport.update({
   id: '/sites/',
   path: '/sites/',
@@ -206,6 +228,17 @@ const AuthenticatedPipelinesIdRoute =
     path: '/pipelines/$id',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const Char91DotmcpChar93InvokeToolToolRoute =
+  Char91DotmcpChar93InvokeToolToolRouteImport.update({
+    id: '/.mcp/invoke-tool/$tool',
+    path: '/.mcp/invoke-tool/$tool',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
+  id: '/.lovable/oauth/consent',
+  path: '/.lovable/oauth/consent',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicV1VerifyDomainRoute = ApiPublicV1VerifyDomainRouteImport.update({
   id: '/api/public/v1/verify-domain',
   path: '/api/public/v1/verify-domain',
@@ -247,6 +280,9 @@ const ApiPublicV1DiscoveryRefreshRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/mcp': typeof McpRoute
+  '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin-users': typeof AuthenticatedAdminUsersRoute
   '/agents': typeof AuthenticatedAgentsRoute
   '/api-console': typeof AuthenticatedApiConsoleRoute
@@ -270,6 +306,8 @@ export interface FileRoutesByFullPath {
   '/settings': typeof AuthenticatedSettingsRoute
   '/subtasks': typeof AuthenticatedSubtasksRoute
   '/system-flow': typeof AuthenticatedSystemFlowRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
+  '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/pipelines/$id': typeof AuthenticatedPipelinesIdRoute
   '/sites/$slug': typeof AuthenticatedSitesSlugRoute
   '/pipelines/': typeof AuthenticatedPipelinesIndexRoute
@@ -285,6 +323,9 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/mcp': typeof McpRoute
+  '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin-users': typeof AuthenticatedAdminUsersRoute
   '/agents': typeof AuthenticatedAgentsRoute
   '/api-console': typeof AuthenticatedApiConsoleRoute
@@ -308,6 +349,8 @@ export interface FileRoutesByTo {
   '/settings': typeof AuthenticatedSettingsRoute
   '/subtasks': typeof AuthenticatedSubtasksRoute
   '/system-flow': typeof AuthenticatedSystemFlowRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
+  '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/pipelines/$id': typeof AuthenticatedPipelinesIdRoute
   '/sites/$slug': typeof AuthenticatedSitesSlugRoute
   '/pipelines': typeof AuthenticatedPipelinesIndexRoute
@@ -325,6 +368,9 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/auth': typeof AuthRoute
+  '/mcp': typeof McpRoute
+  '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/_authenticated/admin-users': typeof AuthenticatedAdminUsersRoute
   '/_authenticated/agents': typeof AuthenticatedAgentsRoute
   '/_authenticated/api-console': typeof AuthenticatedApiConsoleRoute
@@ -348,6 +394,8 @@ export interface FileRoutesById {
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/subtasks': typeof AuthenticatedSubtasksRoute
   '/_authenticated/system-flow': typeof AuthenticatedSystemFlowRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
+  '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/_authenticated/pipelines/$id': typeof AuthenticatedPipelinesIdRoute
   '/_authenticated/sites/$slug': typeof AuthenticatedSitesSlugRoute
   '/_authenticated/pipelines/': typeof AuthenticatedPipelinesIndexRoute
@@ -365,6 +413,9 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/mcp'
+    | '/.mcp/list-tools'
+    | '/.well-known/oauth-protected-resource'
     | '/admin-users'
     | '/agents'
     | '/api-console'
@@ -388,6 +439,8 @@ export interface FileRouteTypes {
     | '/settings'
     | '/subtasks'
     | '/system-flow'
+    | '/.lovable/oauth/consent'
+    | '/.mcp/invoke-tool/$tool'
     | '/pipelines/$id'
     | '/sites/$slug'
     | '/pipelines/'
@@ -403,6 +456,9 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/mcp'
+    | '/.mcp/list-tools'
+    | '/.well-known/oauth-protected-resource'
     | '/admin-users'
     | '/agents'
     | '/api-console'
@@ -426,6 +482,8 @@ export interface FileRouteTypes {
     | '/settings'
     | '/subtasks'
     | '/system-flow'
+    | '/.lovable/oauth/consent'
+    | '/.mcp/invoke-tool/$tool'
     | '/pipelines/$id'
     | '/sites/$slug'
     | '/pipelines'
@@ -442,6 +500,9 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/mcp'
+    | '/.mcp/list-tools'
+    | '/.well-known/oauth-protected-resource'
     | '/_authenticated/admin-users'
     | '/_authenticated/agents'
     | '/_authenticated/api-console'
@@ -465,6 +526,8 @@ export interface FileRouteTypes {
     | '/_authenticated/settings'
     | '/_authenticated/subtasks'
     | '/_authenticated/system-flow'
+    | '/.lovable/oauth/consent'
+    | '/.mcp/invoke-tool/$tool'
     | '/_authenticated/pipelines/$id'
     | '/_authenticated/sites/$slug'
     | '/_authenticated/pipelines/'
@@ -482,6 +545,11 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   AuthRoute: typeof AuthRoute
+  McpRoute: typeof McpRoute
+  Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
+  Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
+  Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
   ApiPublicV1AskRoute: typeof ApiPublicV1AskRoute
   ApiPublicV1ExecuteRoute: typeof ApiPublicV1ExecuteRoute
   ApiPublicV1OrchestrateRoute: typeof ApiPublicV1OrchestrateRouteWithChildren
@@ -492,6 +560,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/mcp': {
+      id: '/mcp'
+      path: '/mcp'
+      fullPath: '/mcp'
+      preLoaderRoute: typeof McpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -674,6 +749,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminUsersRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/.well-known/oauth-protected-resource': {
+      id: '/.well-known/oauth-protected-resource'
+      path: '/.well-known/oauth-protected-resource'
+      fullPath: '/.well-known/oauth-protected-resource'
+      preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.mcp/list-tools': {
+      id: '/.mcp/list-tools'
+      path: '/.mcp/list-tools'
+      fullPath: '/.mcp/list-tools'
+      preLoaderRoute: typeof Char91DotmcpChar93ListToolsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/sites/': {
       id: '/_authenticated/sites/'
       path: '/sites'
@@ -701,6 +790,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/pipelines/$id'
       preLoaderRoute: typeof AuthenticatedPipelinesIdRouteImport
       parentRoute: typeof AuthenticatedRoute
+    }
+    '/.mcp/invoke-tool/$tool': {
+      id: '/.mcp/invoke-tool/$tool'
+      path: '/.mcp/invoke-tool/$tool'
+      fullPath: '/.mcp/invoke-tool/$tool'
+      preLoaderRoute: typeof Char91DotmcpChar93InvokeToolToolRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.lovable/oauth/consent': {
+      id: '/.lovable/oauth/consent'
+      path: '/.lovable/oauth/consent'
+      fullPath: '/.lovable/oauth/consent'
+      preLoaderRoute: typeof DotlovableOauthConsentRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/public/v1/verify-domain': {
       id: '/api/public/v1/verify-domain'
@@ -836,6 +939,12 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   AuthRoute: AuthRoute,
+  McpRoute: McpRoute,
+  Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
+  Char91DotwellKnownChar93OauthProtectedResourceRoute:
+    Char91DotwellKnownChar93OauthProtectedResourceRoute,
+  DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
+  Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
   ApiPublicV1AskRoute: ApiPublicV1AskRoute,
   ApiPublicV1ExecuteRoute: ApiPublicV1ExecuteRoute,
   ApiPublicV1OrchestrateRoute: ApiPublicV1OrchestrateRouteWithChildren,
