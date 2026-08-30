@@ -99,7 +99,7 @@ function IdentitiesPage() {
   };
 
   const embedFor = (code: string) =>
-    `<div data-hn-id="${code}"></div>\n<script src="${HUB}/api/public/v1/identity.embed.js" defer></script>`;
+    `<div data-hn-id="${code}"></div>\n<script src="${HUB}/api/public/v1/identity/embed.js" defer></script>`;
 
   return (
     <div dir="rtl" className="mx-auto max-w-6xl space-y-6 p-6">
@@ -301,7 +301,7 @@ function IdentitiesPage() {
           POST {HUB}/api/public/v1/identity/announce
         </p>
         <p dir="ltr" className="font-mono text-xs">
-          GET {HUB}/api/public/v1/identity.embed.js
+          GET {HUB}/api/public/v1/identity/embed.js
         </p>
       </Card>
     </div>
