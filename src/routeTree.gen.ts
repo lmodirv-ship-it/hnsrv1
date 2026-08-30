@@ -52,6 +52,7 @@ import { Route as ApiPublicV1ExecuteRouteImport } from './routes/api/public/v1/e
 import { Route as ApiPublicV1CatalogRouteImport } from './routes/api/public/v1/catalog'
 import { Route as ApiPublicV1AskRouteImport } from './routes/api/public/v1/ask'
 import { Route as ApiPublicV1OrchestrateIdRouteImport } from './routes/api/public/v1/orchestrate.$id'
+import { Route as ApiPublicV1IdentityAnnounceRouteImport } from './routes/api/public/v1/identity.announce'
 import { Route as ApiPublicV1DiscoveryRefreshRouteImport } from './routes/api/public/v1/discovery.refresh'
 
 const McpRoute = McpRouteImport.update({
@@ -282,6 +283,12 @@ const ApiPublicV1OrchestrateIdRoute =
     path: '/$id',
     getParentRoute: () => ApiPublicV1OrchestrateRoute,
   } as any)
+const ApiPublicV1IdentityAnnounceRoute =
+  ApiPublicV1IdentityAnnounceRouteImport.update({
+    id: '/api/public/v1/identity/announce',
+    path: '/api/public/v1/identity/announce',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicV1DiscoveryRefreshRoute =
   ApiPublicV1DiscoveryRefreshRouteImport.update({
     id: '/api/public/v1/discovery/refresh',
@@ -332,6 +339,7 @@ export interface FileRoutesByFullPath {
   '/api/public/v1/pipeline': typeof ApiPublicV1PipelineRoute
   '/api/public/v1/verify-domain': typeof ApiPublicV1VerifyDomainRoute
   '/api/public/v1/discovery/refresh': typeof ApiPublicV1DiscoveryRefreshRoute
+  '/api/public/v1/identity/announce': typeof ApiPublicV1IdentityAnnounceRoute
   '/api/public/v1/orchestrate/$id': typeof ApiPublicV1OrchestrateIdRoute
 }
 export interface FileRoutesByTo {
@@ -377,6 +385,7 @@ export interface FileRoutesByTo {
   '/api/public/v1/pipeline': typeof ApiPublicV1PipelineRoute
   '/api/public/v1/verify-domain': typeof ApiPublicV1VerifyDomainRoute
   '/api/public/v1/discovery/refresh': typeof ApiPublicV1DiscoveryRefreshRoute
+  '/api/public/v1/identity/announce': typeof ApiPublicV1IdentityAnnounceRoute
   '/api/public/v1/orchestrate/$id': typeof ApiPublicV1OrchestrateIdRoute
 }
 export interface FileRoutesById {
@@ -424,6 +433,7 @@ export interface FileRoutesById {
   '/api/public/v1/pipeline': typeof ApiPublicV1PipelineRoute
   '/api/public/v1/verify-domain': typeof ApiPublicV1VerifyDomainRoute
   '/api/public/v1/discovery/refresh': typeof ApiPublicV1DiscoveryRefreshRoute
+  '/api/public/v1/identity/announce': typeof ApiPublicV1IdentityAnnounceRoute
   '/api/public/v1/orchestrate/$id': typeof ApiPublicV1OrchestrateIdRoute
 }
 export interface FileRouteTypes {
@@ -471,6 +481,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/pipeline'
     | '/api/public/v1/verify-domain'
     | '/api/public/v1/discovery/refresh'
+    | '/api/public/v1/identity/announce'
     | '/api/public/v1/orchestrate/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -516,6 +527,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/pipeline'
     | '/api/public/v1/verify-domain'
     | '/api/public/v1/discovery/refresh'
+    | '/api/public/v1/identity/announce'
     | '/api/public/v1/orchestrate/$id'
   id:
     | '__root__'
@@ -562,6 +574,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/pipeline'
     | '/api/public/v1/verify-domain'
     | '/api/public/v1/discovery/refresh'
+    | '/api/public/v1/identity/announce'
     | '/api/public/v1/orchestrate/$id'
   fileRoutesById: FileRoutesById
 }
@@ -582,6 +595,7 @@ export interface RootRouteChildren {
   ApiPublicV1PipelineRoute: typeof ApiPublicV1PipelineRoute
   ApiPublicV1VerifyDomainRoute: typeof ApiPublicV1VerifyDomainRoute
   ApiPublicV1DiscoveryRefreshRoute: typeof ApiPublicV1DiscoveryRefreshRoute
+  ApiPublicV1IdentityAnnounceRoute: typeof ApiPublicV1IdentityAnnounceRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -887,6 +901,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicV1OrchestrateIdRouteImport
       parentRoute: typeof ApiPublicV1OrchestrateRoute
     }
+    '/api/public/v1/identity/announce': {
+      id: '/api/public/v1/identity/announce'
+      path: '/api/public/v1/identity/announce'
+      fullPath: '/api/public/v1/identity/announce'
+      preLoaderRoute: typeof ApiPublicV1IdentityAnnounceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/v1/discovery/refresh': {
       id: '/api/public/v1/discovery/refresh'
       path: '/api/public/v1/discovery/refresh'
@@ -993,6 +1014,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicV1PipelineRoute: ApiPublicV1PipelineRoute,
   ApiPublicV1VerifyDomainRoute: ApiPublicV1VerifyDomainRoute,
   ApiPublicV1DiscoveryRefreshRoute: ApiPublicV1DiscoveryRefreshRoute,
+  ApiPublicV1IdentityAnnounceRoute: ApiPublicV1IdentityAnnounceRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
