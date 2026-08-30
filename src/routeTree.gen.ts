@@ -48,6 +48,7 @@ import { Route as ApiPublicV1VerifyDomainRouteImport } from './routes/api/public
 import { Route as ApiPublicV1PipelineRouteImport } from './routes/api/public/v1/pipeline'
 import { Route as ApiPublicV1OrchestrateRouteImport } from './routes/api/public/v1/orchestrate'
 import { Route as ApiPublicV1ExecuteRouteImport } from './routes/api/public/v1/execute'
+import { Route as ApiPublicV1CatalogRouteImport } from './routes/api/public/v1/catalog'
 import { Route as ApiPublicV1AskRouteImport } from './routes/api/public/v1/ask'
 import { Route as ApiPublicV1OrchestrateIdRouteImport } from './routes/api/public/v1/orchestrate.$id'
 import { Route as ApiPublicV1DiscoveryRefreshRouteImport } from './routes/api/public/v1/discovery.refresh'
@@ -259,6 +260,11 @@ const ApiPublicV1ExecuteRoute = ApiPublicV1ExecuteRouteImport.update({
   path: '/api/public/v1/execute',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicV1CatalogRoute = ApiPublicV1CatalogRouteImport.update({
+  id: '/api/public/v1/catalog',
+  path: '/api/public/v1/catalog',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicV1AskRoute = ApiPublicV1AskRouteImport.update({
   id: '/api/public/v1/ask',
   path: '/api/public/v1/ask',
@@ -313,6 +319,7 @@ export interface FileRoutesByFullPath {
   '/pipelines/': typeof AuthenticatedPipelinesIndexRoute
   '/sites/': typeof AuthenticatedSitesIndexRoute
   '/api/public/v1/ask': typeof ApiPublicV1AskRoute
+  '/api/public/v1/catalog': typeof ApiPublicV1CatalogRoute
   '/api/public/v1/execute': typeof ApiPublicV1ExecuteRoute
   '/api/public/v1/orchestrate': typeof ApiPublicV1OrchestrateRouteWithChildren
   '/api/public/v1/pipeline': typeof ApiPublicV1PipelineRoute
@@ -356,6 +363,7 @@ export interface FileRoutesByTo {
   '/pipelines': typeof AuthenticatedPipelinesIndexRoute
   '/sites': typeof AuthenticatedSitesIndexRoute
   '/api/public/v1/ask': typeof ApiPublicV1AskRoute
+  '/api/public/v1/catalog': typeof ApiPublicV1CatalogRoute
   '/api/public/v1/execute': typeof ApiPublicV1ExecuteRoute
   '/api/public/v1/orchestrate': typeof ApiPublicV1OrchestrateRouteWithChildren
   '/api/public/v1/pipeline': typeof ApiPublicV1PipelineRoute
@@ -401,6 +409,7 @@ export interface FileRoutesById {
   '/_authenticated/pipelines/': typeof AuthenticatedPipelinesIndexRoute
   '/_authenticated/sites/': typeof AuthenticatedSitesIndexRoute
   '/api/public/v1/ask': typeof ApiPublicV1AskRoute
+  '/api/public/v1/catalog': typeof ApiPublicV1CatalogRoute
   '/api/public/v1/execute': typeof ApiPublicV1ExecuteRoute
   '/api/public/v1/orchestrate': typeof ApiPublicV1OrchestrateRouteWithChildren
   '/api/public/v1/pipeline': typeof ApiPublicV1PipelineRoute
@@ -446,6 +455,7 @@ export interface FileRouteTypes {
     | '/pipelines/'
     | '/sites/'
     | '/api/public/v1/ask'
+    | '/api/public/v1/catalog'
     | '/api/public/v1/execute'
     | '/api/public/v1/orchestrate'
     | '/api/public/v1/pipeline'
@@ -489,6 +499,7 @@ export interface FileRouteTypes {
     | '/pipelines'
     | '/sites'
     | '/api/public/v1/ask'
+    | '/api/public/v1/catalog'
     | '/api/public/v1/execute'
     | '/api/public/v1/orchestrate'
     | '/api/public/v1/pipeline'
@@ -533,6 +544,7 @@ export interface FileRouteTypes {
     | '/_authenticated/pipelines/'
     | '/_authenticated/sites/'
     | '/api/public/v1/ask'
+    | '/api/public/v1/catalog'
     | '/api/public/v1/execute'
     | '/api/public/v1/orchestrate'
     | '/api/public/v1/pipeline'
@@ -551,6 +563,7 @@ export interface RootRouteChildren {
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
   ApiPublicV1AskRoute: typeof ApiPublicV1AskRoute
+  ApiPublicV1CatalogRoute: typeof ApiPublicV1CatalogRoute
   ApiPublicV1ExecuteRoute: typeof ApiPublicV1ExecuteRoute
   ApiPublicV1OrchestrateRoute: typeof ApiPublicV1OrchestrateRouteWithChildren
   ApiPublicV1PipelineRoute: typeof ApiPublicV1PipelineRoute
@@ -833,6 +846,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicV1ExecuteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/v1/catalog': {
+      id: '/api/public/v1/catalog'
+      path: '/api/public/v1/catalog'
+      fullPath: '/api/public/v1/catalog'
+      preLoaderRoute: typeof ApiPublicV1CatalogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/v1/ask': {
       id: '/api/public/v1/ask'
       path: '/api/public/v1/ask'
@@ -946,6 +966,7 @@ const rootRouteChildren: RootRouteChildren = {
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
   ApiPublicV1AskRoute: ApiPublicV1AskRoute,
+  ApiPublicV1CatalogRoute: ApiPublicV1CatalogRoute,
   ApiPublicV1ExecuteRoute: ApiPublicV1ExecuteRoute,
   ApiPublicV1OrchestrateRoute: ApiPublicV1OrchestrateRouteWithChildren,
   ApiPublicV1PipelineRoute: ApiPublicV1PipelineRoute,
