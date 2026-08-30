@@ -28,6 +28,7 @@ import { Route as AuthenticatedNetworkRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedMonitoringRouteImport } from './routes/_authenticated.monitoring'
 import { Route as AuthenticatedKnowledgeRouteImport } from './routes/_authenticated.knowledge'
 import { Route as AuthenticatedInternalConnectorsRouteImport } from './routes/_authenticated.internal-connectors'
+import { Route as AuthenticatedIdentitiesRouteImport } from './routes/_authenticated.identities'
 import { Route as AuthenticatedFallbackRulesRouteImport } from './routes/_authenticated.fallback-rules'
 import { Route as AuthenticatedDomainVerifyRouteImport } from './routes/_authenticated.domain-verify'
 import { Route as AuthenticatedDiscoveryRouteImport } from './routes/_authenticated.discovery'
@@ -157,6 +158,11 @@ const AuthenticatedInternalConnectorsRoute =
     path: '/internal-connectors',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedIdentitiesRoute = AuthenticatedIdentitiesRouteImport.update({
+  id: '/identities',
+  path: '/identities',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedFallbackRulesRoute =
   AuthenticatedFallbackRulesRouteImport.update({
     id: '/fallback-rules',
@@ -323,6 +329,7 @@ export interface FileRoutesByFullPath {
   '/discovery': typeof AuthenticatedDiscoveryRoute
   '/domain-verify': typeof AuthenticatedDomainVerifyRoute
   '/fallback-rules': typeof AuthenticatedFallbackRulesRoute
+  '/identities': typeof AuthenticatedIdentitiesRoute
   '/internal-connectors': typeof AuthenticatedInternalConnectorsRoute
   '/knowledge': typeof AuthenticatedKnowledgeRoute
   '/monitoring': typeof AuthenticatedMonitoringRoute
@@ -371,6 +378,7 @@ export interface FileRoutesByTo {
   '/discovery': typeof AuthenticatedDiscoveryRoute
   '/domain-verify': typeof AuthenticatedDomainVerifyRoute
   '/fallback-rules': typeof AuthenticatedFallbackRulesRoute
+  '/identities': typeof AuthenticatedIdentitiesRoute
   '/internal-connectors': typeof AuthenticatedInternalConnectorsRoute
   '/knowledge': typeof AuthenticatedKnowledgeRoute
   '/monitoring': typeof AuthenticatedMonitoringRoute
@@ -421,6 +429,7 @@ export interface FileRoutesById {
   '/_authenticated/discovery': typeof AuthenticatedDiscoveryRoute
   '/_authenticated/domain-verify': typeof AuthenticatedDomainVerifyRoute
   '/_authenticated/fallback-rules': typeof AuthenticatedFallbackRulesRoute
+  '/_authenticated/identities': typeof AuthenticatedIdentitiesRoute
   '/_authenticated/internal-connectors': typeof AuthenticatedInternalConnectorsRoute
   '/_authenticated/knowledge': typeof AuthenticatedKnowledgeRoute
   '/_authenticated/monitoring': typeof AuthenticatedMonitoringRoute
@@ -471,6 +480,7 @@ export interface FileRouteTypes {
     | '/discovery'
     | '/domain-verify'
     | '/fallback-rules'
+    | '/identities'
     | '/internal-connectors'
     | '/knowledge'
     | '/monitoring'
@@ -519,6 +529,7 @@ export interface FileRouteTypes {
     | '/discovery'
     | '/domain-verify'
     | '/fallback-rules'
+    | '/identities'
     | '/internal-connectors'
     | '/knowledge'
     | '/monitoring'
@@ -568,6 +579,7 @@ export interface FileRouteTypes {
     | '/_authenticated/discovery'
     | '/_authenticated/domain-verify'
     | '/_authenticated/fallback-rules'
+    | '/_authenticated/identities'
     | '/_authenticated/internal-connectors'
     | '/_authenticated/knowledge'
     | '/_authenticated/monitoring'
@@ -758,6 +770,13 @@ declare module '@tanstack/react-router' {
       path: '/internal-connectors'
       fullPath: '/internal-connectors'
       preLoaderRoute: typeof AuthenticatedInternalConnectorsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/identities': {
+      id: '/_authenticated/identities'
+      path: '/identities'
+      fullPath: '/identities'
+      preLoaderRoute: typeof AuthenticatedIdentitiesRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/fallback-rules': {
@@ -968,6 +987,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedDiscoveryRoute: typeof AuthenticatedDiscoveryRoute
   AuthenticatedDomainVerifyRoute: typeof AuthenticatedDomainVerifyRoute
   AuthenticatedFallbackRulesRoute: typeof AuthenticatedFallbackRulesRoute
+  AuthenticatedIdentitiesRoute: typeof AuthenticatedIdentitiesRoute
   AuthenticatedInternalConnectorsRoute: typeof AuthenticatedInternalConnectorsRoute
   AuthenticatedKnowledgeRoute: typeof AuthenticatedKnowledgeRoute
   AuthenticatedMonitoringRoute: typeof AuthenticatedMonitoringRoute
@@ -998,6 +1018,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDiscoveryRoute: AuthenticatedDiscoveryRoute,
   AuthenticatedDomainVerifyRoute: AuthenticatedDomainVerifyRoute,
   AuthenticatedFallbackRulesRoute: AuthenticatedFallbackRulesRoute,
+  AuthenticatedIdentitiesRoute: AuthenticatedIdentitiesRoute,
   AuthenticatedInternalConnectorsRoute: AuthenticatedInternalConnectorsRoute,
   AuthenticatedKnowledgeRoute: AuthenticatedKnowledgeRoute,
   AuthenticatedMonitoringRoute: AuthenticatedMonitoringRoute,
