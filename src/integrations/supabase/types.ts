@@ -306,6 +306,116 @@ export type Database = {
           },
         ]
       }
+      group_identifier_signals: {
+        Row: {
+          created_at: string
+          forwarded_to_tvcc: boolean
+          id: string
+          identifier_id: string
+          ip_hash: string | null
+          origin: string | null
+          payload: Json
+          tvcc_status: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          forwarded_to_tvcc?: boolean
+          id?: string
+          identifier_id: string
+          ip_hash?: string | null
+          origin?: string | null
+          payload?: Json
+          tvcc_status?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          forwarded_to_tvcc?: boolean
+          id?: string
+          identifier_id?: string
+          ip_hash?: string | null
+          origin?: string | null
+          payload?: Json
+          tvcc_status?: string | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_identifier_signals_identifier_id_fkey"
+            columns: ["identifier_id"]
+            isOneToOne: false
+            referencedRelation: "group_identifiers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      group_identifiers: {
+        Row: {
+          code: string
+          created_at: string
+          created_by: string | null
+          id: string
+          last_signal_at: string | null
+          last_tvcc_response: Json
+          last_tvcc_status: string | null
+          service_id: string | null
+          service_name: string
+          service_number: number
+          site_id: string | null
+          site_url: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          last_signal_at?: string | null
+          last_tvcc_response?: Json
+          last_tvcc_status?: string | null
+          service_id?: string | null
+          service_name: string
+          service_number: number
+          site_id?: string | null
+          site_url?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          last_signal_at?: string | null
+          last_tvcc_response?: Json
+          last_tvcc_status?: string | null
+          service_id?: string | null
+          service_name?: string
+          service_number?: number
+          site_id?: string | null
+          site_url?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_identifiers_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "group_identifiers_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hn_agent_runs: {
         Row: {
           agent_id: string
@@ -2140,6 +2250,13 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      next_group_identifier: {
+        Args: never
+        Returns: {
+          code: string
+          service_number: number
+        }[]
       }
     }
     Enums: {
