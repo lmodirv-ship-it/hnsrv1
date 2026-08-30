@@ -132,6 +132,7 @@ const groups: NavGroup[] = [
     url: "/api-console",
     items: [
       { key: "navInternalConnectors", url: "/internal-connectors" },
+      { key: "navGroupIdentifiers", url: "/identities" },
       { key: "navClients", url: "/api-console#clients" },
       { key: "apiKeys", url: "/api-console#keys" },
       { key: "navApiLogs", url: "/api-console#logs" },

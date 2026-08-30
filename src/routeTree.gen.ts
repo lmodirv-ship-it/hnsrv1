@@ -28,6 +28,7 @@ import { Route as AuthenticatedNetworkRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedMonitoringRouteImport } from './routes/_authenticated.monitoring'
 import { Route as AuthenticatedKnowledgeRouteImport } from './routes/_authenticated.knowledge'
 import { Route as AuthenticatedInternalConnectorsRouteImport } from './routes/_authenticated.internal-connectors'
+import { Route as AuthenticatedIdentitiesRouteImport } from './routes/_authenticated.identities'
 import { Route as AuthenticatedFallbackRulesRouteImport } from './routes/_authenticated.fallback-rules'
 import { Route as AuthenticatedDomainVerifyRouteImport } from './routes/_authenticated.domain-verify'
 import { Route as AuthenticatedDiscoveryRouteImport } from './routes/_authenticated.discovery'
@@ -52,6 +53,9 @@ import { Route as ApiPublicV1ExecuteRouteImport } from './routes/api/public/v1/e
 import { Route as ApiPublicV1CatalogRouteImport } from './routes/api/public/v1/catalog'
 import { Route as ApiPublicV1AskRouteImport } from './routes/api/public/v1/ask'
 import { Route as ApiPublicV1OrchestrateIdRouteImport } from './routes/api/public/v1/orchestrate.$id'
+import { Route as ApiPublicV1IdentityEmbedDotjsRouteImport } from './routes/api/public/v1/identity.embed[.]js'
+import { Route as ApiPublicV1IdentityAnnounceRouteImport } from './routes/api/public/v1/identity.announce'
+import { Route as ApiPublicV1IdentityCodeRouteImport } from './routes/api/public/v1/identity.$code'
 import { Route as ApiPublicV1DiscoveryRefreshRouteImport } from './routes/api/public/v1/discovery.refresh'
 
 const McpRoute = McpRouteImport.update({
@@ -154,6 +158,11 @@ const AuthenticatedInternalConnectorsRoute =
     path: '/internal-connectors',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedIdentitiesRoute = AuthenticatedIdentitiesRouteImport.update({
+  id: '/identities',
+  path: '/identities',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedFallbackRulesRoute =
   AuthenticatedFallbackRulesRouteImport.update({
     id: '/fallback-rules',
@@ -282,6 +291,23 @@ const ApiPublicV1OrchestrateIdRoute =
     path: '/$id',
     getParentRoute: () => ApiPublicV1OrchestrateRoute,
   } as any)
+const ApiPublicV1IdentityEmbedDotjsRoute =
+  ApiPublicV1IdentityEmbedDotjsRouteImport.update({
+    id: '/api/public/v1/identity/embed.js',
+    path: '/api/public/v1/identity/embed.js',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicV1IdentityAnnounceRoute =
+  ApiPublicV1IdentityAnnounceRouteImport.update({
+    id: '/api/public/v1/identity/announce',
+    path: '/api/public/v1/identity/announce',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicV1IdentityCodeRoute = ApiPublicV1IdentityCodeRouteImport.update({
+  id: '/api/public/v1/identity/$code',
+  path: '/api/public/v1/identity/$code',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicV1DiscoveryRefreshRoute =
   ApiPublicV1DiscoveryRefreshRouteImport.update({
     id: '/api/public/v1/discovery/refresh',
@@ -303,6 +329,7 @@ export interface FileRoutesByFullPath {
   '/discovery': typeof AuthenticatedDiscoveryRoute
   '/domain-verify': typeof AuthenticatedDomainVerifyRoute
   '/fallback-rules': typeof AuthenticatedFallbackRulesRoute
+  '/identities': typeof AuthenticatedIdentitiesRoute
   '/internal-connectors': typeof AuthenticatedInternalConnectorsRoute
   '/knowledge': typeof AuthenticatedKnowledgeRoute
   '/monitoring': typeof AuthenticatedMonitoringRoute
@@ -332,6 +359,9 @@ export interface FileRoutesByFullPath {
   '/api/public/v1/pipeline': typeof ApiPublicV1PipelineRoute
   '/api/public/v1/verify-domain': typeof ApiPublicV1VerifyDomainRoute
   '/api/public/v1/discovery/refresh': typeof ApiPublicV1DiscoveryRefreshRoute
+  '/api/public/v1/identity/$code': typeof ApiPublicV1IdentityCodeRoute
+  '/api/public/v1/identity/announce': typeof ApiPublicV1IdentityAnnounceRoute
+  '/api/public/v1/identity/embed.js': typeof ApiPublicV1IdentityEmbedDotjsRoute
   '/api/public/v1/orchestrate/$id': typeof ApiPublicV1OrchestrateIdRoute
 }
 export interface FileRoutesByTo {
@@ -348,6 +378,7 @@ export interface FileRoutesByTo {
   '/discovery': typeof AuthenticatedDiscoveryRoute
   '/domain-verify': typeof AuthenticatedDomainVerifyRoute
   '/fallback-rules': typeof AuthenticatedFallbackRulesRoute
+  '/identities': typeof AuthenticatedIdentitiesRoute
   '/internal-connectors': typeof AuthenticatedInternalConnectorsRoute
   '/knowledge': typeof AuthenticatedKnowledgeRoute
   '/monitoring': typeof AuthenticatedMonitoringRoute
@@ -377,6 +408,9 @@ export interface FileRoutesByTo {
   '/api/public/v1/pipeline': typeof ApiPublicV1PipelineRoute
   '/api/public/v1/verify-domain': typeof ApiPublicV1VerifyDomainRoute
   '/api/public/v1/discovery/refresh': typeof ApiPublicV1DiscoveryRefreshRoute
+  '/api/public/v1/identity/$code': typeof ApiPublicV1IdentityCodeRoute
+  '/api/public/v1/identity/announce': typeof ApiPublicV1IdentityAnnounceRoute
+  '/api/public/v1/identity/embed.js': typeof ApiPublicV1IdentityEmbedDotjsRoute
   '/api/public/v1/orchestrate/$id': typeof ApiPublicV1OrchestrateIdRoute
 }
 export interface FileRoutesById {
@@ -395,6 +429,7 @@ export interface FileRoutesById {
   '/_authenticated/discovery': typeof AuthenticatedDiscoveryRoute
   '/_authenticated/domain-verify': typeof AuthenticatedDomainVerifyRoute
   '/_authenticated/fallback-rules': typeof AuthenticatedFallbackRulesRoute
+  '/_authenticated/identities': typeof AuthenticatedIdentitiesRoute
   '/_authenticated/internal-connectors': typeof AuthenticatedInternalConnectorsRoute
   '/_authenticated/knowledge': typeof AuthenticatedKnowledgeRoute
   '/_authenticated/monitoring': typeof AuthenticatedMonitoringRoute
@@ -424,6 +459,9 @@ export interface FileRoutesById {
   '/api/public/v1/pipeline': typeof ApiPublicV1PipelineRoute
   '/api/public/v1/verify-domain': typeof ApiPublicV1VerifyDomainRoute
   '/api/public/v1/discovery/refresh': typeof ApiPublicV1DiscoveryRefreshRoute
+  '/api/public/v1/identity/$code': typeof ApiPublicV1IdentityCodeRoute
+  '/api/public/v1/identity/announce': typeof ApiPublicV1IdentityAnnounceRoute
+  '/api/public/v1/identity/embed.js': typeof ApiPublicV1IdentityEmbedDotjsRoute
   '/api/public/v1/orchestrate/$id': typeof ApiPublicV1OrchestrateIdRoute
 }
 export interface FileRouteTypes {
@@ -442,6 +480,7 @@ export interface FileRouteTypes {
     | '/discovery'
     | '/domain-verify'
     | '/fallback-rules'
+    | '/identities'
     | '/internal-connectors'
     | '/knowledge'
     | '/monitoring'
@@ -471,6 +510,9 @@ export interface FileRouteTypes {
     | '/api/public/v1/pipeline'
     | '/api/public/v1/verify-domain'
     | '/api/public/v1/discovery/refresh'
+    | '/api/public/v1/identity/$code'
+    | '/api/public/v1/identity/announce'
+    | '/api/public/v1/identity/embed.js'
     | '/api/public/v1/orchestrate/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -487,6 +529,7 @@ export interface FileRouteTypes {
     | '/discovery'
     | '/domain-verify'
     | '/fallback-rules'
+    | '/identities'
     | '/internal-connectors'
     | '/knowledge'
     | '/monitoring'
@@ -516,6 +559,9 @@ export interface FileRouteTypes {
     | '/api/public/v1/pipeline'
     | '/api/public/v1/verify-domain'
     | '/api/public/v1/discovery/refresh'
+    | '/api/public/v1/identity/$code'
+    | '/api/public/v1/identity/announce'
+    | '/api/public/v1/identity/embed.js'
     | '/api/public/v1/orchestrate/$id'
   id:
     | '__root__'
@@ -533,6 +579,7 @@ export interface FileRouteTypes {
     | '/_authenticated/discovery'
     | '/_authenticated/domain-verify'
     | '/_authenticated/fallback-rules'
+    | '/_authenticated/identities'
     | '/_authenticated/internal-connectors'
     | '/_authenticated/knowledge'
     | '/_authenticated/monitoring'
@@ -562,6 +609,9 @@ export interface FileRouteTypes {
     | '/api/public/v1/pipeline'
     | '/api/public/v1/verify-domain'
     | '/api/public/v1/discovery/refresh'
+    | '/api/public/v1/identity/$code'
+    | '/api/public/v1/identity/announce'
+    | '/api/public/v1/identity/embed.js'
     | '/api/public/v1/orchestrate/$id'
   fileRoutesById: FileRoutesById
 }
@@ -582,6 +632,9 @@ export interface RootRouteChildren {
   ApiPublicV1PipelineRoute: typeof ApiPublicV1PipelineRoute
   ApiPublicV1VerifyDomainRoute: typeof ApiPublicV1VerifyDomainRoute
   ApiPublicV1DiscoveryRefreshRoute: typeof ApiPublicV1DiscoveryRefreshRoute
+  ApiPublicV1IdentityCodeRoute: typeof ApiPublicV1IdentityCodeRoute
+  ApiPublicV1IdentityAnnounceRoute: typeof ApiPublicV1IdentityAnnounceRoute
+  ApiPublicV1IdentityEmbedDotjsRoute: typeof ApiPublicV1IdentityEmbedDotjsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -717,6 +770,13 @@ declare module '@tanstack/react-router' {
       path: '/internal-connectors'
       fullPath: '/internal-connectors'
       preLoaderRoute: typeof AuthenticatedInternalConnectorsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/identities': {
+      id: '/_authenticated/identities'
+      path: '/identities'
+      fullPath: '/identities'
+      preLoaderRoute: typeof AuthenticatedIdentitiesRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/fallback-rules': {
@@ -887,6 +947,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicV1OrchestrateIdRouteImport
       parentRoute: typeof ApiPublicV1OrchestrateRoute
     }
+    '/api/public/v1/identity/embed.js': {
+      id: '/api/public/v1/identity/embed.js'
+      path: '/api/public/v1/identity/embed.js'
+      fullPath: '/api/public/v1/identity/embed.js'
+      preLoaderRoute: typeof ApiPublicV1IdentityEmbedDotjsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/v1/identity/announce': {
+      id: '/api/public/v1/identity/announce'
+      path: '/api/public/v1/identity/announce'
+      fullPath: '/api/public/v1/identity/announce'
+      preLoaderRoute: typeof ApiPublicV1IdentityAnnounceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/v1/identity/$code': {
+      id: '/api/public/v1/identity/$code'
+      path: '/api/public/v1/identity/$code'
+      fullPath: '/api/public/v1/identity/$code'
+      preLoaderRoute: typeof ApiPublicV1IdentityCodeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/v1/discovery/refresh': {
       id: '/api/public/v1/discovery/refresh'
       path: '/api/public/v1/discovery/refresh'
@@ -906,6 +987,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedDiscoveryRoute: typeof AuthenticatedDiscoveryRoute
   AuthenticatedDomainVerifyRoute: typeof AuthenticatedDomainVerifyRoute
   AuthenticatedFallbackRulesRoute: typeof AuthenticatedFallbackRulesRoute
+  AuthenticatedIdentitiesRoute: typeof AuthenticatedIdentitiesRoute
   AuthenticatedInternalConnectorsRoute: typeof AuthenticatedInternalConnectorsRoute
   AuthenticatedKnowledgeRoute: typeof AuthenticatedKnowledgeRoute
   AuthenticatedMonitoringRoute: typeof AuthenticatedMonitoringRoute
@@ -936,6 +1018,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDiscoveryRoute: AuthenticatedDiscoveryRoute,
   AuthenticatedDomainVerifyRoute: AuthenticatedDomainVerifyRoute,
   AuthenticatedFallbackRulesRoute: AuthenticatedFallbackRulesRoute,
+  AuthenticatedIdentitiesRoute: AuthenticatedIdentitiesRoute,
   AuthenticatedInternalConnectorsRoute: AuthenticatedInternalConnectorsRoute,
   AuthenticatedKnowledgeRoute: AuthenticatedKnowledgeRoute,
   AuthenticatedMonitoringRoute: AuthenticatedMonitoringRoute,
@@ -993,6 +1076,9 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicV1PipelineRoute: ApiPublicV1PipelineRoute,
   ApiPublicV1VerifyDomainRoute: ApiPublicV1VerifyDomainRoute,
   ApiPublicV1DiscoveryRefreshRoute: ApiPublicV1DiscoveryRefreshRoute,
+  ApiPublicV1IdentityCodeRoute: ApiPublicV1IdentityCodeRoute,
+  ApiPublicV1IdentityAnnounceRoute: ApiPublicV1IdentityAnnounceRoute,
+  ApiPublicV1IdentityEmbedDotjsRoute: ApiPublicV1IdentityEmbedDotjsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
