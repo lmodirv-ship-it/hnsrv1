@@ -47,6 +47,7 @@ import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.
 import { Route as ApiPublicV1VerifyDomainRouteImport } from './routes/api/public/v1/verify-domain'
 import { Route as ApiPublicV1PipelineRouteImport } from './routes/api/public/v1/pipeline'
 import { Route as ApiPublicV1OrchestrateRouteImport } from './routes/api/public/v1/orchestrate'
+import { Route as ApiPublicV1HealthRouteImport } from './routes/api/public/v1/health'
 import { Route as ApiPublicV1ExecuteRouteImport } from './routes/api/public/v1/execute'
 import { Route as ApiPublicV1CatalogRouteImport } from './routes/api/public/v1/catalog'
 import { Route as ApiPublicV1AskRouteImport } from './routes/api/public/v1/ask'
@@ -255,6 +256,11 @@ const ApiPublicV1OrchestrateRoute = ApiPublicV1OrchestrateRouteImport.update({
   path: '/api/public/v1/orchestrate',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicV1HealthRoute = ApiPublicV1HealthRouteImport.update({
+  id: '/api/public/v1/health',
+  path: '/api/public/v1/health',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicV1ExecuteRoute = ApiPublicV1ExecuteRouteImport.update({
   id: '/api/public/v1/execute',
   path: '/api/public/v1/execute',
@@ -321,6 +327,7 @@ export interface FileRoutesByFullPath {
   '/api/public/v1/ask': typeof ApiPublicV1AskRoute
   '/api/public/v1/catalog': typeof ApiPublicV1CatalogRoute
   '/api/public/v1/execute': typeof ApiPublicV1ExecuteRoute
+  '/api/public/v1/health': typeof ApiPublicV1HealthRoute
   '/api/public/v1/orchestrate': typeof ApiPublicV1OrchestrateRouteWithChildren
   '/api/public/v1/pipeline': typeof ApiPublicV1PipelineRoute
   '/api/public/v1/verify-domain': typeof ApiPublicV1VerifyDomainRoute
@@ -365,6 +372,7 @@ export interface FileRoutesByTo {
   '/api/public/v1/ask': typeof ApiPublicV1AskRoute
   '/api/public/v1/catalog': typeof ApiPublicV1CatalogRoute
   '/api/public/v1/execute': typeof ApiPublicV1ExecuteRoute
+  '/api/public/v1/health': typeof ApiPublicV1HealthRoute
   '/api/public/v1/orchestrate': typeof ApiPublicV1OrchestrateRouteWithChildren
   '/api/public/v1/pipeline': typeof ApiPublicV1PipelineRoute
   '/api/public/v1/verify-domain': typeof ApiPublicV1VerifyDomainRoute
@@ -411,6 +419,7 @@ export interface FileRoutesById {
   '/api/public/v1/ask': typeof ApiPublicV1AskRoute
   '/api/public/v1/catalog': typeof ApiPublicV1CatalogRoute
   '/api/public/v1/execute': typeof ApiPublicV1ExecuteRoute
+  '/api/public/v1/health': typeof ApiPublicV1HealthRoute
   '/api/public/v1/orchestrate': typeof ApiPublicV1OrchestrateRouteWithChildren
   '/api/public/v1/pipeline': typeof ApiPublicV1PipelineRoute
   '/api/public/v1/verify-domain': typeof ApiPublicV1VerifyDomainRoute
@@ -457,6 +466,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/ask'
     | '/api/public/v1/catalog'
     | '/api/public/v1/execute'
+    | '/api/public/v1/health'
     | '/api/public/v1/orchestrate'
     | '/api/public/v1/pipeline'
     | '/api/public/v1/verify-domain'
@@ -501,6 +511,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/ask'
     | '/api/public/v1/catalog'
     | '/api/public/v1/execute'
+    | '/api/public/v1/health'
     | '/api/public/v1/orchestrate'
     | '/api/public/v1/pipeline'
     | '/api/public/v1/verify-domain'
@@ -546,6 +557,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/ask'
     | '/api/public/v1/catalog'
     | '/api/public/v1/execute'
+    | '/api/public/v1/health'
     | '/api/public/v1/orchestrate'
     | '/api/public/v1/pipeline'
     | '/api/public/v1/verify-domain'
@@ -565,6 +577,7 @@ export interface RootRouteChildren {
   ApiPublicV1AskRoute: typeof ApiPublicV1AskRoute
   ApiPublicV1CatalogRoute: typeof ApiPublicV1CatalogRoute
   ApiPublicV1ExecuteRoute: typeof ApiPublicV1ExecuteRoute
+  ApiPublicV1HealthRoute: typeof ApiPublicV1HealthRoute
   ApiPublicV1OrchestrateRoute: typeof ApiPublicV1OrchestrateRouteWithChildren
   ApiPublicV1PipelineRoute: typeof ApiPublicV1PipelineRoute
   ApiPublicV1VerifyDomainRoute: typeof ApiPublicV1VerifyDomainRoute
@@ -839,6 +852,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicV1OrchestrateRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/v1/health': {
+      id: '/api/public/v1/health'
+      path: '/api/public/v1/health'
+      fullPath: '/api/public/v1/health'
+      preLoaderRoute: typeof ApiPublicV1HealthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/v1/execute': {
       id: '/api/public/v1/execute'
       path: '/api/public/v1/execute'
@@ -968,6 +988,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicV1AskRoute: ApiPublicV1AskRoute,
   ApiPublicV1CatalogRoute: ApiPublicV1CatalogRoute,
   ApiPublicV1ExecuteRoute: ApiPublicV1ExecuteRoute,
+  ApiPublicV1HealthRoute: ApiPublicV1HealthRoute,
   ApiPublicV1OrchestrateRoute: ApiPublicV1OrchestrateRouteWithChildren,
   ApiPublicV1PipelineRoute: ApiPublicV1PipelineRoute,
   ApiPublicV1VerifyDomainRoute: ApiPublicV1VerifyDomainRoute,
