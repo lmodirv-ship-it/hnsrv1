@@ -52,6 +52,7 @@ import { Route as ApiPublicV1ExecuteRouteImport } from './routes/api/public/v1/e
 import { Route as ApiPublicV1CatalogRouteImport } from './routes/api/public/v1/catalog'
 import { Route as ApiPublicV1AskRouteImport } from './routes/api/public/v1/ask'
 import { Route as ApiPublicV1OrchestrateIdRouteImport } from './routes/api/public/v1/orchestrate.$id'
+import { Route as ApiPublicV1IdentityEmbedDotjsRouteImport } from './routes/api/public/v1/identity.embed[.]js'
 import { Route as ApiPublicV1IdentityAnnounceRouteImport } from './routes/api/public/v1/identity.announce'
 import { Route as ApiPublicV1IdentityCodeRouteImport } from './routes/api/public/v1/identity.$code'
 import { Route as ApiPublicV1DiscoveryRefreshRouteImport } from './routes/api/public/v1/discovery.refresh'
@@ -284,6 +285,12 @@ const ApiPublicV1OrchestrateIdRoute =
     path: '/$id',
     getParentRoute: () => ApiPublicV1OrchestrateRoute,
   } as any)
+const ApiPublicV1IdentityEmbedDotjsRoute =
+  ApiPublicV1IdentityEmbedDotjsRouteImport.update({
+    id: '/api/public/v1/identity/embed.js',
+    path: '/api/public/v1/identity/embed.js',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicV1IdentityAnnounceRoute =
   ApiPublicV1IdentityAnnounceRouteImport.update({
     id: '/api/public/v1/identity/announce',
@@ -347,6 +354,7 @@ export interface FileRoutesByFullPath {
   '/api/public/v1/discovery/refresh': typeof ApiPublicV1DiscoveryRefreshRoute
   '/api/public/v1/identity/$code': typeof ApiPublicV1IdentityCodeRoute
   '/api/public/v1/identity/announce': typeof ApiPublicV1IdentityAnnounceRoute
+  '/api/public/v1/identity/embed.js': typeof ApiPublicV1IdentityEmbedDotjsRoute
   '/api/public/v1/orchestrate/$id': typeof ApiPublicV1OrchestrateIdRoute
 }
 export interface FileRoutesByTo {
@@ -394,6 +402,7 @@ export interface FileRoutesByTo {
   '/api/public/v1/discovery/refresh': typeof ApiPublicV1DiscoveryRefreshRoute
   '/api/public/v1/identity/$code': typeof ApiPublicV1IdentityCodeRoute
   '/api/public/v1/identity/announce': typeof ApiPublicV1IdentityAnnounceRoute
+  '/api/public/v1/identity/embed.js': typeof ApiPublicV1IdentityEmbedDotjsRoute
   '/api/public/v1/orchestrate/$id': typeof ApiPublicV1OrchestrateIdRoute
 }
 export interface FileRoutesById {
@@ -443,6 +452,7 @@ export interface FileRoutesById {
   '/api/public/v1/discovery/refresh': typeof ApiPublicV1DiscoveryRefreshRoute
   '/api/public/v1/identity/$code': typeof ApiPublicV1IdentityCodeRoute
   '/api/public/v1/identity/announce': typeof ApiPublicV1IdentityAnnounceRoute
+  '/api/public/v1/identity/embed.js': typeof ApiPublicV1IdentityEmbedDotjsRoute
   '/api/public/v1/orchestrate/$id': typeof ApiPublicV1OrchestrateIdRoute
 }
 export interface FileRouteTypes {
@@ -492,6 +502,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/discovery/refresh'
     | '/api/public/v1/identity/$code'
     | '/api/public/v1/identity/announce'
+    | '/api/public/v1/identity/embed.js'
     | '/api/public/v1/orchestrate/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -539,6 +550,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/discovery/refresh'
     | '/api/public/v1/identity/$code'
     | '/api/public/v1/identity/announce'
+    | '/api/public/v1/identity/embed.js'
     | '/api/public/v1/orchestrate/$id'
   id:
     | '__root__'
@@ -587,6 +599,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/discovery/refresh'
     | '/api/public/v1/identity/$code'
     | '/api/public/v1/identity/announce'
+    | '/api/public/v1/identity/embed.js'
     | '/api/public/v1/orchestrate/$id'
   fileRoutesById: FileRoutesById
 }
@@ -609,6 +622,7 @@ export interface RootRouteChildren {
   ApiPublicV1DiscoveryRefreshRoute: typeof ApiPublicV1DiscoveryRefreshRoute
   ApiPublicV1IdentityCodeRoute: typeof ApiPublicV1IdentityCodeRoute
   ApiPublicV1IdentityAnnounceRoute: typeof ApiPublicV1IdentityAnnounceRoute
+  ApiPublicV1IdentityEmbedDotjsRoute: typeof ApiPublicV1IdentityEmbedDotjsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -914,6 +928,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicV1OrchestrateIdRouteImport
       parentRoute: typeof ApiPublicV1OrchestrateRoute
     }
+    '/api/public/v1/identity/embed.js': {
+      id: '/api/public/v1/identity/embed.js'
+      path: '/api/public/v1/identity/embed.js'
+      fullPath: '/api/public/v1/identity/embed.js'
+      preLoaderRoute: typeof ApiPublicV1IdentityEmbedDotjsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/v1/identity/announce': {
       id: '/api/public/v1/identity/announce'
       path: '/api/public/v1/identity/announce'
@@ -1036,6 +1057,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicV1DiscoveryRefreshRoute: ApiPublicV1DiscoveryRefreshRoute,
   ApiPublicV1IdentityCodeRoute: ApiPublicV1IdentityCodeRoute,
   ApiPublicV1IdentityAnnounceRoute: ApiPublicV1IdentityAnnounceRoute,
+  ApiPublicV1IdentityEmbedDotjsRoute: ApiPublicV1IdentityEmbedDotjsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
