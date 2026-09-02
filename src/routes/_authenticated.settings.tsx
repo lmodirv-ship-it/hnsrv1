@@ -63,7 +63,9 @@ function OrganizationSettings() {
           <Input
             id="org-slug"
             value={slug}
-            onChange={(e) => setSlug(e.target.value.toLowerCase())}
+            onChange={(e) =>
+              setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]+/g, "-").replace(/-{2,}/g, "-"))
+            }
             placeholder="hn-team"
             dir="ltr"
           />
