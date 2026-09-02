@@ -2,6 +2,7 @@
 // upserts services + site_capabilities. SERVER ONLY.
 
 import { TASK_TYPES } from "./task-types";
+import { isSafeKeyEnvName } from "@/lib/upstream-safety.server";
 
 type ManifestCapability = {
   task_type: string;
@@ -54,7 +55,9 @@ async function fetchManifest(
     accept: "application/json",
     "user-agent": "HN-Hub-Discovery/1.0",
   });
-  const envNames: string[] = [meta.keyEnv, meta.keyFallbackEnv].filter(Boolean);
+  const envNames: string[] = [meta.keyEnv, meta.keyFallbackEnv].filter(
+    (n): n is string => isSafeKeyEnvName(n),
+  );
   for (const name of envNames) {
     const v = process.env[name];
     if (v) {
