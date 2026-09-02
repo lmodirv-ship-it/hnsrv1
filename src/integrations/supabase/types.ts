@@ -1283,6 +1283,24 @@ export type Database = {
         }
         Relationships: []
       }
+      protected_admins: {
+        Row: {
+          created_at: string
+          email: string
+          note: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          note?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          note?: string | null
+        }
+        Relationships: []
+      }
       service_capabilities: {
         Row: {
           capability: string
@@ -2251,6 +2269,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_protected_admin: { Args: { _user_id: string }; Returns: boolean }
       next_group_identifier: {
         Args: never
         Returns: {
