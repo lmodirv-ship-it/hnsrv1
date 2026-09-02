@@ -16,6 +16,7 @@ import {
   pickBestProvider,
   type RegistryEntry,
 } from "./capability-registry.server";
+import { isSafeKeyEnvName } from "@/lib/upstream-safety.server";
 
 async function callOne(entry: RegistryEntry, task: PlanTask, requestId: string) {
   const svc = entry.service;
@@ -38,7 +39,9 @@ async function callOne(entry: RegistryEntry, task: PlanTask, requestId: string) 
     "x-hn-task-type": task.type,
     "x-hn-capability-id": entry.id,
   });
-  const envNames: string[] = [meta.keyEnv, meta.keyFallbackEnv].filter(Boolean);
+  const envNames: string[] = [meta.keyEnv, meta.keyFallbackEnv].filter(
+    (n): n is string => isSafeKeyEnvName(n),
+  );
   let injected = false;
   for (const name of envNames) {
     const val = process.env[name];
