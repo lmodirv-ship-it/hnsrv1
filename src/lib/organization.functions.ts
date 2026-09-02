@@ -19,9 +19,17 @@ const upsertSchema = z.object({
   slug: z
     .string()
     .trim()
-    .min(2, "المعرّف قصير جدًا")
-    .max(60)
-    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "استخدم أحرف صغيرة وأرقام وشرطات فقط"),
+    .max(80)
+    .transform((v) =>
+      v
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "")
+        .slice(0, 60),
+    )
+    .refine((v) => /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(v) && v.length >= 2, {
+      message: "المعرّف قصير جدًا أو غير صالح",
+    }),
   logo_url: z
     .string()
     .trim()
