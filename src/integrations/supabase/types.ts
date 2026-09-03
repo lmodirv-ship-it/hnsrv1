@@ -986,6 +986,127 @@ export type Database = {
           },
         ]
       }
+      manara_exports: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          error: string | null
+          id: string
+          is_public: boolean
+          new_value: string | null
+          old_value: string | null
+          payload: Json
+          signal_key: string
+          signal_type: string
+          signature: string | null
+          site_id: string | null
+          source_site: string
+          status: string
+          targets: string[]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          error?: string | null
+          id?: string
+          is_public?: boolean
+          new_value?: string | null
+          old_value?: string | null
+          payload?: Json
+          signal_key: string
+          signal_type?: string
+          signature?: string | null
+          site_id?: string | null
+          source_site: string
+          status?: string
+          targets?: string[]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          error?: string | null
+          id?: string
+          is_public?: boolean
+          new_value?: string | null
+          old_value?: string | null
+          payload?: Json
+          signal_key?: string
+          signal_type?: string
+          signature?: string | null
+          site_id?: string | null
+          source_site?: string
+          status?: string
+          targets?: string[]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "manara_exports_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      manara_imports: {
+        Row: {
+          applied_at: string | null
+          created_at: string
+          export_id: string | null
+          id: string
+          payload: Json
+          process_status: string
+          reject_reason: string | null
+          sender_site: string
+          signal_key: string
+          signal_type: string
+          target_site: string
+          updated_at: string
+          value: string | null
+        }
+        Insert: {
+          applied_at?: string | null
+          created_at?: string
+          export_id?: string | null
+          id?: string
+          payload?: Json
+          process_status?: string
+          reject_reason?: string | null
+          sender_site: string
+          signal_key: string
+          signal_type?: string
+          target_site: string
+          updated_at?: string
+          value?: string | null
+        }
+        Update: {
+          applied_at?: string | null
+          created_at?: string
+          export_id?: string | null
+          id?: string
+          payload?: Json
+          process_status?: string
+          reject_reason?: string | null
+          sender_site?: string
+          signal_key?: string
+          signal_type?: string
+          target_site?: string
+          updated_at?: string
+          value?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "manara_imports_export_id_fkey"
+            columns: ["export_id"]
+            isOneToOne: false
+            referencedRelation: "manara_exports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       organizations: {
         Row: {
           created_at: string

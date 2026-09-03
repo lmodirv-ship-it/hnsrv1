@@ -26,6 +26,7 @@ import { Route as AuthenticatedOrchestratorRouteImport } from './routes/_authent
 import { Route as AuthenticatedOrchestrationRouteImport } from './routes/_authenticated.orchestration'
 import { Route as AuthenticatedNetworkRouteImport } from './routes/_authenticated.network'
 import { Route as AuthenticatedMonitoringRouteImport } from './routes/_authenticated.monitoring'
+import { Route as AuthenticatedManaraRouteImport } from './routes/_authenticated.manara'
 import { Route as AuthenticatedKnowledgeRouteImport } from './routes/_authenticated.knowledge'
 import { Route as AuthenticatedInternalConnectorsRouteImport } from './routes/_authenticated.internal-connectors'
 import { Route as AuthenticatedIdentitiesRouteImport } from './routes/_authenticated.identities'
@@ -53,6 +54,7 @@ import { Route as ApiPublicV1ExecuteRouteImport } from './routes/api/public/v1/e
 import { Route as ApiPublicV1CatalogRouteImport } from './routes/api/public/v1/catalog'
 import { Route as ApiPublicV1AskRouteImport } from './routes/api/public/v1/ask'
 import { Route as ApiPublicV1OrchestrateIdRouteImport } from './routes/api/public/v1/orchestrate.$id'
+import { Route as ApiPublicV1ManaraSyncRouteImport } from './routes/api/public/v1/manara.sync'
 import { Route as ApiPublicV1IdentityEmbedDotjsRouteImport } from './routes/api/public/v1/identity.embed[.]js'
 import { Route as ApiPublicV1IdentityAnnounceRouteImport } from './routes/api/public/v1/identity.announce'
 import { Route as ApiPublicV1IdentityCodeRouteImport } from './routes/api/public/v1/identity.$code'
@@ -145,6 +147,11 @@ const AuthenticatedNetworkRoute = AuthenticatedNetworkRouteImport.update({
 const AuthenticatedMonitoringRoute = AuthenticatedMonitoringRouteImport.update({
   id: '/monitoring',
   path: '/monitoring',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedManaraRoute = AuthenticatedManaraRouteImport.update({
+  id: '/manara',
+  path: '/manara',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedKnowledgeRoute = AuthenticatedKnowledgeRouteImport.update({
@@ -291,6 +298,11 @@ const ApiPublicV1OrchestrateIdRoute =
     path: '/$id',
     getParentRoute: () => ApiPublicV1OrchestrateRoute,
   } as any)
+const ApiPublicV1ManaraSyncRoute = ApiPublicV1ManaraSyncRouteImport.update({
+  id: '/api/public/v1/manara/sync',
+  path: '/api/public/v1/manara/sync',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicV1IdentityEmbedDotjsRoute =
   ApiPublicV1IdentityEmbedDotjsRouteImport.update({
     id: '/api/public/v1/identity/embed.js',
@@ -332,6 +344,7 @@ export interface FileRoutesByFullPath {
   '/identities': typeof AuthenticatedIdentitiesRoute
   '/internal-connectors': typeof AuthenticatedInternalConnectorsRoute
   '/knowledge': typeof AuthenticatedKnowledgeRoute
+  '/manara': typeof AuthenticatedManaraRoute
   '/monitoring': typeof AuthenticatedMonitoringRoute
   '/network': typeof AuthenticatedNetworkRoute
   '/orchestration': typeof AuthenticatedOrchestrationRoute
@@ -362,6 +375,7 @@ export interface FileRoutesByFullPath {
   '/api/public/v1/identity/$code': typeof ApiPublicV1IdentityCodeRoute
   '/api/public/v1/identity/announce': typeof ApiPublicV1IdentityAnnounceRoute
   '/api/public/v1/identity/embed.js': typeof ApiPublicV1IdentityEmbedDotjsRoute
+  '/api/public/v1/manara/sync': typeof ApiPublicV1ManaraSyncRoute
   '/api/public/v1/orchestrate/$id': typeof ApiPublicV1OrchestrateIdRoute
 }
 export interface FileRoutesByTo {
@@ -381,6 +395,7 @@ export interface FileRoutesByTo {
   '/identities': typeof AuthenticatedIdentitiesRoute
   '/internal-connectors': typeof AuthenticatedInternalConnectorsRoute
   '/knowledge': typeof AuthenticatedKnowledgeRoute
+  '/manara': typeof AuthenticatedManaraRoute
   '/monitoring': typeof AuthenticatedMonitoringRoute
   '/network': typeof AuthenticatedNetworkRoute
   '/orchestration': typeof AuthenticatedOrchestrationRoute
@@ -411,6 +426,7 @@ export interface FileRoutesByTo {
   '/api/public/v1/identity/$code': typeof ApiPublicV1IdentityCodeRoute
   '/api/public/v1/identity/announce': typeof ApiPublicV1IdentityAnnounceRoute
   '/api/public/v1/identity/embed.js': typeof ApiPublicV1IdentityEmbedDotjsRoute
+  '/api/public/v1/manara/sync': typeof ApiPublicV1ManaraSyncRoute
   '/api/public/v1/orchestrate/$id': typeof ApiPublicV1OrchestrateIdRoute
 }
 export interface FileRoutesById {
@@ -432,6 +448,7 @@ export interface FileRoutesById {
   '/_authenticated/identities': typeof AuthenticatedIdentitiesRoute
   '/_authenticated/internal-connectors': typeof AuthenticatedInternalConnectorsRoute
   '/_authenticated/knowledge': typeof AuthenticatedKnowledgeRoute
+  '/_authenticated/manara': typeof AuthenticatedManaraRoute
   '/_authenticated/monitoring': typeof AuthenticatedMonitoringRoute
   '/_authenticated/network': typeof AuthenticatedNetworkRoute
   '/_authenticated/orchestration': typeof AuthenticatedOrchestrationRoute
@@ -462,6 +479,7 @@ export interface FileRoutesById {
   '/api/public/v1/identity/$code': typeof ApiPublicV1IdentityCodeRoute
   '/api/public/v1/identity/announce': typeof ApiPublicV1IdentityAnnounceRoute
   '/api/public/v1/identity/embed.js': typeof ApiPublicV1IdentityEmbedDotjsRoute
+  '/api/public/v1/manara/sync': typeof ApiPublicV1ManaraSyncRoute
   '/api/public/v1/orchestrate/$id': typeof ApiPublicV1OrchestrateIdRoute
 }
 export interface FileRouteTypes {
@@ -483,6 +501,7 @@ export interface FileRouteTypes {
     | '/identities'
     | '/internal-connectors'
     | '/knowledge'
+    | '/manara'
     | '/monitoring'
     | '/network'
     | '/orchestration'
@@ -513,6 +532,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/identity/$code'
     | '/api/public/v1/identity/announce'
     | '/api/public/v1/identity/embed.js'
+    | '/api/public/v1/manara/sync'
     | '/api/public/v1/orchestrate/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -532,6 +552,7 @@ export interface FileRouteTypes {
     | '/identities'
     | '/internal-connectors'
     | '/knowledge'
+    | '/manara'
     | '/monitoring'
     | '/network'
     | '/orchestration'
@@ -562,6 +583,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/identity/$code'
     | '/api/public/v1/identity/announce'
     | '/api/public/v1/identity/embed.js'
+    | '/api/public/v1/manara/sync'
     | '/api/public/v1/orchestrate/$id'
   id:
     | '__root__'
@@ -582,6 +604,7 @@ export interface FileRouteTypes {
     | '/_authenticated/identities'
     | '/_authenticated/internal-connectors'
     | '/_authenticated/knowledge'
+    | '/_authenticated/manara'
     | '/_authenticated/monitoring'
     | '/_authenticated/network'
     | '/_authenticated/orchestration'
@@ -612,6 +635,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/identity/$code'
     | '/api/public/v1/identity/announce'
     | '/api/public/v1/identity/embed.js'
+    | '/api/public/v1/manara/sync'
     | '/api/public/v1/orchestrate/$id'
   fileRoutesById: FileRoutesById
 }
@@ -635,6 +659,7 @@ export interface RootRouteChildren {
   ApiPublicV1IdentityCodeRoute: typeof ApiPublicV1IdentityCodeRoute
   ApiPublicV1IdentityAnnounceRoute: typeof ApiPublicV1IdentityAnnounceRoute
   ApiPublicV1IdentityEmbedDotjsRoute: typeof ApiPublicV1IdentityEmbedDotjsRoute
+  ApiPublicV1ManaraSyncRoute: typeof ApiPublicV1ManaraSyncRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -756,6 +781,13 @@ declare module '@tanstack/react-router' {
       path: '/monitoring'
       fullPath: '/monitoring'
       preLoaderRoute: typeof AuthenticatedMonitoringRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/manara': {
+      id: '/_authenticated/manara'
+      path: '/manara'
+      fullPath: '/manara'
+      preLoaderRoute: typeof AuthenticatedManaraRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/knowledge': {
@@ -947,6 +979,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicV1OrchestrateIdRouteImport
       parentRoute: typeof ApiPublicV1OrchestrateRoute
     }
+    '/api/public/v1/manara/sync': {
+      id: '/api/public/v1/manara/sync'
+      path: '/api/public/v1/manara/sync'
+      fullPath: '/api/public/v1/manara/sync'
+      preLoaderRoute: typeof ApiPublicV1ManaraSyncRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/v1/identity/embed.js': {
       id: '/api/public/v1/identity/embed.js'
       path: '/api/public/v1/identity/embed.js'
@@ -990,6 +1029,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedIdentitiesRoute: typeof AuthenticatedIdentitiesRoute
   AuthenticatedInternalConnectorsRoute: typeof AuthenticatedInternalConnectorsRoute
   AuthenticatedKnowledgeRoute: typeof AuthenticatedKnowledgeRoute
+  AuthenticatedManaraRoute: typeof AuthenticatedManaraRoute
   AuthenticatedMonitoringRoute: typeof AuthenticatedMonitoringRoute
   AuthenticatedNetworkRoute: typeof AuthenticatedNetworkRoute
   AuthenticatedOrchestrationRoute: typeof AuthenticatedOrchestrationRoute
@@ -1021,6 +1061,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedIdentitiesRoute: AuthenticatedIdentitiesRoute,
   AuthenticatedInternalConnectorsRoute: AuthenticatedInternalConnectorsRoute,
   AuthenticatedKnowledgeRoute: AuthenticatedKnowledgeRoute,
+  AuthenticatedManaraRoute: AuthenticatedManaraRoute,
   AuthenticatedMonitoringRoute: AuthenticatedMonitoringRoute,
   AuthenticatedNetworkRoute: AuthenticatedNetworkRoute,
   AuthenticatedOrchestrationRoute: AuthenticatedOrchestrationRoute,
@@ -1079,6 +1120,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicV1IdentityCodeRoute: ApiPublicV1IdentityCodeRoute,
   ApiPublicV1IdentityAnnounceRoute: ApiPublicV1IdentityAnnounceRoute,
   ApiPublicV1IdentityEmbedDotjsRoute: ApiPublicV1IdentityEmbedDotjsRoute,
+  ApiPublicV1ManaraSyncRoute: ApiPublicV1ManaraSyncRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
