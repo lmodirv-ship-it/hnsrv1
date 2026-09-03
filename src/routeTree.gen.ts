@@ -53,6 +53,7 @@ import { Route as ApiPublicV1HealthRouteImport } from './routes/api/public/v1/he
 import { Route as ApiPublicV1ExecuteRouteImport } from './routes/api/public/v1/execute'
 import { Route as ApiPublicV1CatalogRouteImport } from './routes/api/public/v1/catalog'
 import { Route as ApiPublicV1AskRouteImport } from './routes/api/public/v1/ask'
+import { Route as ApiPublicManaraBadgeRouteImport } from './routes/api/public/manara.badge'
 import { Route as ApiPublicV1OrchestrateIdRouteImport } from './routes/api/public/v1/orchestrate.$id'
 import { Route as ApiPublicV1ManaraSyncRouteImport } from './routes/api/public/v1/manara.sync'
 import { Route as ApiPublicV1IdentityEmbedDotjsRouteImport } from './routes/api/public/v1/identity.embed[.]js'
@@ -292,6 +293,11 @@ const ApiPublicV1AskRoute = ApiPublicV1AskRouteImport.update({
   path: '/api/public/v1/ask',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicManaraBadgeRoute = ApiPublicManaraBadgeRouteImport.update({
+  id: '/api/public/manara/badge',
+  path: '/api/public/manara/badge',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicV1OrchestrateIdRoute =
   ApiPublicV1OrchestrateIdRouteImport.update({
     id: '/$id',
@@ -364,6 +370,7 @@ export interface FileRoutesByFullPath {
   '/sites/$slug': typeof AuthenticatedSitesSlugRoute
   '/pipelines/': typeof AuthenticatedPipelinesIndexRoute
   '/sites/': typeof AuthenticatedSitesIndexRoute
+  '/api/public/manara/badge': typeof ApiPublicManaraBadgeRoute
   '/api/public/v1/ask': typeof ApiPublicV1AskRoute
   '/api/public/v1/catalog': typeof ApiPublicV1CatalogRoute
   '/api/public/v1/execute': typeof ApiPublicV1ExecuteRoute
@@ -415,6 +422,7 @@ export interface FileRoutesByTo {
   '/sites/$slug': typeof AuthenticatedSitesSlugRoute
   '/pipelines': typeof AuthenticatedPipelinesIndexRoute
   '/sites': typeof AuthenticatedSitesIndexRoute
+  '/api/public/manara/badge': typeof ApiPublicManaraBadgeRoute
   '/api/public/v1/ask': typeof ApiPublicV1AskRoute
   '/api/public/v1/catalog': typeof ApiPublicV1CatalogRoute
   '/api/public/v1/execute': typeof ApiPublicV1ExecuteRoute
@@ -468,6 +476,7 @@ export interface FileRoutesById {
   '/_authenticated/sites/$slug': typeof AuthenticatedSitesSlugRoute
   '/_authenticated/pipelines/': typeof AuthenticatedPipelinesIndexRoute
   '/_authenticated/sites/': typeof AuthenticatedSitesIndexRoute
+  '/api/public/manara/badge': typeof ApiPublicManaraBadgeRoute
   '/api/public/v1/ask': typeof ApiPublicV1AskRoute
   '/api/public/v1/catalog': typeof ApiPublicV1CatalogRoute
   '/api/public/v1/execute': typeof ApiPublicV1ExecuteRoute
@@ -521,6 +530,7 @@ export interface FileRouteTypes {
     | '/sites/$slug'
     | '/pipelines/'
     | '/sites/'
+    | '/api/public/manara/badge'
     | '/api/public/v1/ask'
     | '/api/public/v1/catalog'
     | '/api/public/v1/execute'
@@ -572,6 +582,7 @@ export interface FileRouteTypes {
     | '/sites/$slug'
     | '/pipelines'
     | '/sites'
+    | '/api/public/manara/badge'
     | '/api/public/v1/ask'
     | '/api/public/v1/catalog'
     | '/api/public/v1/execute'
@@ -624,6 +635,7 @@ export interface FileRouteTypes {
     | '/_authenticated/sites/$slug'
     | '/_authenticated/pipelines/'
     | '/_authenticated/sites/'
+    | '/api/public/manara/badge'
     | '/api/public/v1/ask'
     | '/api/public/v1/catalog'
     | '/api/public/v1/execute'
@@ -648,6 +660,7 @@ export interface RootRouteChildren {
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
+  ApiPublicManaraBadgeRoute: typeof ApiPublicManaraBadgeRoute
   ApiPublicV1AskRoute: typeof ApiPublicV1AskRoute
   ApiPublicV1CatalogRoute: typeof ApiPublicV1CatalogRoute
   ApiPublicV1ExecuteRoute: typeof ApiPublicV1ExecuteRoute
@@ -972,6 +985,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicV1AskRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/manara/badge': {
+      id: '/api/public/manara/badge'
+      path: '/api/public/manara/badge'
+      fullPath: '/api/public/manara/badge'
+      preLoaderRoute: typeof ApiPublicManaraBadgeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/v1/orchestrate/$id': {
       id: '/api/public/v1/orchestrate/$id'
       path: '/$id'
@@ -1109,6 +1129,7 @@ const rootRouteChildren: RootRouteChildren = {
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
+  ApiPublicManaraBadgeRoute: ApiPublicManaraBadgeRoute,
   ApiPublicV1AskRoute: ApiPublicV1AskRoute,
   ApiPublicV1CatalogRoute: ApiPublicV1CatalogRoute,
   ApiPublicV1ExecuteRoute: ApiPublicV1ExecuteRoute,
