@@ -357,6 +357,7 @@ export const translations = {
     navServiceNetwork: "Service Network",
     navInternalConnectors: "Internal Connectors",
     navGroupIdentifiers: "Group IDs",
+    navManara: "Manara / منارة",
     navSystemFlow: "System Flow",
     navAgents: "HN Agents",
     systemFlowTitle: "HN System Flow",
