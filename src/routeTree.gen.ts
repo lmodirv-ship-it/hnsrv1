@@ -26,6 +26,7 @@ import { Route as AuthenticatedOrchestratorRouteImport } from './routes/_authent
 import { Route as AuthenticatedOrchestrationRouteImport } from './routes/_authenticated.orchestration'
 import { Route as AuthenticatedNetworkRouteImport } from './routes/_authenticated.network'
 import { Route as AuthenticatedMonitoringRouteImport } from './routes/_authenticated.monitoring'
+import { Route as AuthenticatedManaraRouteImport } from './routes/_authenticated.manara'
 import { Route as AuthenticatedKnowledgeRouteImport } from './routes/_authenticated.knowledge'
 import { Route as AuthenticatedInternalConnectorsRouteImport } from './routes/_authenticated.internal-connectors'
 import { Route as AuthenticatedIdentitiesRouteImport } from './routes/_authenticated.identities'
@@ -146,6 +147,11 @@ const AuthenticatedNetworkRoute = AuthenticatedNetworkRouteImport.update({
 const AuthenticatedMonitoringRoute = AuthenticatedMonitoringRouteImport.update({
   id: '/monitoring',
   path: '/monitoring',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedManaraRoute = AuthenticatedManaraRouteImport.update({
+  id: '/manara',
+  path: '/manara',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedKnowledgeRoute = AuthenticatedKnowledgeRouteImport.update({
@@ -338,6 +344,7 @@ export interface FileRoutesByFullPath {
   '/identities': typeof AuthenticatedIdentitiesRoute
   '/internal-connectors': typeof AuthenticatedInternalConnectorsRoute
   '/knowledge': typeof AuthenticatedKnowledgeRoute
+  '/manara': typeof AuthenticatedManaraRoute
   '/monitoring': typeof AuthenticatedMonitoringRoute
   '/network': typeof AuthenticatedNetworkRoute
   '/orchestration': typeof AuthenticatedOrchestrationRoute
@@ -388,6 +395,7 @@ export interface FileRoutesByTo {
   '/identities': typeof AuthenticatedIdentitiesRoute
   '/internal-connectors': typeof AuthenticatedInternalConnectorsRoute
   '/knowledge': typeof AuthenticatedKnowledgeRoute
+  '/manara': typeof AuthenticatedManaraRoute
   '/monitoring': typeof AuthenticatedMonitoringRoute
   '/network': typeof AuthenticatedNetworkRoute
   '/orchestration': typeof AuthenticatedOrchestrationRoute
@@ -440,6 +448,7 @@ export interface FileRoutesById {
   '/_authenticated/identities': typeof AuthenticatedIdentitiesRoute
   '/_authenticated/internal-connectors': typeof AuthenticatedInternalConnectorsRoute
   '/_authenticated/knowledge': typeof AuthenticatedKnowledgeRoute
+  '/_authenticated/manara': typeof AuthenticatedManaraRoute
   '/_authenticated/monitoring': typeof AuthenticatedMonitoringRoute
   '/_authenticated/network': typeof AuthenticatedNetworkRoute
   '/_authenticated/orchestration': typeof AuthenticatedOrchestrationRoute
@@ -492,6 +501,7 @@ export interface FileRouteTypes {
     | '/identities'
     | '/internal-connectors'
     | '/knowledge'
+    | '/manara'
     | '/monitoring'
     | '/network'
     | '/orchestration'
@@ -542,6 +552,7 @@ export interface FileRouteTypes {
     | '/identities'
     | '/internal-connectors'
     | '/knowledge'
+    | '/manara'
     | '/monitoring'
     | '/network'
     | '/orchestration'
@@ -593,6 +604,7 @@ export interface FileRouteTypes {
     | '/_authenticated/identities'
     | '/_authenticated/internal-connectors'
     | '/_authenticated/knowledge'
+    | '/_authenticated/manara'
     | '/_authenticated/monitoring'
     | '/_authenticated/network'
     | '/_authenticated/orchestration'
@@ -769,6 +781,13 @@ declare module '@tanstack/react-router' {
       path: '/monitoring'
       fullPath: '/monitoring'
       preLoaderRoute: typeof AuthenticatedMonitoringRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/manara': {
+      id: '/_authenticated/manara'
+      path: '/manara'
+      fullPath: '/manara'
+      preLoaderRoute: typeof AuthenticatedManaraRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/knowledge': {
@@ -1010,6 +1029,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedIdentitiesRoute: typeof AuthenticatedIdentitiesRoute
   AuthenticatedInternalConnectorsRoute: typeof AuthenticatedInternalConnectorsRoute
   AuthenticatedKnowledgeRoute: typeof AuthenticatedKnowledgeRoute
+  AuthenticatedManaraRoute: typeof AuthenticatedManaraRoute
   AuthenticatedMonitoringRoute: typeof AuthenticatedMonitoringRoute
   AuthenticatedNetworkRoute: typeof AuthenticatedNetworkRoute
   AuthenticatedOrchestrationRoute: typeof AuthenticatedOrchestrationRoute
@@ -1041,6 +1061,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedIdentitiesRoute: AuthenticatedIdentitiesRoute,
   AuthenticatedInternalConnectorsRoute: AuthenticatedInternalConnectorsRoute,
   AuthenticatedKnowledgeRoute: AuthenticatedKnowledgeRoute,
+  AuthenticatedManaraRoute: AuthenticatedManaraRoute,
   AuthenticatedMonitoringRoute: AuthenticatedMonitoringRoute,
   AuthenticatedNetworkRoute: AuthenticatedNetworkRoute,
   AuthenticatedOrchestrationRoute: AuthenticatedOrchestrationRoute,
