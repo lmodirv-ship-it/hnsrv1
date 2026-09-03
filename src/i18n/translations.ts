@@ -148,6 +148,7 @@ export const translations = {
     navServiceNetwork: "شبكة الخدمات",
     navInternalConnectors: "الاتصالات الداخلية",
     navGroupIdentifiers: "معرّفات المجموعة",
+    navManara: "منارة / MANARA",
     navSystemFlow: "مخطط النظام",
     navAgents: "وكلاء HN",
     systemFlowTitle: "مخطط تدفق منظومة HN",
