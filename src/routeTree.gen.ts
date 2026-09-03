@@ -47,6 +47,8 @@ import { Route as AuthenticatedPipelinesIdRouteImport } from './routes/_authenti
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as ApiPublicV1VerifyDomainRouteImport } from './routes/api/public/v1/verify-domain'
+import { Route as ApiPublicV1TaskCenterRouteImport } from './routes/api/public/v1/task-center'
+import { Route as ApiPublicV1SitesRouteImport } from './routes/api/public/v1/sites'
 import { Route as ApiPublicV1PipelineRouteImport } from './routes/api/public/v1/pipeline'
 import { Route as ApiPublicV1OrchestrateRouteImport } from './routes/api/public/v1/orchestrate'
 import { Route as ApiPublicV1HealthRouteImport } from './routes/api/public/v1/health'
@@ -54,6 +56,7 @@ import { Route as ApiPublicV1ExecuteRouteImport } from './routes/api/public/v1/e
 import { Route as ApiPublicV1CatalogRouteImport } from './routes/api/public/v1/catalog'
 import { Route as ApiPublicV1AskRouteImport } from './routes/api/public/v1/ask'
 import { Route as ApiPublicManaraBadgeRouteImport } from './routes/api/public/manara.badge'
+import { Route as ApiPublicV1SyncDailyRouteImport } from './routes/api/public/v1/sync.daily'
 import { Route as ApiPublicV1OrchestrateIdRouteImport } from './routes/api/public/v1/orchestrate.$id'
 import { Route as ApiPublicV1ManaraSyncRouteImport } from './routes/api/public/v1/manara.sync'
 import { Route as ApiPublicV1IdentityEmbedDotjsRouteImport } from './routes/api/public/v1/identity.embed[.]js'
@@ -263,6 +266,16 @@ const ApiPublicV1VerifyDomainRoute = ApiPublicV1VerifyDomainRouteImport.update({
   path: '/api/public/v1/verify-domain',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicV1TaskCenterRoute = ApiPublicV1TaskCenterRouteImport.update({
+  id: '/api/public/v1/task-center',
+  path: '/api/public/v1/task-center',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicV1SitesRoute = ApiPublicV1SitesRouteImport.update({
+  id: '/api/public/v1/sites',
+  path: '/api/public/v1/sites',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicV1PipelineRoute = ApiPublicV1PipelineRouteImport.update({
   id: '/api/public/v1/pipeline',
   path: '/api/public/v1/pipeline',
@@ -296,6 +309,11 @@ const ApiPublicV1AskRoute = ApiPublicV1AskRouteImport.update({
 const ApiPublicManaraBadgeRoute = ApiPublicManaraBadgeRouteImport.update({
   id: '/api/public/manara/badge',
   path: '/api/public/manara/badge',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicV1SyncDailyRoute = ApiPublicV1SyncDailyRouteImport.update({
+  id: '/api/public/v1/sync/daily',
+  path: '/api/public/v1/sync/daily',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicV1OrchestrateIdRoute =
@@ -377,6 +395,8 @@ export interface FileRoutesByFullPath {
   '/api/public/v1/health': typeof ApiPublicV1HealthRoute
   '/api/public/v1/orchestrate': typeof ApiPublicV1OrchestrateRouteWithChildren
   '/api/public/v1/pipeline': typeof ApiPublicV1PipelineRoute
+  '/api/public/v1/sites': typeof ApiPublicV1SitesRoute
+  '/api/public/v1/task-center': typeof ApiPublicV1TaskCenterRoute
   '/api/public/v1/verify-domain': typeof ApiPublicV1VerifyDomainRoute
   '/api/public/v1/discovery/refresh': typeof ApiPublicV1DiscoveryRefreshRoute
   '/api/public/v1/identity/$code': typeof ApiPublicV1IdentityCodeRoute
@@ -384,6 +404,7 @@ export interface FileRoutesByFullPath {
   '/api/public/v1/identity/embed.js': typeof ApiPublicV1IdentityEmbedDotjsRoute
   '/api/public/v1/manara/sync': typeof ApiPublicV1ManaraSyncRoute
   '/api/public/v1/orchestrate/$id': typeof ApiPublicV1OrchestrateIdRoute
+  '/api/public/v1/sync/daily': typeof ApiPublicV1SyncDailyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -429,6 +450,8 @@ export interface FileRoutesByTo {
   '/api/public/v1/health': typeof ApiPublicV1HealthRoute
   '/api/public/v1/orchestrate': typeof ApiPublicV1OrchestrateRouteWithChildren
   '/api/public/v1/pipeline': typeof ApiPublicV1PipelineRoute
+  '/api/public/v1/sites': typeof ApiPublicV1SitesRoute
+  '/api/public/v1/task-center': typeof ApiPublicV1TaskCenterRoute
   '/api/public/v1/verify-domain': typeof ApiPublicV1VerifyDomainRoute
   '/api/public/v1/discovery/refresh': typeof ApiPublicV1DiscoveryRefreshRoute
   '/api/public/v1/identity/$code': typeof ApiPublicV1IdentityCodeRoute
@@ -436,6 +459,7 @@ export interface FileRoutesByTo {
   '/api/public/v1/identity/embed.js': typeof ApiPublicV1IdentityEmbedDotjsRoute
   '/api/public/v1/manara/sync': typeof ApiPublicV1ManaraSyncRoute
   '/api/public/v1/orchestrate/$id': typeof ApiPublicV1OrchestrateIdRoute
+  '/api/public/v1/sync/daily': typeof ApiPublicV1SyncDailyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -483,6 +507,8 @@ export interface FileRoutesById {
   '/api/public/v1/health': typeof ApiPublicV1HealthRoute
   '/api/public/v1/orchestrate': typeof ApiPublicV1OrchestrateRouteWithChildren
   '/api/public/v1/pipeline': typeof ApiPublicV1PipelineRoute
+  '/api/public/v1/sites': typeof ApiPublicV1SitesRoute
+  '/api/public/v1/task-center': typeof ApiPublicV1TaskCenterRoute
   '/api/public/v1/verify-domain': typeof ApiPublicV1VerifyDomainRoute
   '/api/public/v1/discovery/refresh': typeof ApiPublicV1DiscoveryRefreshRoute
   '/api/public/v1/identity/$code': typeof ApiPublicV1IdentityCodeRoute
@@ -490,6 +516,7 @@ export interface FileRoutesById {
   '/api/public/v1/identity/embed.js': typeof ApiPublicV1IdentityEmbedDotjsRoute
   '/api/public/v1/manara/sync': typeof ApiPublicV1ManaraSyncRoute
   '/api/public/v1/orchestrate/$id': typeof ApiPublicV1OrchestrateIdRoute
+  '/api/public/v1/sync/daily': typeof ApiPublicV1SyncDailyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -537,6 +564,8 @@ export interface FileRouteTypes {
     | '/api/public/v1/health'
     | '/api/public/v1/orchestrate'
     | '/api/public/v1/pipeline'
+    | '/api/public/v1/sites'
+    | '/api/public/v1/task-center'
     | '/api/public/v1/verify-domain'
     | '/api/public/v1/discovery/refresh'
     | '/api/public/v1/identity/$code'
@@ -544,6 +573,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/identity/embed.js'
     | '/api/public/v1/manara/sync'
     | '/api/public/v1/orchestrate/$id'
+    | '/api/public/v1/sync/daily'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -589,6 +619,8 @@ export interface FileRouteTypes {
     | '/api/public/v1/health'
     | '/api/public/v1/orchestrate'
     | '/api/public/v1/pipeline'
+    | '/api/public/v1/sites'
+    | '/api/public/v1/task-center'
     | '/api/public/v1/verify-domain'
     | '/api/public/v1/discovery/refresh'
     | '/api/public/v1/identity/$code'
@@ -596,6 +628,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/identity/embed.js'
     | '/api/public/v1/manara/sync'
     | '/api/public/v1/orchestrate/$id'
+    | '/api/public/v1/sync/daily'
   id:
     | '__root__'
     | '/'
@@ -642,6 +675,8 @@ export interface FileRouteTypes {
     | '/api/public/v1/health'
     | '/api/public/v1/orchestrate'
     | '/api/public/v1/pipeline'
+    | '/api/public/v1/sites'
+    | '/api/public/v1/task-center'
     | '/api/public/v1/verify-domain'
     | '/api/public/v1/discovery/refresh'
     | '/api/public/v1/identity/$code'
@@ -649,6 +684,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/identity/embed.js'
     | '/api/public/v1/manara/sync'
     | '/api/public/v1/orchestrate/$id'
+    | '/api/public/v1/sync/daily'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -667,12 +703,15 @@ export interface RootRouteChildren {
   ApiPublicV1HealthRoute: typeof ApiPublicV1HealthRoute
   ApiPublicV1OrchestrateRoute: typeof ApiPublicV1OrchestrateRouteWithChildren
   ApiPublicV1PipelineRoute: typeof ApiPublicV1PipelineRoute
+  ApiPublicV1SitesRoute: typeof ApiPublicV1SitesRoute
+  ApiPublicV1TaskCenterRoute: typeof ApiPublicV1TaskCenterRoute
   ApiPublicV1VerifyDomainRoute: typeof ApiPublicV1VerifyDomainRoute
   ApiPublicV1DiscoveryRefreshRoute: typeof ApiPublicV1DiscoveryRefreshRoute
   ApiPublicV1IdentityCodeRoute: typeof ApiPublicV1IdentityCodeRoute
   ApiPublicV1IdentityAnnounceRoute: typeof ApiPublicV1IdentityAnnounceRoute
   ApiPublicV1IdentityEmbedDotjsRoute: typeof ApiPublicV1IdentityEmbedDotjsRoute
   ApiPublicV1ManaraSyncRoute: typeof ApiPublicV1ManaraSyncRoute
+  ApiPublicV1SyncDailyRoute: typeof ApiPublicV1SyncDailyRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -943,6 +982,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicV1VerifyDomainRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/v1/task-center': {
+      id: '/api/public/v1/task-center'
+      path: '/api/public/v1/task-center'
+      fullPath: '/api/public/v1/task-center'
+      preLoaderRoute: typeof ApiPublicV1TaskCenterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/v1/sites': {
+      id: '/api/public/v1/sites'
+      path: '/api/public/v1/sites'
+      fullPath: '/api/public/v1/sites'
+      preLoaderRoute: typeof ApiPublicV1SitesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/v1/pipeline': {
       id: '/api/public/v1/pipeline'
       path: '/api/public/v1/pipeline'
@@ -990,6 +1043,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/manara/badge'
       fullPath: '/api/public/manara/badge'
       preLoaderRoute: typeof ApiPublicManaraBadgeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/v1/sync/daily': {
+      id: '/api/public/v1/sync/daily'
+      path: '/api/public/v1/sync/daily'
+      fullPath: '/api/public/v1/sync/daily'
+      preLoaderRoute: typeof ApiPublicV1SyncDailyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/v1/orchestrate/$id': {
@@ -1136,12 +1196,15 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicV1HealthRoute: ApiPublicV1HealthRoute,
   ApiPublicV1OrchestrateRoute: ApiPublicV1OrchestrateRouteWithChildren,
   ApiPublicV1PipelineRoute: ApiPublicV1PipelineRoute,
+  ApiPublicV1SitesRoute: ApiPublicV1SitesRoute,
+  ApiPublicV1TaskCenterRoute: ApiPublicV1TaskCenterRoute,
   ApiPublicV1VerifyDomainRoute: ApiPublicV1VerifyDomainRoute,
   ApiPublicV1DiscoveryRefreshRoute: ApiPublicV1DiscoveryRefreshRoute,
   ApiPublicV1IdentityCodeRoute: ApiPublicV1IdentityCodeRoute,
   ApiPublicV1IdentityAnnounceRoute: ApiPublicV1IdentityAnnounceRoute,
   ApiPublicV1IdentityEmbedDotjsRoute: ApiPublicV1IdentityEmbedDotjsRoute,
   ApiPublicV1ManaraSyncRoute: ApiPublicV1ManaraSyncRoute,
+  ApiPublicV1SyncDailyRoute: ApiPublicV1SyncDailyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
