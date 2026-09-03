@@ -416,6 +416,45 @@ export type Database = {
           },
         ]
       }
+      group_sync_runs: {
+        Row: {
+          created_at: string
+          detail: Json
+          direction: string
+          error: string | null
+          exported: number
+          id: string
+          imported: number
+          source: string
+          status: string
+          updated: number
+        }
+        Insert: {
+          created_at?: string
+          detail?: Json
+          direction: string
+          error?: string | null
+          exported?: number
+          id?: string
+          imported?: number
+          source: string
+          status?: string
+          updated?: number
+        }
+        Update: {
+          created_at?: string
+          detail?: Json
+          direction?: string
+          error?: string | null
+          exported?: number
+          id?: string
+          imported?: number
+          source?: string
+          status?: string
+          updated?: number
+        }
+        Relationships: []
+      }
       hn_agent_runs: {
         Row: {
           agent_id: string
@@ -2070,6 +2109,81 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      task_center_tasks: {
+        Row: {
+          callback_url: string | null
+          created_at: string
+          error: string | null
+          id: string
+          latency_ms: number | null
+          origin: string
+          payload: Json
+          provider_service_id: string | null
+          provider_site: string | null
+          provider_site_id: string | null
+          requester_code: string | null
+          requester_site: string
+          result: Json | null
+          routing: Json
+          service_intent: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          callback_url?: string | null
+          created_at?: string
+          error?: string | null
+          id?: string
+          latency_ms?: number | null
+          origin?: string
+          payload?: Json
+          provider_service_id?: string | null
+          provider_site?: string | null
+          provider_site_id?: string | null
+          requester_code?: string | null
+          requester_site: string
+          result?: Json | null
+          routing?: Json
+          service_intent: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          callback_url?: string | null
+          created_at?: string
+          error?: string | null
+          id?: string
+          latency_ms?: number | null
+          origin?: string
+          payload?: Json
+          provider_service_id?: string | null
+          provider_site?: string | null
+          provider_site_id?: string | null
+          requester_code?: string | null
+          requester_site?: string
+          result?: Json | null
+          routing?: Json
+          service_intent?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_center_tasks_provider_service_id_fkey"
+            columns: ["provider_service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_center_tasks_provider_site_id_fkey"
+            columns: ["provider_site_id"]
+            isOneToOne: false
+            referencedRelation: "sites"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       task_router: {
         Row: {
