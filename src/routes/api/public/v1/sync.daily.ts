@@ -30,12 +30,21 @@ function json(status: number, body: unknown) {
 
 async function run(request: Request) {
   const secret = process.env["HN_SERVICE_HUB_SECRET"];
-  if (secret) {
-    const provided =
-      request.headers.get("x-hn-cron-key") ??
-      (request.headers.get("authorization") ?? "").replace(/^Bearer\s+/i, "");
-    if (provided !== secret) return json(401, { ok: false, error: "unauthorized" });
+  const provided =
+    request.headers.get("x-hn-cron-key") ??
+    (request.headers.get("authorization") ?? "").replace(/^Bearer\s+/i, "");
+
+  let allowed = !!secret && provided === secret;
+  if (!allowed && provided) {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data } = await (supabaseAdmin as any)
+      .from("cron_secrets")
+      .select("token")
+      .eq("name", "group_daily_sync")
+      .maybeSingle();
+    allowed = !!data?.token && (data as any).token === provided;
   }
+  if (secret && !allowed) return json(401, { ok: false, error: "unauthorized" });
   const { runGroupSyncCycle } = await import("@/lib/tvcc-sync.server");
   const result = await runGroupSyncCycle(null);
   return json(200, { ok: true, ...result });

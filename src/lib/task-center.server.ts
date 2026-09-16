@@ -119,14 +119,14 @@ export async function handleTask(input: IncomingTask) {
       requester_site: input.requester_site,
       requester_code: input.requester_code ?? null,
       service_intent: input.service_intent,
-      payload: input.payload ?? {},
+      payload: (input.payload ?? {}) as any,
       callback_url: input.callback_url ?? null,
       origin: input.origin ?? "direct",
       status: "received",
     })
     .select("id")
     .single();
-  if (error || !task) throw new Error(error?.message ?? "Could not create task");
+  if (error || !task) throw new Error(error?.message ?? error?.details ?? "Could not create task");
 
   const routed = await resolveProvider(input.service_intent);
   if (!routed.ok) {

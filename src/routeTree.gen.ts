@@ -13,6 +13,7 @@ import { Route as McpRouteImport } from './routes/mcp'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedTaskCenterRouteImport } from './routes/_authenticated.task-center'
 import { Route as AuthenticatedSystemFlowRouteImport } from './routes/_authenticated.system-flow'
 import { Route as AuthenticatedSubtasksRouteImport } from './routes/_authenticated.subtasks'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated.settings'
@@ -31,6 +32,7 @@ import { Route as AuthenticatedKnowledgeRouteImport } from './routes/_authentica
 import { Route as AuthenticatedInternalConnectorsRouteImport } from './routes/_authenticated.internal-connectors'
 import { Route as AuthenticatedIdentitiesRouteImport } from './routes/_authenticated.identities'
 import { Route as AuthenticatedFallbackRulesRouteImport } from './routes/_authenticated.fallback-rules'
+import { Route as AuthenticatedExchangeRouteImport } from './routes/_authenticated.exchange'
 import { Route as AuthenticatedDomainVerifyRouteImport } from './routes/_authenticated.domain-verify'
 import { Route as AuthenticatedDiscoveryRouteImport } from './routes/_authenticated.discovery'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated.dashboard'
@@ -82,6 +84,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedTaskCenterRoute = AuthenticatedTaskCenterRouteImport.update({
+  id: '/task-center',
+  path: '/task-center',
+  getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedSystemFlowRoute = AuthenticatedSystemFlowRouteImport.update({
   id: '/system-flow',
@@ -180,6 +187,11 @@ const AuthenticatedFallbackRulesRoute =
     path: '/fallback-rules',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedExchangeRoute = AuthenticatedExchangeRouteImport.update({
+  id: '/exchange',
+  path: '/exchange',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedDomainVerifyRoute =
   AuthenticatedDomainVerifyRouteImport.update({
     id: '/domain-verify',
@@ -364,6 +376,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/discovery': typeof AuthenticatedDiscoveryRoute
   '/domain-verify': typeof AuthenticatedDomainVerifyRoute
+  '/exchange': typeof AuthenticatedExchangeRoute
   '/fallback-rules': typeof AuthenticatedFallbackRulesRoute
   '/identities': typeof AuthenticatedIdentitiesRoute
   '/internal-connectors': typeof AuthenticatedInternalConnectorsRoute
@@ -382,6 +395,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof AuthenticatedSettingsRoute
   '/subtasks': typeof AuthenticatedSubtasksRoute
   '/system-flow': typeof AuthenticatedSystemFlowRoute
+  '/task-center': typeof AuthenticatedTaskCenterRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/pipelines/$id': typeof AuthenticatedPipelinesIdRoute
@@ -419,6 +433,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/discovery': typeof AuthenticatedDiscoveryRoute
   '/domain-verify': typeof AuthenticatedDomainVerifyRoute
+  '/exchange': typeof AuthenticatedExchangeRoute
   '/fallback-rules': typeof AuthenticatedFallbackRulesRoute
   '/identities': typeof AuthenticatedIdentitiesRoute
   '/internal-connectors': typeof AuthenticatedInternalConnectorsRoute
@@ -437,6 +452,7 @@ export interface FileRoutesByTo {
   '/settings': typeof AuthenticatedSettingsRoute
   '/subtasks': typeof AuthenticatedSubtasksRoute
   '/system-flow': typeof AuthenticatedSystemFlowRoute
+  '/task-center': typeof AuthenticatedTaskCenterRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/pipelines/$id': typeof AuthenticatedPipelinesIdRoute
@@ -476,6 +492,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/discovery': typeof AuthenticatedDiscoveryRoute
   '/_authenticated/domain-verify': typeof AuthenticatedDomainVerifyRoute
+  '/_authenticated/exchange': typeof AuthenticatedExchangeRoute
   '/_authenticated/fallback-rules': typeof AuthenticatedFallbackRulesRoute
   '/_authenticated/identities': typeof AuthenticatedIdentitiesRoute
   '/_authenticated/internal-connectors': typeof AuthenticatedInternalConnectorsRoute
@@ -494,6 +511,7 @@ export interface FileRoutesById {
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/subtasks': typeof AuthenticatedSubtasksRoute
   '/_authenticated/system-flow': typeof AuthenticatedSystemFlowRoute
+  '/_authenticated/task-center': typeof AuthenticatedTaskCenterRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/_authenticated/pipelines/$id': typeof AuthenticatedPipelinesIdRoute
@@ -533,6 +551,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/discovery'
     | '/domain-verify'
+    | '/exchange'
     | '/fallback-rules'
     | '/identities'
     | '/internal-connectors'
@@ -551,6 +570,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/subtasks'
     | '/system-flow'
+    | '/task-center'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/pipelines/$id'
@@ -588,6 +608,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/discovery'
     | '/domain-verify'
+    | '/exchange'
     | '/fallback-rules'
     | '/identities'
     | '/internal-connectors'
@@ -606,6 +627,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/subtasks'
     | '/system-flow'
+    | '/task-center'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/pipelines/$id'
@@ -644,6 +666,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/_authenticated/discovery'
     | '/_authenticated/domain-verify'
+    | '/_authenticated/exchange'
     | '/_authenticated/fallback-rules'
     | '/_authenticated/identities'
     | '/_authenticated/internal-connectors'
@@ -662,6 +685,7 @@ export interface FileRouteTypes {
     | '/_authenticated/settings'
     | '/_authenticated/subtasks'
     | '/_authenticated/system-flow'
+    | '/_authenticated/task-center'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/_authenticated/pipelines/$id'
@@ -743,6 +767,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/task-center': {
+      id: '/_authenticated/task-center'
+      path: '/task-center'
+      fullPath: '/task-center'
+      preLoaderRoute: typeof AuthenticatedTaskCenterRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/system-flow': {
       id: '/_authenticated/system-flow'
@@ -868,6 +899,13 @@ declare module '@tanstack/react-router' {
       path: '/fallback-rules'
       fullPath: '/fallback-rules'
       preLoaderRoute: typeof AuthenticatedFallbackRulesRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/exchange': {
+      id: '/_authenticated/exchange'
+      path: '/exchange'
+      fullPath: '/exchange'
+      preLoaderRoute: typeof AuthenticatedExchangeRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/domain-verify': {
@@ -1105,6 +1143,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedDiscoveryRoute: typeof AuthenticatedDiscoveryRoute
   AuthenticatedDomainVerifyRoute: typeof AuthenticatedDomainVerifyRoute
+  AuthenticatedExchangeRoute: typeof AuthenticatedExchangeRoute
   AuthenticatedFallbackRulesRoute: typeof AuthenticatedFallbackRulesRoute
   AuthenticatedIdentitiesRoute: typeof AuthenticatedIdentitiesRoute
   AuthenticatedInternalConnectorsRoute: typeof AuthenticatedInternalConnectorsRoute
@@ -1123,6 +1162,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedSubtasksRoute: typeof AuthenticatedSubtasksRoute
   AuthenticatedSystemFlowRoute: typeof AuthenticatedSystemFlowRoute
+  AuthenticatedTaskCenterRoute: typeof AuthenticatedTaskCenterRoute
   AuthenticatedPipelinesIdRoute: typeof AuthenticatedPipelinesIdRoute
   AuthenticatedSitesSlugRoute: typeof AuthenticatedSitesSlugRoute
   AuthenticatedPipelinesIndexRoute: typeof AuthenticatedPipelinesIndexRoute
@@ -1137,6 +1177,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedDiscoveryRoute: AuthenticatedDiscoveryRoute,
   AuthenticatedDomainVerifyRoute: AuthenticatedDomainVerifyRoute,
+  AuthenticatedExchangeRoute: AuthenticatedExchangeRoute,
   AuthenticatedFallbackRulesRoute: AuthenticatedFallbackRulesRoute,
   AuthenticatedIdentitiesRoute: AuthenticatedIdentitiesRoute,
   AuthenticatedInternalConnectorsRoute: AuthenticatedInternalConnectorsRoute,
@@ -1155,6 +1196,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedSubtasksRoute: AuthenticatedSubtasksRoute,
   AuthenticatedSystemFlowRoute: AuthenticatedSystemFlowRoute,
+  AuthenticatedTaskCenterRoute: AuthenticatedTaskCenterRoute,
   AuthenticatedPipelinesIdRoute: AuthenticatedPipelinesIdRoute,
   AuthenticatedSitesSlugRoute: AuthenticatedSitesSlugRoute,
   AuthenticatedPipelinesIndexRoute: AuthenticatedPipelinesIndexRoute,

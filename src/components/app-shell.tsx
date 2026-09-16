@@ -77,6 +77,8 @@ const groups: NavGroup[] = [
     items: [
       { key: "sites", url: "/sites" },
       { key: "navManara", url: "/manara" },
+      { key: "navExchange", url: "/exchange" },
+      { key: "navTaskCenter", url: "/task-center" },
       { key: "services", url: "/services" },
       { key: "navCategories", url: "/sites#categories" },
       { key: "navTags", url: "/sites#tags" },
