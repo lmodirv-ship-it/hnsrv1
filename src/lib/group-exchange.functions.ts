@@ -10,6 +10,68 @@ export const runGroupSync = createServerFn({ method: "POST" })
     return runGroupSyncCycle(context.userId);
   });
 
+// Manual fallback: import a pasted/uploaded site list (JSON array, {sites:[]} or CSV).
+export const importSitesText = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ text: z.string().min(1).max(2_000_000) }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { parseSiteList, importRawSites } = await import("./tvcc-sync.server");
+    const raw = parseSiteList(data.text);
+    if (!raw.length) throw new Error("لم يتم التعرف على أي موقع في اللائحة");
+    const r = await importRawSites(raw, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await supabaseAdmin.from("group_sync_runs").insert({
+      source: "manual-upload",
+      direction: "import",
+      status: "success",
+      imported: r.imported,
+      updated: r.updated,
+      detail: { count: r.count, skipped: r.skipped },
+    } as any);
+    return r;
+  });
+
+// Merge duplicate site rows for the same domain (www vs non-www).
+export const mergeDuplicates = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async () => {
+    const { mergeDuplicateSites } = await import("./tvcc-sync.server");
+    return mergeDuplicateSites();
+  });
+
+// Summary shown at the top of the exchange page.
+export const exchangeStatus = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { count: sitesCount } = await context.supabase
+      .from("sites")
+      .select("id", { count: "exact", head: true });
+    const { count: fromTvcc } = await context.supabase
+      .from("sites")
+      .select("id", { count: "exact", head: true })
+      .not("tvcc_id", "is", null);
+    const { data: lastImport } = await context.supabase
+      .from("group_sync_runs")
+      .select("*")
+      .eq("direction", "import")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    const { data: lastExport } = await context.supabase
+      .from("group_sync_runs")
+      .select("*")
+      .eq("direction", "export")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    return {
+      sites: sitesCount ?? 0,
+      fromTvcc: fromTvcc ?? 0,
+      lastImport: lastImport ?? null,
+      lastExport: lastExport ?? null,
+    };
+  });
+
 export const listSyncRuns = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
