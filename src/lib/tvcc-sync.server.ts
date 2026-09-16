@@ -242,7 +242,24 @@ export async function mergeDuplicateSites() {
     const keep = arr.find((r) => r.tvcc_id) ?? arr[0];
     const drop = arr.filter((r) => r.id !== keep.id);
     for (const d of drop) {
-      await supabaseAdmin.from("services").update({ site_id: keep.id }).eq("site_id", d.id);
+      // Avoid (site_id, slug) collisions: drop services already present on the kept site.
+      const { data: keepServices } = await supabaseAdmin
+        .from("services")
+        .select("slug")
+        .eq("site_id", keep.id);
+      const taken = new Set((keepServices ?? []).map((x: any) => x.slug));
+      const { data: dropServices } = await supabaseAdmin
+        .from("services")
+        .select("id, slug")
+        .eq("site_id", d.id);
+      for (const svc of dropServices ?? []) {
+        if (taken.has(svc.slug)) {
+          await supabaseAdmin.from("services").delete().eq("id", svc.id);
+        } else {
+          taken.add(svc.slug);
+          await supabaseAdmin.from("services").update({ site_id: keep.id }).eq("id", svc.id);
+        }
+      }
       await supabaseAdmin.from("websites_services").update({ site_id: keep.id }).eq("site_id", d.id);
       await supabaseAdmin.from("service_registry").update({ site_id: keep.id }).eq("site_id", d.id);
       await supabaseAdmin.from("sites").delete().eq("id", d.id);
