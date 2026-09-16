@@ -107,20 +107,80 @@ export async function fetchTvccSites() {
   return { ok: false as const, source: base, list: [], error: "TVCC did not return a site list" };
 }
 
-/** Upsert group sites into the local registry (idempotent, keyed by slug). */
+/** Canonical key for a site: host without protocol, `www.` or trailing slash. */
+export function domainKey(url: string) {
+  return String(url ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/^https?:\/\//, "")
+    .replace(/^www\./, "")
+    .replace(/\/+$/, "")
+    .split("/")[0];
+}
+
+/** Parse a pasted/uploaded site list: JSON array, {sites:[...]} or CSV. */
+export function parseSiteList(text: string) {
+  const raw = String(text ?? "").trim();
+  if (!raw) return [];
+  if (raw.startsWith("{") || raw.startsWith("[")) {
+    try {
+      return extractList(JSON.parse(raw));
+    } catch {
+      return [];
+    }
+  }
+  // CSV / one URL per line
+  const lines = raw.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  if (!lines.length) return [];
+  const header = lines[0].toLowerCase();
+  const hasHeader = /(^|[,;])\s*(url|base_url|domain|site)\b/.test(header);
+  const cols = hasHeader ? header.split(/[,;]/).map((c) => c.trim()) : [];
+  const idx = (names: string[]) => cols.findIndex((c) => names.includes(c));
+  const iUrl = hasHeader ? idx(["url", "base_url", "domain", "site"]) : -1;
+  const iName = hasHeader ? idx(["name", "title"]) : -1;
+  const iId = hasHeader ? idx(["id", "tvcc_id"]) : -1;
+  const iCat = hasHeader ? idx(["category", "type"]) : -1;
+  return (hasHeader ? lines.slice(1) : lines).map((line) => {
+    const parts = line.split(/[,;]/).map((p) => p.trim().replace(/^"|"$/g, ""));
+    if (!hasHeader) return { url: parts[0], name: parts[1] };
+    return {
+      url: iUrl >= 0 ? parts[iUrl] : parts[0],
+      name: iName >= 0 ? parts[iName] : undefined,
+      id: iId >= 0 ? parts[iId] : undefined,
+      category: iCat >= 0 ? parts[iCat] : undefined,
+    };
+  });
+}
+
+/**
+ * Upsert group sites into the local registry.
+ * Matching priority: tvcc_id → normalized domain → slug. Never creates a
+ * second row for the same domain (www / non-www count as one site).
+ */
 export async function importSitesIntoRegistry(sites: any[], ownerId: string | null) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data: current } = await supabaseAdmin
+    .from("sites")
+    .select("id, slug, base_url, tvcc_id");
+  const byDomain = new Map<string, any>();
+  const byTvcc = new Map<string, any>();
+  const bySlug = new Map<string, any>();
+  for (const row of current ?? []) {
+    const k = domainKey(row.base_url ?? "");
+    if (k && !byDomain.has(k)) byDomain.set(k, row);
+    if (row.tvcc_id) byTvcc.set(String(row.tvcc_id), row);
+    if (row.slug) bySlug.set(row.slug, row);
+  }
+
   let imported = 0;
   let updated = 0;
   for (const s of sites) {
     if (!s) continue;
-    const { data: existing } = await supabaseAdmin
-      .from("sites")
-      .select("id")
-      .eq("slug", s.slug)
-      .maybeSingle();
+    const key = domainKey(s.base_url);
+    const existing =
+      (s.tvcc_id && byTvcc.get(String(s.tvcc_id))) || (key && byDomain.get(key)) || bySlug.get(s.slug);
     if (existing) {
-      const patch: any = { name: s.name, base_url: s.base_url, category: s.category };
+      const patch: any = { name: s.name, category: s.category };
       if (s.description) patch.description = s.description;
       if (s.logo_url) patch.logo_url = s.logo_url;
       if (s.tvcc_id) patch.tvcc_id = s.tvcc_id;
@@ -129,7 +189,7 @@ export async function importSitesIntoRegistry(sites: any[], ownerId: string | nu
     } else {
       const row: any = {
         name: s.name,
-        slug: s.slug,
+        slug: bySlug.has(s.slug) ? `${s.slug}-${key.slice(0, 8)}` : s.slug,
         base_url: s.base_url,
         category: s.category,
         description: s.description,
@@ -137,11 +197,77 @@ export async function importSitesIntoRegistry(sites: any[], ownerId: string | nu
       };
       if (s.tvcc_id) row.tvcc_id = s.tvcc_id;
       if (ownerId) row.owner_id = ownerId;
-      const { error } = await supabaseAdmin.from("sites").insert(row);
-      if (!error) imported++;
+      const { data: ins, error } = await supabaseAdmin.from("sites").insert(row).select("id").maybeSingle();
+      if (!error) {
+        imported++;
+        const created = { id: ins?.id, slug: row.slug, base_url: row.base_url, tvcc_id: row.tvcc_id };
+        if (key) byDomain.set(key, created);
+        bySlug.set(row.slug, created);
+        if (row.tvcc_id) byTvcc.set(String(row.tvcc_id), created);
+      }
     }
   }
   return { imported, updated };
+}
+
+/** Import an arbitrary raw list (from TVCC, a pasted payload or a file). */
+export async function importRawSites(rawList: any[], ownerId: string | null) {
+  const list = rawList.map(normalizeSite).filter(Boolean) as any[];
+  const r = await importSitesIntoRegistry(list, ownerId);
+  return { ...r, count: list.length, skipped: rawList.length - list.length };
+}
+
+/**
+ * Merge duplicate site rows that point at the same domain (www vs non-www).
+ * Services and related rows are moved to the canonical site before deleting.
+ */
+export async function mergeDuplicateSites() {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data: rows } = await supabaseAdmin
+    .from("sites")
+    .select("id, name, slug, base_url, tvcc_id, created_at")
+    .order("created_at", { ascending: true });
+  const groups = new Map<string, any[]>();
+  for (const r of rows ?? []) {
+    const k = domainKey(r.base_url ?? "");
+    if (!k) continue;
+    const arr = groups.get(k) ?? [];
+    arr.push(r);
+    groups.set(k, arr);
+  }
+  let merged = 0;
+  const details: string[] = [];
+  for (const [key, arr] of groups) {
+    if (arr.length < 2) continue;
+    const keep = arr.find((r) => r.tvcc_id) ?? arr[0];
+    const drop = arr.filter((r) => r.id !== keep.id);
+    for (const d of drop) {
+      // Avoid (site_id, slug) collisions: drop services already present on the kept site.
+      const { data: keepServices } = await supabaseAdmin
+        .from("services")
+        .select("slug")
+        .eq("site_id", keep.id);
+      const taken = new Set((keepServices ?? []).map((x: any) => x.slug));
+      const { data: dropServices } = await supabaseAdmin
+        .from("services")
+        .select("id, slug")
+        .eq("site_id", d.id);
+      for (const svc of dropServices ?? []) {
+        if (taken.has(svc.slug)) {
+          await supabaseAdmin.from("services").delete().eq("id", svc.id);
+        } else {
+          taken.add(svc.slug);
+          await supabaseAdmin.from("services").update({ site_id: keep.id }).eq("id", svc.id);
+        }
+      }
+      await supabaseAdmin.from("websites_services").update({ site_id: keep.id }).eq("site_id", d.id);
+      await supabaseAdmin.from("service_registry").update({ site_id: keep.id }).eq("site_id", d.id);
+      await supabaseAdmin.from("sites").delete().eq("id", d.id);
+      merged++;
+    }
+    details.push(`${key} ×${arr.length}`);
+  }
+  return { merged, groups: details.length, details: details.slice(0, 50) };
 }
 
 /** The site list this hub publishes to the group. */

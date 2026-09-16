@@ -243,32 +243,35 @@ async function upsertSites(ctx: any, hub: HubKey, list: any[]) {
 }
 
 // Fetch site catalogue from TVCC and upsert into the local Service Registry.
+// Delegates to the single shared TVCC import path (tvcc-sync.server).
 export const syncSitesFromTvcc = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const r = await fetchSitesFromHub("tvcc");
-    if (!r.ok) {
-      const msg =
-        r.reason === "not_configured"
-          ? "TVCC_API_URL not configured"
-          : r.reason === "invalid_shape"
-            ? `TVCC response has invalid shape — ${r.detail}`
-            : r.reason === "invalid_items"
-              ? `TVCC returned malformed sites — ${r.detail}`
-              : "TVCC did not return a sites list";
+    const { fetchTvccSites, importSitesIntoRegistry } = await import("./tvcc-sync.server");
+    const fetched = await fetchTvccSites();
+    if (!fetched.ok) {
       return {
         ok: false,
         fallback: true,
-        error: msg,
-        reason: r.reason,
-        source: r.path ?? "",
+        error: process.env["TVCC_API_URL"]
+          ? "TVCC did not return a sites list"
+          : "TVCC_API_URL not configured",
+        reason: process.env["TVCC_API_URL"] ? "invalid_shape" : "not_configured",
+        source: fetched.source,
         count: 0,
         inserted: 0,
         updated: 0,
       };
     }
-    const { inserted, updated } = await upsertSites(context, "tvcc", r.list);
-    return { ok: true, source: r.path, count: r.list.length, inserted, updated, skipped: r.skipped ?? 0 };
+    const { imported, updated } = await importSitesIntoRegistry(fetched.list, context.userId);
+    return {
+      ok: true,
+      source: fetched.source,
+      count: fetched.list.length,
+      inserted: imported,
+      updated,
+      skipped: 0,
+    };
   });
 
 // Pull sites from every configured hub and upsert them locally.

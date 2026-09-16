@@ -8,6 +8,13 @@
       "when": 1789581506938,
       "tag": "0000_grant_owner_roles_lmodirv",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1789590943048,
+      "tag": "0001_merge_duplicate_sites_by_domain_v2",
+      "breakpoints": true
     }
   ]
 }
