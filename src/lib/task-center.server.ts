@@ -126,7 +126,7 @@ export async function handleTask(input: IncomingTask) {
     })
     .select("id")
     .single();
-  if (error || !task) throw new Error(error?.message ?? "Could not create task");
+  if (error || !task) throw new Error(error?.message ?? error?.details ?? "Could not create task");
 
   const routed = await resolveProvider(input.service_intent);
   if (!routed.ok) {
