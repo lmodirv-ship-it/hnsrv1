@@ -119,7 +119,7 @@ export async function handleTask(input: IncomingTask) {
       requester_site: input.requester_site,
       requester_code: input.requester_code ?? null,
       service_intent: input.service_intent,
-      payload: input.payload ?? {},
+      payload: (input.payload ?? {}) as any,
       callback_url: input.callback_url ?? null,
       origin: input.origin ?? "direct",
       status: "received",

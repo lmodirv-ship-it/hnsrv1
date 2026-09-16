@@ -37,12 +37,12 @@ async function run(request: Request) {
   let allowed = !!secret && provided === secret;
   if (!allowed && provided) {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data } = await supabaseAdmin
+    const { data } = await (supabaseAdmin as any)
       .from("cron_secrets")
       .select("token")
       .eq("name", "group_daily_sync")
       .maybeSingle();
-    allowed = !!data?.token && data.token === provided;
+    allowed = !!data?.token && (data as any).token === provided;
   }
   if (secret && !allowed) return json(401, { ok: false, error: "unauthorized" });
   const { runGroupSyncCycle } = await import("@/lib/tvcc-sync.server");
